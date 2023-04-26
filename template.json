@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
 
     "variables": {
@@ -10,196 +10,12 @@
         "bootstrapRoleAssignmentId": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
         "randomString": "[substring(guid(resourceGroup().id), 0, 6)]",
         "location": "[resourceGroup().location]",
-        "roleDefinitionprefix": "[format('/subscriptions/{0}/providers/Microsoft.Authorization/roleDefinitions', subscription().subscriptionId)]",
-        "role": {
-            "StorageBlobDataOwner": "[format('{0}/b7e6dc6d-f1e8-4753-8033-0f276bb0955b', variables('roleDefinitionprefix'))]",
-            "StorageBlobDataContributor": "[format('{0}/ba92f5b4-2d11-453d-a403-e96b0029c9fe', variables('roleDefinitionprefix'))]",
-            "StorageBlobDataReader": "[format('{0}/2a2b9908-6ea1-4ae2-8e65-a410df84e7d1', variables('roleDefinitionprefix'))]"
-        },
         "managedResourceGroupName": "[concat('db-rg-', variables('databricksName'))]",
         "managedResourceGroupId": "[concat(subscription().id, '/resourceGroups/', variables('managedResourceGroupName'))]",
-        "eventHubNamespaceName": "[format('streamdata-{0}-ns', variables('randomString'))]",
-        "vnetAddressPrefix": "10.1.0.0/16",
-        "linuxVmSubnetAddressPrefix": "10.1.0.0/24",
-        "windowsVmSubnetAddressPrefix": "10.1.1.0/24",
-        "linuxVmOsDiskType": "Standard_LRS",
-        "linuxVmPublicIPAddressName": "[format('{0}PublicIP', parameters('linuxVmName'))]",
-        "linuxVmNetworkInterfaceName": "[format('{0}NetInt', parameters('linuxVmName'))]",
-        "linuxVmImageName": "[format('{0}Image', parameters('linuxVmName'))]",
-        "linuxVmSubnetName": "linuxVmSubnet",
-        "windowVmOsDiskType": "StandardSSD_LRS",
-        "windowsVmPublicIPAddressName": "[format('{0}PublicIP', parameters('windowsVmName'))]",
-        "windowsVmNicName": "[format('{0}NetInt', parameters('windowsVmName'))]",
-        "windowsVmSubnetName": "windowsVmSubnet",
-        "windowsVmStorageAccountName": "[format('bootdiags{0}', uniqueString(resourceGroup().id))]",
-        "linuxVmConfiguration": {
-            "disablePasswordAuthentication": true,
-            "ssh": {
-                "publicKeys": [
-                  {
-                    "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('linuxVmAdminUsername'))]",
-                    "keyData": "[parameters('linuxVmAdminPasswordOrKey')]"
-                  }
-                ]
-            }
-        }
+        "eventHubNamespaceName": "[format('streamdata-{0}-ns', variables('randomString'))]"
     },
 
     "parameters": {
-        "linuxVmName": {
-            "type": "string",
-            "defaultValue": "[take(concat('linuxvm', uniqueString(resourceGroup().id)), 15)]",
-            "metadata": {
-              "description": "The name of you Virtual Machine."
-            }
-        },
-        "windowsVmName": {
-            "type": "string",
-            "defaultValue": "[take(concat('winvm', uniqueString(resourceGroup().id)), 15)]",
-            "metadata": {
-              "description": "Name of the virtual machine."
-            }
-        },
-        "virtualNetworkName": {
-            "type": "string",
-            "defaultValue": "[take(concat('vnet', uniqueString(resourceGroup().id)), 12)]",
-            "metadata": {
-              "description": "Name of the virual network."
-            }
-        },
-        "linuxVmNsgName": {
-            "type": "string",
-            "defaultValue": "[take(concat('linuxnsg', uniqueString(resourceGroup().id)), 15)]",
-            "metadata": {
-              "description": "Name of the Network Security Group"
-            }
-        },
-        "windowsVmNsgName": {
-            "type": "string",
-            "defaultValue": "[take(concat('windowsnsg', uniqueString(resourceGroup().id)), 15)]",
-            "metadata": {
-              "description": "Name of the Network Security Group"
-            }
-        },
-        "linuxVmAdminUsername": {
-            "type": "string",
-            "defaultValue": "linuxAdminUser",
-            "metadata": {
-              "description": "Username for the Virtual Machine."
-            }
-        },
-        "windowsVmAdminUsername": {
-            "type": "string",
-            "defaultValue": "windowsVmAdminUser",
-            "metadata": {
-              "description": "Username for the Virtual Machine."
-            }
-        },
-        "authenticationType": {
-            "type": "string",
-            "defaultValue": "password",
-            "allowedValues": [
-              "sshPublicKey",
-              "password"
-            ],
-            "metadata": {
-              "description": "Type of authentication to use on the Virtual Machine. SSH key is recommended."
-            }
-        },
-        "linuxVmAdminPasswordOrKey": {
-            "type": "string",
-            "metadata": {
-              "description": "SSH Key or password for the Virtual Machine. SSH key is recommended."
-            }
-        },
-        "linuxAdminDnsLabelPrefix": {
-            "type": "string",
-            "defaultValue": "[toLower(format('{0}-{1}', parameters('linuxVmName'), uniqueString(resourceGroup().id)))]",
-            "metadata": {
-              "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
-            }
-        },
-        "ubuntuOSVersion": {
-            "type": "string",
-            "defaultValue": "20_04-lts-gen2",
-            "metadata": {
-              "description": "The Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
-            }
-        },
-        "location": {
-            "type": "string",
-            "defaultValue": "[resourceGroup().location]",
-            "metadata": {
-              "description": "Location for all resources."
-            }
-        },
-        "linuxVmSize": {
-            "type": "string",
-            "defaultValue": "Standard_B2s",
-            "metadata": {
-              "description": "The size of the VM"
-            }
-        },
-        "windowsVmAdminPassword": {
-            "type": "string",
-            "minLength": 12,
-            "metadata": {
-              "description": "Password for the Virtual Machine."
-            }
-        },
-        "windowsVmDnsLabelPrefix": {
-            "type": "string",
-            "defaultValue": "[toLower(format('{0}-{1}', parameters('windowsVmName'), uniqueString(resourceGroup().id, parameters('windowsVmName'))))]",
-            "metadata": {
-              "description": "Unique DNS Name for the Public IP used to access the Virtual Machine."
-            }
-        },
-        "windowsVmPublicIPAllocationMethod": {
-            "type": "string",
-            "defaultValue": "Dynamic",
-            "allowedValues": [
-              "Dynamic",
-              "Static"
-            ],
-            "metadata": {
-              "description": "Allocation method for the Public IP used to access the Virtual Machine."
-            }
-        },
-        "windowsVmPublicIpSku": {
-            "type": "string",
-            "defaultValue": "Basic",
-            "allowedValues": [
-              "Basic",
-              "Standard"
-            ],
-            "metadata": {
-              "description": "SKU for the Public IP used to access the Virtual Machine."
-            }
-        },
-        "windowsVmOSVersion": {
-            "type": "string",
-            "defaultValue": "2022-datacenter-azure-edition",
-            "allowedValues": [
-              "2022-datacenter-azure-edition"
-            ],
-            "metadata": {
-              "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
-            }
-        },
-        "windowsVmSize": {
-            "type": "string",
-            "defaultValue": "Standard_D2s_v5",
-            "metadata": {
-              "description": "Size of the virtual machine."
-            }
-        },
-        "blobUri": {
-            "type": "string",
-            "defaultValue": "https://bootdiagsshwctwyngla3k.blob.core.windows.net/databricksvm/linux_databricks.vhd",
-            "metadata": {
-              "description": "Blob URI"
-            }
-        },
         "containerName": {
             "type": "string",
             "defaultValue": "data"
@@ -212,16 +28,12 @@
               "Standard"
             ]
         },
-        "subscriptionId": {
-          "type": "string",
-          "defaultValue": "cbb956ec-6c04-42ae-8428-91d91154f780"
-        },
         "blobAccountName": {
           "type": "string",
           "defaultValue": "[format('adls{0}', uniqueString(resourceGroup().id))]"
         },
         "fileuploaduri": {
-          "defaultValue": "https://raw.githubusercontent.com/CSALabsInternal/azure-databricks/main/environments/env1/clusterDeploy.ps1",
+          "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/clusterDeploy.ps1",
           "type": "String",
           "metadata": {
               "description": "The URI of script file to upload blob container"
@@ -255,18 +67,6 @@
               "description": "seconduniquestring"
           }
       },
-        "synapseWorkspaceName": {
-          "defaultValue": "[format('dblab-{0}-synapse', parameters('uniqueSuffix'))]",
-          "type": "String"
-      },
-      "synapseDedicatedSQLPoolName": {
-        "defaultValue": "dedicatedPool",
-        "type": "String"
-      },
-      "synapseSQLPoolSKU": {
-        "defaultValue": "DW100c",
-        "type": "String"
-      },
       "utcValue": {
         "type": "string",
         "defaultValue": "[utcNow()]"
@@ -274,306 +74,8 @@
 
     },
     
-    "resources": [
-        {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2021-05-01",
-            "name": "[parameters('linuxVmNsgName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-              "securityRules": [
-                {
-                  "name": "AllowSSH",
-                  "properties": {
-                    "priority": 100,
-                    "access": "Allow",
-                    "direction": "Inbound",
-                    "protocol": "Tcp",
-                    "sourceAddressPrefix": "*",
-                    "sourcePortRange": "*",
-                    "destinationAddressPrefix": "*",
-                    "destinationPortRange": "22"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "type": "Microsoft.Network/networkSecurityGroups",
-            "apiVersion": "2021-05-01",
-            "name": "[parameters('windowsVmNsgName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-              "securityRules": [
-                {
-                  "name": "AllowRDP",
-                  "properties": {
-                    "priority": 100,
-                    "access": "Allow",
-                    "direction": "Inbound",
-                    "protocol": "Tcp",
-                    "sourcePortRange": "*",
-                    "sourceAddressPrefix": "*",
-                    "destinationAddressPrefix": "*",
-                    "destinationPortRange": "3389"
-                  }
-                }
-              ]
-            }
-          },
-          {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2021-05-01",
-            "name": "[parameters('virtualNetworkName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-              "addressSpace": {
-                "addressPrefixes": [
-                  "[variables('vnetAddressPrefix')]"
-                ]
-              }
-            }
-          },
-          {
-            "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2021-05-01",
-            "name": "[format('{0}/{1}', parameters('virtualNetworkName'), variables('linuxVmSubnetName'))]",
-            "properties": {
-              "addressPrefix": "[variables('linuxVmSubnetAddressPrefix')]",
-              "privateEndpointNetworkPolicies": "Enabled",
-              "privateLinkServiceNetworkPolicies": "Enabled",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('linuxVmNsgName'))]"
-              }
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('linuxVmNsgName'))]",
-              "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
-            ]
-          },
-          {
-            "type": "Microsoft.Network/virtualNetworks/subnets",
-            "apiVersion": "2021-05-01",
-            "name": "[format('{0}/{1}', parameters('virtualNetworkName'), variables('windowsVmSubnetName'))]",
-            "properties": {
-              "addressPrefix": "[variables('windowsVmSubnetAddressPrefix')]",
-              "privateEndpointNetworkPolicies": "Enabled",
-              "privateLinkServiceNetworkPolicies": "Enabled",
-              "networkSecurityGroup": {
-                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('windowsVmNsgName'))]"
-              }
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('linuxVmSubnetName'))]",
-              "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]",
-              "[resourceId('Microsoft.Network/networkSecurityGroups', parameters('windowsVmNsgName'))]"
-            ]
-          },
-          {
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2021-05-01",
-            "name": "[variables('linuxVmNetworkInterfaceName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-              "ipConfigurations": [
-                {
-                  "name": "ipconfig1",
-                  "properties": {
-                    "subnet": {
-                      "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('linuxVmSubnetName'))]"
-                    },
-                    "privateIPAllocationMethod": "Dynamic",
-                    "publicIPAddress": {
-                      "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('linuxVmPublicIPAddressName'))]"
-                    }
-                  }
-                }
-              ]
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Network/publicIPAddresses', variables('linuxVmPublicIPAddressName'))]",
-              "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('linuxVmSubnetName'))]"
-            ]
-          },
-          {
-            "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2021-05-01",
-            "name": "[variables('linuxVmPublicIPAddressName')]",
-            "location": "[parameters('location')]",
-            "sku": {
-              "name": "Basic"
-            },
-            "properties": {
-              "publicIPAllocationMethod": "Dynamic",
-              "publicIPAddressVersion": "IPv4",
-              "dnsSettings": {
-                "domainNameLabel": "[parameters('linuxAdminDnsLabelPrefix')]"
-              },
-              "idleTimeoutInMinutes": 4
-            }
-          },
-          {
-            "type": "Microsoft.Compute/images",
-            "apiVersion": "2022-08-01",
-            "name": "[variables('linuxVmImageName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-              "hyperVGeneration": "V2",
-              "storageProfile": {
-                "osDisk": {
-                  "blobUri": "[parameters('blobUri')]",
-                  "caching": "ReadWrite",
-                  "osState": "Generalized",
-                  "osType": "Linux",
-                  "storageAccountType": "Standard_LRS"
-                }
-              }
-            }
-          },
-          {
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2021-11-01",
-            "name": "[parameters('linuxVmName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-              "hardwareProfile": {
-                "vmSize": "[parameters('linuxVmSize')]"
-              },
-              "storageProfile": {
-                "osDisk": {
-                  "createOption": "FromImage",
-                  "managedDisk": {
-                    "storageAccountType": "[variables('linuxVmOsDiskType')]"
-                  }
-                },
-                "imageReference": {
-                  "id": "[resourceId('Microsoft.Compute/images', variables('linuxVmImageName'))]"
-                }
-              },
-              "networkProfile": {
-                "networkInterfaces": [
-                  {
-                    "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('linuxVmNetworkInterfaceName'))]"
-                  }
-                ]
-              },
-              "osProfile": {
-                "computerName": "[parameters('linuxVmName')]",
-                "adminUsername": "[parameters('linuxVmAdminUsername')]",
-                "adminPassword": "[parameters('linuxVmAdminPasswordOrKey')]",
-                "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxVmConfiguration'))]"
-              }
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Compute/images', variables('linuxVmImageName'))]",
-              "[resourceId('Microsoft.Network/networkInterfaces', variables('linuxVmNetworkInterfaceName'))]"
-            ]
-          },
-          {
-            "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2021-04-01",
-            "name": "[variables('windowsVmStorageAccountName')]",
-            "location": "[parameters('location')]",
-            "sku": {
-              "name": "Standard_LRS"
-            },
-            "kind": "Storage"
-          },
-          {
-            "type": "Microsoft.Network/publicIPAddresses",
-            "apiVersion": "2021-02-01",
-            "name": "[variables('windowsVmPublicIPAddressName')]",
-            "location": "[parameters('location')]",
-            "sku": {
-              "name": "[parameters('windowsVmPublicIpSku')]"
-            },
-            "properties": {
-              "publicIPAllocationMethod": "[parameters('windowsVmPublicIPAllocationMethod')]",
-              "dnsSettings": {
-                "domainNameLabel": "[parameters('windowsVmDnsLabelPrefix')]"
-              }
-            }
-          },
-          {
-            "type": "Microsoft.Network/networkInterfaces",
-            "apiVersion": "2021-02-01",
-            "name": "[variables('windowsVmNicName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-              "ipConfigurations": [
-                {
-                  "name": "ipconfig1",
-                  "properties": {
-                    "privateIPAllocationMethod": "Dynamic",
-                    "subnet": {
-                      "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('windowsVmSubnetName'))]"
-                    },
-                    "publicIPAddress": {
-                      "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('windowsVmPublicIPAddressName'))]"
-                    }
-                  }
-                }
-              ]
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Network/publicIPAddresses', variables('windowsVmPublicIPAddressName'))]",
-              "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), variables('windowsVmSubnetName'))]"
-            ]
-          },
-          {
-            "type": "Microsoft.Compute/virtualMachines",
-            "apiVersion": "2021-03-01",
-            "name": "[parameters('windowsVmName')]",
-            "location": "[parameters('location')]",
-            "properties": {
-              "hardwareProfile": {
-                "vmSize": "[parameters('windowsVmSize')]"
-              },
-              "osProfile": {
-                "computerName": "[parameters('windowsVmName')]",
-                "adminUsername": "[parameters('windowsVmAdminUsername')]",
-                "adminPassword": "[parameters('windowsVmAdminPassword')]"
-              },
-              "storageProfile": {
-                "imageReference": {
-                  "publisher": "MicrosoftWindowsServer",
-                  "offer": "WindowsServer",
-                  "sku": "[parameters('windowsVmOSVersion')]",
-                  "version": "latest"
-                },
-                "osDisk": {
-                  "createOption": "FromImage",
-                  "managedDisk": {
-                    "storageAccountType": "[variables('windowVmOsDiskType')]"
-                  }
-                },
-                "dataDisks": [
-                  {
-                    "diskSizeGB": 1023,
-                    "lun": 0,
-                    "createOption": "Empty"
-                  }
-                ]
-              },
-              "networkProfile": {
-                "networkInterfaces": [
-                  {
-                    "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('windowsVmNicName'))]"
-                  }
-                ]
-              },
-              "diagnosticsProfile": {
-                "bootDiagnostics": {
-                  "enabled": true,
-                  "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('windowsVmStorageAccountName')), '2021-04-01').primaryEndpoints.blob]"
-                }
-              }
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Network/networkInterfaces', variables('windowsVmNicName'))]",
-              "[resourceId('Microsoft.Storage/storageAccounts', variables('windowsVmStorageAccountName'))]"
-            ]
-          },
+    "resources": [ 
+        
         {
             "type": "Microsoft.Databricks/workspaces",
             "apiVersion": "2018-04-01",
@@ -586,6 +88,7 @@
                 "ManagedResourceGroupId": "[variables('managedResourceGroupId')]"
             }
         },
+        
         {
           "type": "Microsoft.Resources/deploymentScripts",
           "apiVersion": "2020-10-01",
@@ -611,12 +114,14 @@
               "primaryScriptUri": "[variables('fileuploadurivariable')]"
           }
       },
+       
        {
           "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
           "apiVersion": "2018-11-30",
           "name": "[parameters('identityName')]",
           "location": "[resourceGroup().location]"
        },
+        
         {
           "type": "Microsoft.Authorization/roleAssignments",
           "apiVersion": "2018-09-01-preview",
@@ -631,18 +136,6 @@
               "principalType": "ServicePrincipal"
           }
       },
-        {
-            "type": "Microsoft.Synapse/workspaces/firewallRules",
-            "apiVersion": "2021-05-01",
-            "name": "[format('{0}/{1}', parameters('synapseWorkspaceName'), 'allowAll')]",
-            "properties": {
-              "startIpAddress": "0.0.0.0",
-              "endIpAddress": "255.255.255.255"
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Synapse/workspaces', parameters('synapseWorkspaceName'))]"
-            ]
-        },
 
         {
             "type": "Microsoft.Storage/storageAccounts",
@@ -678,58 +171,6 @@
         },
 
         {
-            "type": "Microsoft.Synapse/workspaces",
-            "apiVersion": "2021-05-01",
-            "name": "[parameters('synapseWorkspaceName')]",
-            "location": "[variables('location')]",
-            "properties": {
-              "defaultDataLakeStorage": {
-                "accountUrl": "[reference(parameters('blobAccountName')).primaryEndpoints.dfs]",
-                "filesystem": "[format('synapsefs{0}', variables('randomString'))]"
-              }
-            },
-            "identity": {
-              "type": "SystemAssigned"
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]"
-            ]
-        },
-
-        {
-            "type": "Microsoft.Authorization/roleAssignments",
-            "apiVersion": "2020-08-01-preview",
-            "scope": "[format('Microsoft.Storage/storageAccounts/{0}', parameters('blobAccountName'))]",
-            "name": "[guid(resourceGroup().id)]",
-            "properties": {
-              "principalId": "[reference(parameters('synapseWorkspaceName'), '2021-05-01', 'full').identity.principalId]",
-              "roleDefinitionId": "[variables('role').StorageBlobDataContributor]",
-              "principalType": "ServicePrincipal"
-            },
-            "dependsOn": [
-              "[resourceId('Microsoft.Synapse/workspaces', parameters('synapseWorkspaceName'))]",
-              "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]"
-            ]
-        },
-        
-        {
-          "type": "Microsoft.Synapse/workspaces/sqlPools",
-          "apiVersion": "2021-06-01",
-          "name": "[format('{0}/{1}', parameters('synapseWorkspaceName'), parameters('synapseDedicatedSQLPoolName'))]",
-          "location": "[variables('location')]",
-          "sku": {
-            "name": "[parameters('synapseSQLPoolSKU')]"
-          },
-          "properties": {
-            "createMode": "Default",
-            "collation": "SQL_Latin1_General_CP1_CI_AS"
-          },
-          "dependsOn": [
-            "[resourceId('Microsoft.Synapse/workspaces', parameters('synapseWorkspaceName'))]"
-          ]
-        },
-
-        {
             "type": "Microsoft.EventHub/namespaces",
             "apiVersion": "2021-11-01",
             "name": "[variables('eventHubNamespaceName')]",
@@ -762,21 +203,6 @@
     ],
 
     "outputs": {
-        "linuxVmAdminUsername": {
-          "type": "string",
-          "value": "[parameters('linuxVmAdminUsername')]"
-        },
-        "linuxVmHostname": {
-          "type": "string",
-          "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('linuxVmPublicIPAddressName')), '2021-05-01').dnsSettings.fqdn]"
-        },
-        "linuxVmSshCommand": {
-          "type": "string",
-          "value": "[format('ssh {0}@{1}', parameters('linuxVmAdminUsername'), reference(resourceId('Microsoft.Network/publicIPAddresses', variables('linuxVmPublicIPAddressName')), '2021-05-01').dnsSettings.fqdn)]"
-        },
-        "windowsVmHostname": {
-          "type": "string",
-          "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('windowsVmPublicIPAddressName')), '2021-02-01').dnsSettings.fqdn]"
-        }
+        
       }
 }
