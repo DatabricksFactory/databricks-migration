@@ -22,6 +22,9 @@ param firstuniquestring string = 'firstunique${uniqueSuffix}'
 @description('seconduniquestring')
 param seconduniquestring string = 'secondunique${uniqueSuffix}'
 param utcValue string = utcNow()
+param ctrlStorageAccount bool = true
+param ctrlKeyVault bool = true
+param ctrlEventHub bool = true
 
 var fileuploadurivariable = fileuploaduri
 var databricksName = 'databricks_${randomString}'
@@ -84,7 +87,7 @@ resource bootstrapRoleAssignmentId 'Microsoft.Authorization/roleAssignments@2018
   }
 }
 
-resource blobAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+resource blobAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = if (ctrlStorageAccount) {
   name: blobAccountName
   location: location
   kind: 'StorageV2'
@@ -106,14 +109,14 @@ resource blobAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-resource blobAccountName_default_container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
+resource blobAccountName_default_container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = if (ctrlStorageAccount) {
   name: '${blobAccountName}/default/${containerName}'
   dependsOn: [
     blobAccount
   ]
 }
 
-resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = if (ctrlEventHub) {
   name: eventHubNamespaceName
   location: location
   sku: {
@@ -127,7 +130,7 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
   }
 }
 
-resource vault_utcValue 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
+resource vault_utcValue 'Microsoft.KeyVault/vaults@2021-04-01-preview' = if (ctrlKeyVault) {
   name: 'vault${utcValue}'
   location: location
   properties: {
