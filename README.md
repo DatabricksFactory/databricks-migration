@@ -8,7 +8,7 @@ Azure Databricks is a unified set of tools for building, deploying, sharing, and
 
 To deploy this Bicep file, you need **owner role** as we are assigning RBAC roles and write access on the resources you're deploying and access to all operations on the Microsoft.Resources/deployments resource type.
 
-## Steps to deploy ```template.bicep```:
+## Steps to deploy bicep file ```template.bicep```
 
 1. Open **Windows Powershell** or **Azure CLI** and login to your azure account using command:
 
