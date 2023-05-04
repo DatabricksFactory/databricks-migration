@@ -1,5 +1,7 @@
 # Azure Databricks
 
+Azure Databricks is a unified set of tools for building, deploying, sharing, and maintaining enterprise-grade data solutions at scale. The Azure Databricks Lakehouse Platform integrates with cloud storage and security in your cloud account, and manages and deploys cloud infrastructure on your behalf.
+
 ## How to deploy resources with Bicep file and Azure CLI/Powershell
 
 ## Required permissions
@@ -42,11 +44,11 @@ az resource list --resource-group <resource-group-name>
 
 After deployment, the following resources get created:
 
-1. Databricks Workspace: Here we can develop a DLT pipeline and process our data. An All Purpose Cluster will also be created using post deployment script ```clusterDeploy.ps1``` which uses REST API to create the cluster.
+1. **Databricks Workspace**: Here we can develop a DLT pipeline and process our data. An All Purpose Cluster will also be created using post deployment script ```clusterDeploy.ps1``` which uses REST API to create the cluster.
 
-2. Eventhub: To capture streaming data from our source into the ADLS storage via a stream analytics job.
+2. **Eventhub**: To capture streaming data from our source into the ADLS storage via a stream analytics job.
 
-3. ADLS Gen 2 Storage with a Container: This will serve as our staging layer where data coming from Eventhub will be stored 
+3. **ADLS Gen 2 Storage with a Container**: This will serve as our staging layer where data coming from Eventhub will be stored .
 
-4. Key Vault: Used for data security 
+4. **Key Vault**: Used for data security .
 
