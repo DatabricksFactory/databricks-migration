@@ -26,6 +26,12 @@ param ctrlDeployStorageAccount bool = true
 param ctrlDeployKeyVault bool = true
 param ctrlDeployEventHub bool = true
 
+@description('Controls the execution of cluster deployment script')
+param ctrlDeployCluster bool
+
+@description('Controls the execution of notebook deployment script')
+param ctrlDeployNotebook bool
+
 @description('Time to live of the Databricks token in seconds')
 param lifetimeSeconds int = 1200
 
@@ -57,29 +63,23 @@ param retryLimit int = 15
 param retryTime int = 60
 
 @description('The Azure Active Directory tenant ID')
-param tenant_id string = "12345678-1234-1234-1234-123456789012"
+param tenant_id string
 
 @description('The Azure Active Directory application client ID')
-param client_id string = "12345678-1234-1234-1234-123456789012"
+param client_id string
 
 @description('The Azure Active Directory application client secret')
-param client_secret string = "my_client_secret"
+param client_secret string
 
 @description('The Azure subscription ID')
-param subscription_id string = "12345678-1234-1234-1234-123456789012"
+param subscription_id string
 
-@description('The name of the resource group containing the Databricks workspace')
-param resourceGroup string = "my_resource_group"
-
-@description('The name of the Databricks workspace')
-param workspaceName string = "my_workspace"
- 
 @description('The path to the directory in the workspace where the notebooks should be deployed')
-param notebookPathUnderWorkspace string = "/my_notebooks"
- 
+param notebookPathUnderWorkspace string
+
 var fileuploadurivariable = fileuploaduri
 var databricksName = 'databricks_${randomString}'
-var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -tenant_id ${tenant_id} -client_id ${client_id} -client_secret ${client_secret} -subscription_id ${subscription_id} -resourceGroup ${resourceGroup} -workspaceName ${workspaceName} -notebookPathUnderWorkspace ${notebookPathUnderWorkspace}'
+var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -tenant_id ${tenant_id} -client_id ${client_id} -client_secret ${client_secret} -subscription_id ${subscription_id} -notebookPathUnderWorkspace ${notebookPathUnderWorkspace} -CTRL_DEPLOY_CLUSTER ${(ctrlDeployCluster ? '$true' : '$false')} -CTRL_DEPLOY_NOTEBOOK ${(ctrlDeployNotebook ? '$true' : '$false')}'
 var contributorRoleDefinitionId = 'B24988ac-6180-42a0-ab88-20f7382dd24c'
 var bootstrapRoleAssignmentId_var = guid(firstuniquestring, seconduniquestring)
 var randomString = substring(guid(resourceGroup().id), 0, 6)
