@@ -8,7 +8,7 @@ To deploy this Bicep file, you need **owner role** as we are assigning RBAC role
 
 ## Steps to deploy bicep file ```template.bicep```
 
-   Run the **deployClusterNotebook** to deploy a Cluster and a Notebook in the Databricks Workspace . It takes the following parameters :
+   Run the **deployClusterNotebook.ps1** to deploy a Cluster and a Notebook in the Databricks Workspace . It takes the following parameters :
 
  * $RG_NAME - Resource Group Name containing the Databricks Workspace.
  * $REGION - Resource Group Region
