@@ -33,7 +33,7 @@
       "defaultValue": "[format('adls{0}', uniqueString(resourceGroup().id))]"
     },
     "fileuploaduri": {
-      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/clusterDeploy.ps1",
+      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/deployClusterNotebook.ps1",
       "type": "String",
       "metadata": {
         "description": "The URI of script file to upload blob container"
