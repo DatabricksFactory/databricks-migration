@@ -79,7 +79,7 @@ param notebookPathUnderWorkspace string = "/my_notebooks"
  
 var fileuploadurivariable = fileuploaduri
 var databricksName = 'databricks_${randomString}'
-var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime}'
+var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -tenant_id ${tenant_id} -client_id ${client_id} -client_secret ${client_secret} -subscription_id ${subscription_id} -resourceGroup ${resourceGroup} -workspaceName ${workspaceName} -notebookPathUnderWorkspace ${notebookPathUnderWorkspace}'
 var contributorRoleDefinitionId = 'B24988ac-6180-42a0-ab88-20f7382dd24c'
 var bootstrapRoleAssignmentId_var = guid(firstuniquestring, seconduniquestring)
 var randomString = substring(guid(resourceGroup().id), 0, 6)
