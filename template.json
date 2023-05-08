@@ -5,7 +5,7 @@
   "variables": {
     "fileuploadurivariable": "[parameters('fileuploaduri')]",
     "databricksName": "[format('databricks_{0}', variables('randomString'))]",
-    "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2}', resourceGroup().name,variables('location'),variables('databricksName'))]",
+    "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12}', resourceGroup().name, variables('location'), variables('databricksName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'))]",
     "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c",
     "bootstrapRoleAssignmentId": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
     "randomString": "[substring(guid(resourceGroup().id), 0, 6)]",
@@ -71,18 +71,88 @@
       "type": "string",
       "defaultValue": "[utcNow()]"
     },
-    "ctrlStorageAccount": {
+    "ctrlDeployStorageAccount": {
       "type": "bool",
       "defaultValue": true
     },
-    "ctrlKeyVault": {
+    "ctrlDeployKeyVault": {
       "type": "bool",
       "defaultValue": true
     },
-    "ctrlEventHub": {
+    "ctrlDeployEventHub": {
       "type": "bool",
       "defaultValue": true
-    }
+    },
+    "lifetimeSeconds": {
+      "type": "int",
+      "defaultValue": 1200,
+      "metadata": {
+        "description": "Time to live of the Databricks token in seconds"
+      }
+    },
+    "comment": {
+      "type": "string",
+      "defaultValue": "ARM deployment",
+      "metadata": {
+        "description": "Side note on the token generation"
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "dbcluster",
+      "metadata": {
+        "description": "Name of the Databricks cluster"
+      }
+    },
+    "sparkVersion": {
+      "type": "string",
+      "defaultValue": "11.3.x-scala2.12",
+      "metadata": {
+        "description": "Version of Spark in the cluster"
+      }
+    },
+    "autoTerminationMinutes": {
+      "type": "int",
+      "defaultValue": 30,
+      "metadata": {
+        "description": "Cluster terminates after specified minutes of inactivity"
+      }
+    },
+    "numWorkers": {
+      "type": "string",
+      "defaultValue": "2",
+      "metadata": {
+        "description": "Number of worker nodes"
+      }
+    },
+    "nodeTypeId": {
+      "type": "string",
+      "defaultValue": "Standard_DS3_v2",
+      "metadata": {
+        "description": "Type of worker node"
+      }
+    },
+    "driverNodeTypeId": {
+      "type": "string",
+      "defaultValue": "Standard_DS3_v2",
+      "metadata": {
+        "description": "Type of driver node"
+      }
+    },
+    "retryLimit": {
+      "type": "int",
+      "defaultValue": 15,
+      "metadata": {
+        "description": "Max number of retries"
+      }
+    },
+    "retryTime": {
+      "type": "int",
+      "defaultValue": 60,
+      "metadata": {
+        "description": "Interval between each retries in seconds"
+      }
+    } 
   },
 
   "resources": [
@@ -150,7 +220,7 @@
 
     {
       "type": "Microsoft.Storage/storageAccounts",
-      "condition": "[parameters('ctrlStorageAccount')]",
+      "condition": "[parameters('ctrlDeployStorageAccount')]",
       "apiVersion": "2021-04-01",
       "name": "[parameters('blobAccountName')]",
       "location": "[variables('location')]",
@@ -175,7 +245,7 @@
 
     {
       "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
-      "condition": "[parameters('ctrlStorageAccount')]",
+      "condition": "[parameters('ctrlDeployStorageAccount')]",
       "apiVersion": "2021-06-01",
       "name": "[format('{0}/default/{1}',parameters('blobAccountName'), parameters('containerName'))]",
       "dependsOn": [
@@ -185,7 +255,7 @@
 
     {
       "type": "Microsoft.EventHub/namespaces",
-      "condition": "[parameters('ctrlEventHub')]",
+      "condition": "[parameters('ctrlDeployEventHub')]",
       "apiVersion": "2021-11-01",
       "name": "[variables('eventHubNamespaceName')]",
       "location": "[variables('location')]",
@@ -202,7 +272,7 @@
 
     {
       "type": "Microsoft.KeyVault/vaults",
-      "condition": "[parameters('ctrlKeyVault')]",
+      "condition": "[parameters('ctrlDeployKeyVault')]",
       "apiVersion": "2021-04-01-preview",
       "name": "[format('vault{0}', parameters('utcValue'))]",
       "location": "[variables('location')]",

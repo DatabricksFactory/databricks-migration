@@ -1,7 +1,17 @@
 param(
 [string] $RG_NAME,
 [string] $REGION,
-[string] $WORKSPACE_NAME
+[string] $WORKSPACE_NAME,
+[int] $LIFETIME_SECONDS,
+[string] $COMMENT,
+[string] $CLUSTER_NAME,
+[string] $SPARK_VERSION,
+[int] $AUTOTERMINATION_MINUTES,
+[string] $NUM_WORKERS,
+[string] $NODE_TYPE_ID,
+[string] $DRIVER_NODE_TYPE_ID,
+[int] $RETRY_LIMIT,
+[int] $RETRY_TIME
 )
 
 
@@ -16,9 +26,9 @@ $HEADERS = @{
     "X-Databricks-Azure-SP-Management-Token" = "$AZ_TOKEN"
     "X-Databricks-Azure-Workspace-Resource-Id" = "$ACTUAL_WORKSPACE_ID"
 }
-$BODY = @'
-{ "lifetime_seconds": 1200, "comment": "ARM deployment" }
-'@
+$BODY = @"
+{ "lifetime_seconds": $LIFETIME_SECONDS, "comment": "$COMMENT" }
+"@
 $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
 
 
@@ -28,7 +38,7 @@ $HEADERS = @{
     "Content-Type" = "application/json"
 }
 $BODY = @"
-{"cluster_name": "dbcluster", "spark_version": "11.3.x-scala2.12", "autotermination_minutes": 30, "num_workers": "2", "node_type_id": "Standard_DS3_v2", "driver_node_type_id": "Standard_DS3_v2" }
+{"cluster_name": "$CLUSTER_NAME", "spark_version": "$SPARK_VERSION", "autotermination_minutes": $AUTOTERMINATION_MINUTES, "num_workers": "$NUM_WORKERS", "node_type_id": "$NODE_TYPE_ID", "driver_node_type_id": "$DRIVER_NODE_TYPE_ID" }
 "@
 $CLUSTER_ID = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/clusters/create" -Headers $HEADERS -Body $BODY).cluster_id)
 if ( $CLUSTER_ID -ne "null" ) {
@@ -39,8 +49,6 @@ if ( $CLUSTER_ID -ne "null" ) {
 }
 
 Write-Output "Task: Checking cluster"
-$RETRY_LIMIT = 15
-$RETRY_TIME = 60
 $RETRY_COUNT = 0
 for( $RETRY_COUNT = 1; $RETRY_COUNT -le $RETRY_LIMIT; $RETRY_COUNT++ ) {
     Write-Output "[INFO] Attempt $RETRY_COUNT of $RETRY_LIMIT"

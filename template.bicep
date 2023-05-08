@@ -22,13 +22,43 @@ param firstuniquestring string = 'firstunique${uniqueSuffix}'
 @description('seconduniquestring')
 param seconduniquestring string = 'secondunique${uniqueSuffix}'
 param utcValue string = utcNow()
-param ctrlStorageAccount bool = true
-param ctrlKeyVault bool = true
-param ctrlEventHub bool = true
+param ctrlDeployStorageAccount bool = true
+param ctrlDeployKeyVault bool = true
+param ctrlDeployEventHub bool = true
+
+@description('Time to live of the Databricks token in seconds')
+param lifetimeSeconds int = 1200
+
+@description('Side note on the token generation')
+param comment string = 'ARM deployment'
+
+@description('Name of the Databricks cluster')
+param clusterName string = 'dbcluster'
+
+@description('Version of Spark in the cluster')
+param sparkVersion string = '11.3.x-scala2.12'
+
+@description('Cluster terminates after specified minutes of inactivity')
+param autoTerminationMinutes int = 30
+
+@description('Number of worker nodes')
+param numWorkers string = '2'
+
+@description('Type of worker node')
+param nodeTypeId string = 'Standard_DS3_v2'
+
+@description('Type of driver node')
+param driverNodeTypeId string = 'Standard_DS3_v2'
+
+@description('Max number of retries')
+param retryLimit int = 15
+
+@description('Interval between each retries in seconds')
+param retryTime int = 60
 
 var fileuploadurivariable = fileuploaduri
 var databricksName = 'databricks_${randomString}'
-var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName}'
+var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime}'
 var contributorRoleDefinitionId = 'B24988ac-6180-42a0-ab88-20f7382dd24c'
 var bootstrapRoleAssignmentId_var = guid(firstuniquestring, seconduniquestring)
 var randomString = substring(guid(resourceGroup().id), 0, 6)
@@ -87,7 +117,7 @@ resource bootstrapRoleAssignmentId 'Microsoft.Authorization/roleAssignments@2018
   }
 }
 
-resource blobAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = if (ctrlStorageAccount) {
+resource blobAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = if (ctrlDeployStorageAccount) {
   name: blobAccountName
   location: location
   kind: 'StorageV2'
@@ -109,14 +139,14 @@ resource blobAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = if (ctrlSt
   }
 }
 
-resource blobAccountName_default_container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = if (ctrlStorageAccount) {
+resource blobAccountName_default_container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = if (ctrlDeployStorageAccount) {
   name: '${blobAccountName}/default/${containerName}'
   dependsOn: [
     blobAccount
   ]
 }
 
-resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = if (ctrlEventHub) {
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = if (ctrlDeployEventHub) {
   name: eventHubNamespaceName
   location: location
   sku: {
@@ -130,7 +160,7 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = if (ctrl
   }
 }
 
-resource vault_utcValue 'Microsoft.KeyVault/vaults@2021-04-01-preview' = if (ctrlKeyVault) {
+resource vault_utcValue 'Microsoft.KeyVault/vaults@2021-04-01-preview' = if (ctrlDeployKeyVault) {
   name: 'vault${utcValue}'
   location: location
   properties: {
