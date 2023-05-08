@@ -13,27 +13,23 @@ To deploy this Bicep file, you need **owner role** as we are assigning RBAC role
  * $RG_NAME - Resource Group Name containing the Databricks Workspace.
  * $REGION - Resource Group Region
  * $WORKSPACE_NAME - Databricks Workspace Name
- * $LIFETIME_SECONDS,
- * $COMMENT,
+ * $LIFETIME_SECONDS - Time to live of the Databricks token in seconds
+ * $COMMENT - Side note on the token generation
  * $CLUSTER_NAME - Databricks Cluster Name 
  * $SPARK_VERSION - The version of Spark in the Cluster
- * $AUTOTERMINATION_MINUTES,
- * $NUM_WORKERS - Number of workers in the Cluster
- * $NODE_TYPE_ID,
- * $DRIVER_NODE_TYPE_ID,
- * $RETRY_LIMIT,
- * $RETRY_TIME,
- * $tenant_id - The Azure Active Directory tenant ID.
- * $client_id - The Azure Active Directory application client ID.
- * $client_secret - The Azure Active Directory application client secret.
- * $subscription_id - The Azure subscription ID.
- * $resourceGroup - The name of the resource group containing the Databricks workspace.
- * $workspaceName - The name of the Databricks workspace.
+ * $AUTOTERMINATION_MINUTES - Cluster terminates after specified minutes of inactivity
+ * $NUM_WORKERS - Number of worker nodes in the Cluster
+ * $NODE_TYPE_ID - Type of worker node
+ * $DRIVER_NODE_TYPE_ID - Type of driver node
+ * $RETRY_LIMIT - Max number of retries.
+ * $RETRY_TIME - Interval between each retries in seconds
+ * $tenant_id - The Azure Active Directory tenant ID
+ * $client_id - The Azure Active Directory application client ID
+ * $client_secret - The Azure Active Directory application client secret
+ * $subscription_id - The Azure subscription ID
+ * $resourceGroup - The name of the resource group containing the Databricks workspace
+ * $workspaceName - The name of the Databricks workspace
  * $notebookPathUnderWorkspace - The path to the directory in the workspace where the notebooks should be deployed.
-
- > EXAMPLE
-    .\deploy_notebooks.ps1 -tenant_id "12345678-1234-1234-1234-123456789012" -client_id "12345678-1234-1234-1234-123456789012" -client_secret "my_client_secret" -subscription_id "12345678-1234-1234-1234-123456789012" -resourceGroup "my_resource_group" -workspaceName "my_workspace" -notebookPathUnderWorkspace "/my_notebooks"
-
 
 
 1. Open **Windows Powershell** or **Azure CLI** and login to your azure account using command:
