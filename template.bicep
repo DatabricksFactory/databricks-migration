@@ -56,6 +56,27 @@ param retryLimit int = 15
 @description('Interval between each retries in seconds')
 param retryTime int = 60
 
+@description('The Azure Active Directory tenant ID')
+param tenant_id string = "12345678-1234-1234-1234-123456789012"
+
+@description('The Azure Active Directory application client ID')
+param client_id string = "12345678-1234-1234-1234-123456789012"
+
+@description('The Azure Active Directory application client secret')
+param client_secret string = "my_client_secret"
+
+@description('The Azure subscription ID')
+param subscription_id string = "12345678-1234-1234-1234-123456789012"
+
+@description('The name of the resource group containing the Databricks workspace')
+param resourceGroup string = "my_resource_group"
+
+@description('The name of the Databricks workspace')
+param workspaceName string = "my_workspace"
+ 
+@description('The path to the directory in the workspace where the notebooks should be deployed')
+param notebookPathUnderWorkspace string = "/my_notebooks"
+ 
 var fileuploadurivariable = fileuploaduri
 var databricksName = 'databricks_${randomString}'
 var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime}'
