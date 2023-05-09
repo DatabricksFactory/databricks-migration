@@ -8,7 +8,7 @@ param(
     [string] $COMMENT,
     [string] $CLUSTER_NAME,
     [string] $SPARK_VERSION,
-    [string] $USER_NAME,
+   
     
     [int] $AUTOTERMINATION_MINUTES,
     [string] $NUM_WORKERS,
