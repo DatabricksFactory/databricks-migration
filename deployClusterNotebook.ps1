@@ -8,6 +8,8 @@ param(
     [string] $COMMENT,
     [string] $CLUSTER_NAME,
     [string] $SPARK_VERSION,
+    [string] $USER_NAME,
+    [string] $NOTEBOOK_URL,
     [int] $AUTOTERMINATION_MINUTES,
     [string] $NUM_WORKERS,
     [string] $NODE_TYPE_ID,
@@ -25,127 +27,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$notebookPathUnderWorkspace
 )
-
-if ($CTRL_DEPLOY_NOTEBOOK -eq '$true') {
-    $azure_databricks_resource_id = "2ff814a6-3304-4ab8-85cb-cd0e6f879c1d"
-    $resourceId = "/subscriptions/$subscription_id/resourceGroups/$RG_NAME/providers/Microsoft.Databricks/workspaces/$WORKSPACE_NAME"
-    
-    ######################################################################################
-    # Get access tokens for Databricks API
-    ######################################################################################
-    
-    $accessToken = (Invoke-WebRequest -Method POST -Uri "https://login.microsoftonline.com/$tenant_id/oauth2/token" `
-            -Body @{
-            resource      = $azure_databricks_resource_id
-            client_id     = $client_id
-            grant_type    = "client_credentials"
-            client_secret = $client_secret
-        } `
-            -UseBasicParsing `
-        | ConvertFrom-Json).access_token
-    
-    $managementToken = (Invoke-WebRequest -Method POST -Uri "https://login.microsoftonline.com/$tenant_id/oauth2/token" `
-            -Body @{
-            resource      = "https://management.core.windows.net/"
-            client_id     = $client_id
-            grant_type    = "client_credentials"
-            client_secret = $client_secret
-        } `
-            -UseBasicParsing `
-        | ConvertFrom-Json).access_token
-    
-    ######################################################################################
-    # Get Databricks workspace URL (e.g. adb-5946405904802522.2.azuredatabricks.net)
-    ######################################################################################
-    
-    $workspaceUrl = (Invoke-WebRequest -Method GET -Uri "https://management.azure.com/subscriptions/$subscription_id/resourcegroups/$RG_NAME/providers/Microsoft.Databricks/workspaces/$WORKSPACE_NAME?api-version=2018-04-01" `
-            -Headers @{
-            "Content-Type"  = "application/json"
-            "Authorization" = "Bearer $managementToken"
-        } `
-        | ConvertFrom-Json).properties.workspaceUrl
-    
-    Write-Host "Databricks workspaceUrl: $workspaceUrl"
-    
-    ######################################################################################
-    # Recusively Create Paths 
-    ######################################################################################
-    
-    $replaceSource = "./"
-    $replaceDest = ""
-    
-    Get-ChildItem -Path . -Recurse -Directory | ForEach-Object {
-        Write-Host "Processing directory: $($_.FullName)"
-        $directoryName = $_.FullName.Replace($replaceSource, $replaceDest)
-        Write-Host "New directoryName: $directoryName"
-    
-        if ($_.FullName -eq ".") {
-            $pathOnDatabricks = $notebookPathUnderWorkspace
-        }
-        else {
-            $pathOnDatabricks = "$notebookPathUnderWorkspace/$directoryName"
-        }
-        Write-Host "pathOnDatabricks: $pathOnDatabricks"
-    
-        $JSON = @{ path = $pathOnDatabricks } | ConvertTo-Json
-        Write-Host "Creating Path: $JSON"
-    
-        Invoke-WebRequest -Method POST -Uri "https://$workspaceUrl/api/2.0/workspace/mkdirs" `
-            -Headers @{
-            "Authorization"                            = "Bearer $accessToken"
-            "X-Databricks-Azure-SP-Management-Token"   = $managementToken
-            "X-Databricks-Azure-Workspace-Resource-Id" = $resourceId
-            "Content-Type"                             = "application/json"
-        } `
-            -Body $JSON
-    }
-    
-    ######################################################################################
-    # Deploy notebooks (resursively)
-    ######################################################################################
-    
-    Get-ChildItem -Path . -Recurse -File | ForEach-Object {
-        Write-Host "Processing file: $($_.FullName)"
-        $filename = $_.FullName.Replace($replaceSource, $replaceDest)
-        Write-Host "New filename: $filename"
-    
-        $language = ""
-        if ($filename -like "*.sql") {
-            $language = "SQL"
-        }
-    
-        if ($filename -like "*.scala") {
-            $language = "SCALA"
-        }
-    
-        if ($filename -like "*.py") {
-            $language = "PYTHON"
-        }
-    
-        if ($filename -like "*.r") {
-            $language = "R"
-        }
-    
-        Write-Host "curl -F language=$language -F path=$notebookPathUnderWorkspace/$filename -F content=@$($_.FullName) https://$workspaceUrl/api/2.0/workspace/import"
-    
-        Invoke-WebRequest -Method POST -Uri "https://$workspaceUrl/api/2.0/workspace/import" `
-            -Headers @{
-            "Authorization"                            = "Bearer $accessToken"
-            "X-Databricks-Azure-SP-Management-Token"   = $managementToken
-            "X-Databricks-Azure-Workspace-Resource-Id" = $resourceId
-        } `
-            -ContentType "multipart/form-data" `
-            -Body @{
-            language  = $language
-            overwrite = $true
-            path      = "$notebookPathUnderWorkspace/$filename"
-            content   = Get-Content -Path $_.FullName -Raw
-        }
-    }   
-}
-
-if ($CTRL_DEPLOY_CLUSTER -eq '$true') {
-    Write-Output "Task: Generating Databricks Token"
+Write-Output "Task: Generating Databricks Token"
 
     $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME -Name $WORKSPACE_NAME
     $ACTUAL_WORKSPACE_ID = $WORKSPACE_ID.ResourceId
@@ -160,8 +42,49 @@ if ($CTRL_DEPLOY_CLUSTER -eq '$true') {
     { "lifetime_seconds": $LIFETIME_SECONDS, "comment": "$COMMENT" }
 "@
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
-    
-    
+
+if ($CTRL_DEPLOY_NOTEBOOK -eq '$true') {
+
+#Set the path to the notebook to be imported
+
+#$url = "https://raw.githubusercontent.com/ksameer18/azure-synapse-labs/main/environments/env1/Sample/Artifacts/Notebooks/01-UsingOpenDatasetsSynapse.ipynb"
+
+$Webresults = Invoke-WebRequest $NOTEBOOK_URL -UseBasicParsing
+# Read the notebook file
+$notebookContent = $Webresults.Content
+#Write-Output $notebookContent
+
+# Base64 encode the notebook content
+$notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+
+
+# Set the request body
+$requestBody = @{
+  "content" = $notebookBase64
+  "path" = "/Users/$USER_NAME/notebook"
+  "language" = "PYTHON"
+  "format" = "JUPYTER" 
+}
+
+#Convert the request body to JSON
+$jsonBody = ConvertTo-Json $requestBody
+
+# Set the headers
+$headers = @{
+  "Authorization" = "Bearer $DB_PAT"
+  "Content-Type" = "application/json"
+}
+
+# Make the HTTP request to import the notebook
+$response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody
+
+# Output the response
+Write-Output $response
+
+}
+
+if ($CTRL_DEPLOY_CLUSTER -eq '$true') {
+        
     Write-Output "Task: Creating cluster"
     $HEADERS = @{
         "Authorization" = "Bearer $DB_PAT"
