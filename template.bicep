@@ -62,9 +62,12 @@ param retryLimit int = 15
 @description('Interval between each retries in seconds')
 param retryTime int = 60
 
+@description('Path of the notebook to be uploaded')
+param notebookPath string = 'https://raw.githubusercontent.com/ksameer18/azure-synapse-labs/main/environments/env1/Sample/Artifacts/Notebooks/01-UsingOpenDatasetsSynapse.ipynb'
+
 var fileuploadurivariable = fileuploaduri
 var databricksName = 'databricks_${randomString}'
-var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -CTRL_DEPLOY_CLUSTER ${(ctrlDeployCluster ? '$true' : '$false')} -CTRL_DEPLOY_NOTEBOOK ${(ctrlDeployNotebook ? '$true' : '$false')}'
+var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -CTRL_DEPLOY_CLUSTER ${(ctrlDeployCluster ? '$true' : '$false')} -CTRL_DEPLOY_NOTEBOOK ${(ctrlDeployNotebook ? '$true' : '$false')} -NOTEBOOK_PATH ${notebookPath}'
 var contributorRoleDefinitionId = 'B24988ac-6180-42a0-ab88-20f7382dd24c'
 var bootstrapRoleAssignmentId_var = guid(firstuniquestring, seconduniquestring)
 var randomString = substring(guid(resourceGroup().id), 0, 6)
