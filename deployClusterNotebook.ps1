@@ -59,7 +59,7 @@ $requestBody = @{
 }
 
 #Convert the request body to JSON
-$jsonBody = ConvertTo-Json $requestBody
+$jsonBody = ConvertTo-Json -Depth 100 $requestBody
 
 # Set the headers
 $headers = @{
