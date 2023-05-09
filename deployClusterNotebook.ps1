@@ -9,7 +9,7 @@ param(
     [string] $CLUSTER_NAME,
     [string] $SPARK_VERSION,
     [string] $USER_NAME,
-    [string] $NOTEBOOK_URL,
+    
     [int] $AUTOTERMINATION_MINUTES,
     [string] $NUM_WORKERS,
     [string] $NODE_TYPE_ID,
@@ -47,9 +47,9 @@ if ($CTRL_DEPLOY_NOTEBOOK -eq '$true') {
 
 #Set the path to the notebook to be imported
 
-#$url = "https://raw.githubusercontent.com/ksameer18/azure-synapse-labs/main/environments/env1/Sample/Artifacts/Notebooks/01-UsingOpenDatasetsSynapse.ipynb"
+$url = "https://raw.githubusercontent.com/ksameer18/azure-synapse-labs/main/environments/env1/Sample/Artifacts/Notebooks/01-UsingOpenDatasetsSynapse.ipynb"
 
-$Webresults = Invoke-WebRequest $NOTEBOOK_URL -UseBasicParsing
+$Webresults = Invoke-WebRequest $url -UseBasicParsing
 # Read the notebook file
 $notebookContent = $Webresults.Content
 #Write-Output $notebookContent
