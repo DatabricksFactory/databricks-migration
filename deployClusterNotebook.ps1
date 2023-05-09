@@ -15,7 +15,6 @@ param(
     [bool] $CTRL_DEPLOY_CLUSTER,
     [bool] $CTRL_DEPLOY_NOTEBOOK,
     [string] $NOTEBOOK_PATH
-    # aditya
 )
 Write-Output "Task: Generating Databricks Token"
 
