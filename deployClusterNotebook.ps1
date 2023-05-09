@@ -32,7 +32,9 @@ Write-Output "Task: Generating Databricks Token"
 "@
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
 
-if ($CTRL_DEPLOY_NOTEBOOK -eq '$true') {
+if ($CTRL_DEPLOY_NOTEBOOK) {
+
+    Write-Output "Task: Uploading notebook"
 
 #Set the path to the notebook to be imported
 
@@ -72,7 +74,7 @@ Write-Output $response
 
 }
 
-if ($CTRL_DEPLOY_CLUSTER -eq '$true') {
+if ($CTRL_DEPLOY_CLUSTER) {
         
     Write-Output "Task: Creating cluster"
     $HEADERS = @{

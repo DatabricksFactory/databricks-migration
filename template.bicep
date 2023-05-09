@@ -8,7 +8,7 @@ param eventHubSku string = 'Standard'
 param blobAccountName string = 'adls${uniqueString(resourceGroup().id)}'
 
 @description('The URI of script file to upload blob container')
-param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/deployClusterNotebook.ps1?token=GHSAT0AAAAAACB4K7TQZ2T3M7HL6BCZJTHEZCZ55CQ'
+param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/deployClusterNotebook.ps1'
 
 @description('Name of identity')
 param identityName string = 'PostDeploymentScriptuserAssignedName'
