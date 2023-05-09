@@ -22,15 +22,8 @@ To deploy this Bicep file, you need **owner role** as we are assigning RBAC role
  * $NODE_TYPE_ID - Type of worker node
  * $DRIVER_NODE_TYPE_ID - Type of driver node
  * $RETRY_LIMIT - Max number of retries.
- * $RETRY_TIME - Interval between each retries in seconds
- * $tenant_id - The Azure Active Directory tenant ID
- * $client_id - The Azure Active Directory application client ID
- * $client_secret - The Azure Active Directory application client secret
- * $subscription_id - The Azure subscription ID
- * $resourceGroup - The name of the resource group containing the Databricks workspace
- * $workspaceName - The name of the Databricks workspace
- * $notebookPathUnderWorkspace - The path to the directory in the workspace where the notebooks should be deployed.
-
+ * $RETRY_TIME - Interval between each retries in seconds.
+ 
 
 1. Open **Windows Powershell** or **Azure CLI** and login to your azure account using command:
 
