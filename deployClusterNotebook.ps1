@@ -2,8 +2,6 @@ param(
     [string] $RG_NAME,
     [string] $REGION,
     [string] $WORKSPACE_NAME,
-    [string] $CTRL_DEPLOY_CLUSTER,
-    [string] $CTRL_DEPLOY_NOTEBOOK,
     [int] $LIFETIME_SECONDS,
     [string] $COMMENT,
     [string] $CLUSTER_NAME,
@@ -14,6 +12,8 @@ param(
     [string] $DRIVER_NODE_TYPE_ID,
     [int] $RETRY_LIMIT,
     [int] $RETRY_TIME,
+    [bool] $CTRL_DEPLOY_CLUSTER,
+    [bool] $CTRL_DEPLOY_NOTEBOOK,
     [string] $NOTEBOOK_PATH
 )
 Write-Output "Task: Generating Databricks Token"
