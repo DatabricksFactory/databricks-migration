@@ -8,24 +8,12 @@ param(
     [string] $COMMENT,
     [string] $CLUSTER_NAME,
     [string] $SPARK_VERSION,
-   
-    
     [int] $AUTOTERMINATION_MINUTES,
     [string] $NUM_WORKERS,
     [string] $NODE_TYPE_ID,
     [string] $DRIVER_NODE_TYPE_ID,
     [int] $RETRY_LIMIT,
-    [int] $RETRY_TIME,
-    [Parameter(Mandatory = $true)]
-    [string]$tenant_id,
-    [Parameter(Mandatory = $true)]
-    [string]$client_id,
-    [Parameter(Mandatory = $true)]
-    [string]$client_secret,
-    [Parameter(Mandatory = $true)]
-    [string]$subscription_id,
-    [Parameter(Mandatory = $true)]
-    [string]$notebookPathUnderWorkspace
+    [int] $RETRY_TIME
 )
 Write-Output "Task: Generating Databricks Token"
 

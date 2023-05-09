@@ -5,7 +5,7 @@
   "variables": {
     "fileuploadurivariable": "[parameters('fileuploaduri')]",
     "databricksName": "[format('databricks_{0}', variables('randomString'))]",
-    "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -tenant_id {13} -client_id {14} -client_secret {15} -subscription_id {16} -notebookPathUnderWorkspace {17} -CTRL_DEPLOY_CLUSTER {18} -CTRL_DEPLOY_NOTEBOOK {19}', resourceGroup().name, variables('location'), variables('databricksName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), parameters('tenant_id'), parameters('client_id'),  parameters('client_secret'), parameters('subscription_id'), parameters('notebookPathUnderWorkspace'), if(parameters('ctrlDeployCluster'), '$true', '$false'), if(parameters('ctrlDeployNotebook'), '$true', '$false'))]",
+    "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -CTRL_DEPLOY_NOTEBOOK {14}', resourceGroup().name, variables('location'), variables('databricksName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), if(parameters('ctrlDeployNotebook'), '$true', '$false'))]",
     "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c",
     "bootstrapRoleAssignmentId": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
     "randomString": "[substring(guid(resourceGroup().id), 0, 6)]",
@@ -163,36 +163,6 @@
       "defaultValue": 60,
       "metadata": {
         "description": "Interval between each retries in seconds"
-      }
-    },
-    "tenant_id": {
-      "type": "string",
-      "metadata": {
-        "description": "The Azure Active Directory tenant ID"
-      }
-    },
-    "client_id": {
-      "type": "string",
-      "metadata": {
-        "description": "The Azure Active Directory application client ID"
-      }
-    },
-    "client_secret": {
-      "type": "string",
-      "metadata": {
-        "description": "The Azure Active Directory application client secret"
-      }
-    },
-    "subscription_id": {
-      "type": "string",
-      "metadata": {
-        "description": "The Azure subscription ID"
-      }
-    },
-    "notebookPathUnderWorkspace": {
-     "type": "string",
-     "metadata": {
-       "description": "The path to the directory in the workspace where the notebooks should be deployed"
       }
     }
   },
