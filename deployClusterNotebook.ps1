@@ -13,7 +13,8 @@ param(
     [string] $NODE_TYPE_ID,
     [string] $DRIVER_NODE_TYPE_ID,
     [int] $RETRY_LIMIT,
-    [int] $RETRY_TIME
+    [int] $RETRY_TIME,
+    [string] $NOTEBOOK_PATH
 )
 Write-Output "Task: Generating Databricks Token"
 
@@ -35,9 +36,9 @@ if ($CTRL_DEPLOY_NOTEBOOK -eq '$true') {
 
 #Set the path to the notebook to be imported
 
-$url = "https://raw.githubusercontent.com/ksameer18/azure-synapse-labs/main/environments/env1/Sample/Artifacts/Notebooks/01-UsingOpenDatasetsSynapse.ipynb"
-
-$Webresults = Invoke-WebRequest $url -UseBasicParsing
+#$url = "https://raw.githubusercontent.com/ksameer18/azure-synapse-labs/main/environments/env1/Sample/Artifacts/Notebooks/01-UsingOpenDatasetsSynapse.ipynb"
+$userName = (Get-AzContext).Account.Id
+$Webresults = Invoke-WebRequest $NOTEBOOK_PATH -UseBasicParsing
 # Read the notebook file
 $notebookContent = $Webresults.Content
 #Write-Output $notebookContent
@@ -49,7 +50,7 @@ $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.
 # Set the request body
 $requestBody = @{
   "content" = $notebookBase64
-  "path" = "/Users/$USER_NAME/notebook"
+  "path" = "/Users/$userName/notebook"
   "language" = "PYTHON"
   "format" = "JUPYTER" 
 }
