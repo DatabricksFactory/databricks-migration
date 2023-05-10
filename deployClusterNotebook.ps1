@@ -38,8 +38,6 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
 
 #Set the path to the notebook to be imported
 
-#$url = "https://raw.githubusercontent.com/ksameer18/azure-synapse-labs/main/environments/env1/Sample/Artifacts/Notebooks/01-UsingOpenDatasetsSynapse.ipynb"
-$userName = (Get-AzContext).Account.Id
 $Webresults = Invoke-WebRequest $NOTEBOOK_PATH -UseBasicParsing
 
 # Read the notebook file
@@ -52,12 +50,15 @@ $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.
 # Set the request body
 $requestBody = @{
   "content" = $notebookBase64
-  "path" = "/Shared/notebook2"
+  "path" = "/Shared/Templates/notebook"
   "language" = "PYTHON"
   "format" = "JUPYTER" 
 }
-
+$requestBodyFolder = @{
+  "path" = "/Shared/Templates"
+}
 #Convert the request body to JSON
+$jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
 $jsonBody = ConvertTo-Json -Depth 100 $requestBody
 
 # Set the headers
@@ -67,9 +68,13 @@ $headers = @{
 }
 
 # Make the HTTP request to import the notebook
+Write-Output "Task: Creating Folder"
+$responseFolder = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
+Write-Output "Task: Uploading Notebook"
 $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody
 
 # Output the response
+Write-Output $responseFolder
 Write-Output $response
 
 }
