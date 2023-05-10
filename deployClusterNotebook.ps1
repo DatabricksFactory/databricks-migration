@@ -41,6 +41,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
 #$url = "https://raw.githubusercontent.com/ksameer18/azure-synapse-labs/main/environments/env1/Sample/Artifacts/Notebooks/01-UsingOpenDatasetsSynapse.ipynb"
 $userName = (Get-AzContext).Account.Id
 $Webresults = Invoke-WebRequest $NOTEBOOK_PATH -UseBasicParsing
+
 # Read the notebook file
 $notebookContent = $Webresults.Content
 #Write-Output $notebookContent
@@ -48,11 +49,10 @@ $notebookContent = $Webresults.Content
 # Base64 encode the notebook content
 $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
 
-
 # Set the request body
 $requestBody = @{
   "content" = $notebookBase64
-  "path" = "/Users/$userName/notebook"
+  "path" = "/Shared/notebook2"
   "language" = "PYTHON"
   "format" = "JUPYTER" 
 }
