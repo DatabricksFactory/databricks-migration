@@ -42,7 +42,7 @@ $Webresults = Invoke-WebRequest $NOTEBOOK_PATH -UseBasicParsing
 
 # Read the notebook file
 $notebookContent = $Webresults.Content
-#Write-Output $notebookContent
+
 
 # Base64 encode the notebook content
 $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
@@ -66,7 +66,7 @@ $headers = @{
   "Authorization" = "Bearer $DB_PAT"
   "Content-Type" = "application/json"
 }
-
+#Write-Output $jsonBodyFolder
 # Make the HTTP request to import the notebook
 Write-Output "Task: Creating Folder"
 $responseFolder = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
