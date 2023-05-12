@@ -34,48 +34,61 @@ Write-Output "Task: Generating Databricks Token"
 
 if ($CTRL_DEPLOY_NOTEBOOK) {
 
-    Write-Output "Task: Uploading notebook"
+Write-Output "Task: Uploading notebook"
 
-#Set the path to the notebook to be imported
-
-$Webresults = Invoke-WebRequest $NOTEBOOK_PATH -UseBasicParsing
-
-# Read the notebook file
-$notebookContent = $Webresults.Content
-
-
-# Base64 encode the notebook content
-$notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
-
-# Set the request body
-$requestBody = @{
-  "content" = $notebookBase64
-  "path" = "/Shared/Templates/notebook"
-  "language" = "PYTHON"
-  "format" = "JUPYTER" 
-}
 $requestBodyFolder = @{
+  
   "path" = "/Shared/Templates"
+ 
 }
-#Convert the request body to JSON
+
 $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
-$jsonBody = ConvertTo-Json -Depth 100 $requestBody
 
 # Set the headers
 $headers = @{
   "Authorization" = "Bearer $DB_PAT"
   "Content-Type" = "application/json"
 }
-#Write-Output $jsonBodyFolder
-# Make the HTTP request to import the notebook
-Write-Output "Task: Creating Folder"
-$responseFolder = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
-Write-Output "Task: Uploading Notebook"
-$response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody
 
-# Output the response
-Write-Output $responseFolder
-Write-Output $response
+$responseFolder = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
+
+ 
+
+ $wr = Invoke-WebRequest -Uri $NOTEBOOK_PATH
+ $objects = $wr.Content | ConvertFrom-Json
+ $filesURL = $objects | where {$_.type -eq "file"} | Select -exp download_url
+ $fileNames = $objects | where {$_.type -eq "file"} | Select -exp name
+
+#Set the path to the notebook to be imported
+
+Foreach($filename in $fileNames)  
+{ 
+
+# Set the path to the notebook to be imported
+$url = "$NOTEBOOK_PATH/$filename"
+$Webresults = Invoke-WebRequest $url -UseBasicParsing
+# Read the notebook file
+$notebookContent = $Webresults.Content
+# Base64 encode the notebook content
+$notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+$filenamewithoutext =$filename.Split(".")
+
+
+# Set the request body
+$requestBody = @{
+  "content" = $notebookBase64
+  "path" = "/Shared/Templates/$filenamewithoutext[0]"
+  "language" = "PYTHON"
+  "format" = "JUPYTER"
+}
+
+
+# Convert the request body to JSON
+$jsonBody = ConvertTo-Json -Depth 100 $requestBody
+
+   # Make the HTTP request to import the notebook
+   $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+} 
 
 }
 
