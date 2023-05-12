@@ -167,7 +167,7 @@
     },
     "notebookPath": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts/02_silver-layer-notebook.ipynb",
+      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts",
       "metadata": {
         "description": "Path of the notebook to be uploaded"
       }
