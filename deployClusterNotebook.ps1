@@ -53,8 +53,8 @@ $headers = @{
 $responseFolder = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
 
  
-
- $wr = Invoke-WebRequest -Uri $NOTEBOOK_PATH
+ $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts"
+ $wr = Invoke-WebRequest -Uri $Artifactsuri
  $objects = $wr.Content | ConvertFrom-Json
  $filesURL = $objects | where {$_.type -eq "file"} | Select -exp download_url
  $fileNames = $objects | where {$_.type -eq "file"} | Select -exp name
