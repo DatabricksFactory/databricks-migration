@@ -63,7 +63,7 @@ param retryLimit int = 15
 param retryTime int = 60
 
 @description('Path of the notebook to be uploaded')
-param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts/02_silver-layer-notebook.ipynb'
+param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts'
 
 var fileuploadurivariable = fileuploaduri
 var databricksName = 'databricks_${randomString}'
