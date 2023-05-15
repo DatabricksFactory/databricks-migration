@@ -1,6 +1,6 @@
 # Azure Databricks
 
-Azure Databricks is a unified set of tools for building, deploying, sharing, and maintaining enterprise-grade data solutions at scale. The Azure Databricks Lakehouse Platform integrates with cloud storage and security in your cloud account, and manages and deploys cloud infrastructure on your behalf.
+This bicep deployment allows the user to deploy environment of Azure Databricks with cluster, pipeline and notebook.
 
 ## Prerequisites
 
@@ -35,23 +35,23 @@ You can also provide the values for below parameters. If following parameter val
 - Option (true/false) for Storage account deployment (Default value is true)
 - Option (true/false) for Key Vault deployment (Default value is true)
 - Option (true/false) for Event Hub deployment (Default value is true)
-- Event Hub Namespace
-- Storage account name
-- Container name
-- Identity Name for post deployment script
-- Unique Suffix
-- URI for post deployment powershell script for deploying cluster, notebook and pipeline.
-- Time Zone
-- Databricks token lifetime
-- Name of the Databricks cluster
-- Cluster Spark version
-- Cluster terminates after specified minutes of inactivity
-- Number of worker nodes
-- Type of worker node
-- Type of driver node
-- Max number of retries
-- Interval between each retries in seconds
-- Path of the notebook to be uploaded
+- Event Hub Namespace (Default value is 'Standard')
+- Storage account name (Default value is random unique string)
+- Container name (Default value is 'data')
+- Identity Name for post deployment script (Default value is 'PostDeploymentScriptuserAssignedName')
+- Unique Suffix (Default value is random unique string)
+- URI for post deployment powershell script for deploying cluster, notebook and pipeline (Default value is raw git link)
+- Time Zone (utcNow)
+- Databricks token lifetime (Default value is 1200)
+- Name of the Databricks cluster (Default value is 'dbcluster')
+- Cluster Spark version (Default value is '11.3.x-scala2.12')
+- Cluster terminates after specified minutes of inactivity (Default value is 30)
+- Number of worker nodes (Default value is 2)
+- Type of worker node (Default value is 'Standard_DS3_v2')
+- Type of driver node (Default value is 'Standard_DS3_v2')
+- Max number of retries (Default value is 15)
+- Interval between each retries in seconds (Default value is 60)
+- Path of the notebook to be uploaded (Default value is raw git link)
 
 The deployment can take a few minutes to complete. When it finishes, you see a message that includes the result:
 
@@ -60,6 +60,7 @@ The deployment can take a few minutes to complete. When it finishes, you see a m
 ```
 
 ## Post Deployment
+
 The **deployClusterNotebook.ps1** script is used to deploy a Cluster and a Notebook in the Databricks Workspace . It takes the following parameters:
 
  * $RG_NAME - Resource Group Name containing the Databricks Workspace.
@@ -75,6 +76,9 @@ The **deployClusterNotebook.ps1** script is used to deploy a Cluster and a Noteb
  * $DRIVER_NODE_TYPE_ID - Type of driver node
  * $RETRY_LIMIT - Max number of retries.
  * $RETRY_TIME - Interval between each retries in seconds.
+ * $CTRL_DEPLOY_CLUSTER - True or false
+ * $CTRL_DEPLOY_NOTEBOOK - True or false
+ * $NOTEBOOK_PATH - Path of the notebook
  
 ## Azure Services being deployed
 
