@@ -62,13 +62,14 @@ $Webresults = Invoke-WebRequest $url -UseBasicParsing
 $notebookContent = $Webresults.Content
 # Base64 encode the notebook content
 $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
-$filenamewithoutext =$filename -split "\."
+$splitfilename =$filename.Split(".")
+$filenamewithoutextension = $splitfilename[0]
 
 
 # Set the request body
 $requestBody = @{
   "content" = $notebookBase64
-  "path" = "/Shared/Templates/$filenamewithoutext[0]"
+  "path" = "/Shared/Templates/$filenamewithoutextension"
   "language" = "PYTHON"
   "format" = "JUPYTER"
 }
