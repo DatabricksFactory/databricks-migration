@@ -1,11 +1,12 @@
-param containerName string = 'data'
-
 @allowed([
   'Basic'
   'Standard'
 ])
 param eventHubSku string = 'Standard'
+
 param blobAccountName string = 'adls${uniqueString(resourceGroup().id)}'
+
+param containerName string = 'data'
 
 @description('The URI of script file to upload blob container')
 param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/InfrastructurePlaneDeployment.ps1'
@@ -21,16 +22,17 @@ param firstuniquestring string = 'firstunique${uniqueSuffix}'
 
 @description('seconduniquestring')
 param seconduniquestring string = 'secondunique${uniqueSuffix}'
+
 param utcValue string = utcNow()
+
 param ctrlDeployStorageAccount bool = true
+
 param ctrlDeployKeyVault bool = true
+
 param ctrlDeployEventHub bool = true
 
 @description('Controls the execution of cluster deployment script')
 param ctrlDeployCluster bool
-
-@description('Controls the execution of notebook deployment script')
-param ctrlDeployNotebook bool
 
 @description('Time to live of the Databricks token in seconds')
 param lifetimeSeconds int = 1200
@@ -62,12 +64,9 @@ param retryLimit int = 15
 @description('Interval between each retries in seconds')
 param retryTime int = 60
 
-@description('Path of the notebook to be uploaded')
-param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts'
-
 var fileuploadurivariable = fileuploaduri
 var databricksName = 'databricks_${randomString}'
-var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -CTRL_DEPLOY_CLUSTER ${(ctrlDeployCluster ? '$true' : '$false')} -CTRL_DEPLOY_NOTEBOOK ${(ctrlDeployNotebook ? '$true' : '$false')} -NOTEBOOK_PATH ${notebookPath}'
+var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${databricksName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -CTRL_DEPLOY_CLUSTER ${(ctrlDeployCluster ? '$true' : '$false')}'
 var contributorRoleDefinitionId = 'B24988ac-6180-42a0-ab88-20f7382dd24c'
 var bootstrapRoleAssignmentId_var = guid(firstuniquestring, seconduniquestring)
 var randomString = substring(guid(resourceGroup().id), 0, 6)
