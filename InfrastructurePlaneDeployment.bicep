@@ -29,6 +29,9 @@ param ctrlDeployEventHub bool = true
 @description('Controls the execution of cluster deployment script')
 param ctrlDeployCluster bool
 
+@description('Controls the execution of notebook deployment script')
+param ctrlDeployNotebook bool
+
 @description('Time to live of the Databricks token in seconds')
 param lifetimeSeconds int = 1200
 
