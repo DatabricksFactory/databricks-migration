@@ -14,7 +14,6 @@ param(
     [int] $RETRY_TIME,
     [bool] $CTRL_DEPLOY_CLUSTER,
     [bool] $CTRL_DEPLOY_NOTEBOOK,
-    [bool] $CTRL_DEPLOY_PIPELINE,
     [string] $NOTEBOOK_PATH
 )
 Write-Output "Task: Generating Databricks Token"
@@ -72,13 +71,13 @@ $Webresults = Invoke-WebRequest $url -UseBasicParsing
 $notebookContent = $Webresults.Content
 # Base64 encode the notebook content
 $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
-$filenamewithoutext[0] =$filename.Split(".")
+$filenamewithoutext =$filename.Split(".")
 
 
 # Set the request body
 $requestBody = @{
   "content" = $notebookBase64
-  "path" = "/Shared/Templates/$filenamewithoutext"
+  "path" = "/Shared/Templates/$filenamewithoutext[0]"
   "language" = "PYTHON"
   "format" = "JUPYTER"
 }
@@ -90,44 +89,5 @@ $jsonBody = ConvertTo-Json -Depth 100 $requestBody
    # Make the HTTP request to import the notebook
    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
 } 
-
-}
-
-
-if ($CTRL_DEPLOY_PIPELINE) {
-
-  Write-Output "Task: Uploading notebook"
-
-  $headers = @{Authorization = "Bearer $DB_PAT"}
-
-$pipeline_notebook_path = '/Shared/Templates/Wikipedia'
-
-# Create a pipeline
-$pipelineConfig = @{
-    
-  name = 'Wikipedia (SQL)'
-  storage = 'dbfs:/user/hive/warehouse'
-  target = 'wikipedia'
-  clusters = @{
-      label = 'default'
-      autoscale = @{
-        min_workers = 1
-        max_workers = 5
-        mode = 'ENHANCED'
-      }
-    }
-  
-  libraries = @{
-      notebook = @{
-        path = $pipeline_notebook_path
-      }
-    }
-  
-  continuous = 'false'
-  allow_duplicate_names = 'true' 
-}
-
-$createPipelineResponse = Invoke-RestMethod -Uri "https://$REGION.azuredatabricks.net/api/2.0/pipelines" -Method POST -Headers $headers -Body ($pipelineConfig | ConvertTo-Json -Depth 10)
-$createPipelineResponse
 
 }
