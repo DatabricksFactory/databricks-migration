@@ -4,6 +4,15 @@ param(
     [string] $WORKSPACE_NAME,
     [int] $LIFETIME_SECONDS,
     [string] $COMMENT,
+    [string] $CLUSTER_NAME,
+    [string] $SPARK_VERSION,
+    [int] $AUTOTERMINATION_MINUTES,
+    [string] $NUM_WORKERS,
+    [string] $NODE_TYPE_ID,
+    [string] $DRIVER_NODE_TYPE_ID,
+    [int] $RETRY_LIMIT,
+    [int] $RETRY_TIME,
+    [bool] $CTRL_DEPLOY_CLUSTER,
     [bool] $CTRL_DEPLOY_NOTEBOOK,
     [string] $NOTEBOOK_PATH
 )
