@@ -69,7 +69,7 @@ $filenamewithoutextension = $splitfilename[0]
 # Set the request body
 $requestBody = @{
   "content" = $notebookBase64
-  "path" = "/Shared/Templates/$filenamewithoutextension"
+  "path" = "/Shared/Templates/$splitfilename[0]"
   "language" = "PYTHON"
   "format" = "JUPYTER"
 }
