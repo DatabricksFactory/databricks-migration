@@ -61,8 +61,9 @@ $Webresults = Invoke-WebRequest $url -UseBasicParsing
 $notebookContent = $Webresults.Content
 # Base64 encode the notebook content
 $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
-$filenamewithoutext =$filename -split "\."
+$filenamewithoutext =$filename.Split(".")
 
+Write-Output $filenamewithoutext
 
 # Set the request body
 $requestBody = @{
@@ -78,6 +79,8 @@ $jsonBody = ConvertTo-Json -Depth 100 $requestBody
 
    # Make the HTTP request to import the notebook
    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-} 
+
+   Write-Output $response
+  } 
 
 }
