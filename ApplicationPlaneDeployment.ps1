@@ -61,7 +61,7 @@ $Webresults = Invoke-WebRequest $url -UseBasicParsing
 $notebookContent = $Webresults.Content
 # Base64 encode the notebook content
 $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
-$filenamewithoutext =$filename.Split(".")
+$filenamewithoutext =$filename -split "\."
 
 
 # Set the request body
