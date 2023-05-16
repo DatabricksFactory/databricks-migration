@@ -8,9 +8,13 @@ This bicep deployment allows the user to deploy environment of Azure Databricks 
 
 ## Prerequisites
 
-To deploy this Bicep file, you need **owner role** as we are assigning RBAC roles and write access on the resources you're deploying and access to all operations on the Microsoft.Resources/deployments resource type.
+To deploy Bicep templates, you need **owner role** as we are assigning RBAC roles and write access on the resources you're deploying and access to all operations on the Microsoft.Resources/deployments resource type.
 
 ## Deployment Steps
+
+### Infrastructure Plane Automation (```InfrastructurePlaneDeployment.bicep```)
+
+Deploying infrastructure resources for Databricks migration: **Databricks workspace**, **Databrciks Cluster**, **Storage account**, **Event Hub** and **Key Vault**.
 
 1. Open **Windows Powershell** or **Azure CLI** and login to your azure account using command:
 
@@ -24,16 +28,14 @@ az login
 az group create --name <resource-group-name> --location <location>
 ```
 
-3. Save the Bicep file as **template.bicep** to your local computer. Run the following command to deploy the bicep file:
+3. Save the ```InfrastructurePlaneDeployment.bicep``` file as **template1.bicep** to your local computer. Run the following command to deploy the bicep file:
 
 ```
-az deployment group create --resource-group <resource-group-name> --template-file <path-to-bicep>
+az deployment group create --resource-group <resource-group-name> --template-file <path-to-template1.bicep>
 ```
 
 Provide the values for:
 - Option (true/false) for Cluster deployment
-- Option (true/false) for Notebook deployment
-- Option (true/false) for Pipeline deployment
 
 You can also provide the values for below parameters. If following parameter values are not provided explicitly, it will consider default values.
 - Option (true/false) for Storage account deployment (Default value is true)
@@ -44,7 +46,7 @@ You can also provide the values for below parameters. If following parameter val
 - Container name (Default value is 'data')
 - Identity Name for post deployment script (Default value is 'PostDeploymentScriptuserAssignedName')
 - Unique Suffix (Default value is random unique string)
-- URI for post deployment powershell script for deploying cluster, notebook and pipeline (Default value is raw git link)
+- URI for post deployment powershell script for deploying cluster
 - Time Zone (utcNow)
 - Databricks token lifetime (Default value is 1200)
 - Name of the Databricks cluster (Default value is 'dbcluster')
@@ -55,7 +57,40 @@ You can also provide the values for below parameters. If following parameter val
 - Type of driver node (Default value is 'Standard_DS3_v2')
 - Max number of retries (Default value is 15)
 - Interval between each retries in seconds (Default value is 60)
-- Path of the notebook to be uploaded (Default value is raw git link)
+
+The deployment can take a few minutes to complete. When it finishes, you see a message that includes the result:
+
+```
+"provisioningState": "Succeeded",
+```
+
+### Application Plane Automation (```ApplicationPlaneDeployment.bicep```)
+
+Deploying application resources for Databricks migration: **Notebooks** and **Pipelines**.
+
+Save the ```ApplicationPlaneDeployment.bicep``` file as **template2.bicep** to your local computer. Deploy the bicep file following the above steps you followed for running ```template1.bicep```:
+
+```
+az deployment group create --resource-group <resource-group-name> --template-file <path-to-template2.bicep>
+```
+
+Use the same **resource group name** you used to deploy ```InfrastructurePlaneDeployment.bicep```.
+
+Provide the values for:
+- Option (true/false) for Notebook deployment
+- Option (true/false) for Pipeline deployment
+
+You can also provide the values for below parameters. If following parameter values are not provided explicitly, it will consider default values.
+- Identity Name for post deployment script (Default value is 'PostDeploymentScriptuserAssignedName')
+- Unique Suffix (Default value is random unique string)
+- URI for post deployment powershell script for deploying notebook and pipeline
+- Databricks token lifetime (Default value is 1200)
+- Name of the pipeline (Default value is 'Sample Pipeline')
+- Storage path where DLT will be created (Default value is 'dbfs:/user/hive/warehouse')
+- Target schema name (Default value is 'Sample')
+- Min workers (Default value is 1)
+- Max workers (Default value is 5)
+- URI path of the notebooks to be uploaded
 
 The deployment can take a few minutes to complete. When it finishes, you see a message that includes the result:
 
@@ -65,7 +100,7 @@ The deployment can take a few minutes to complete. When it finishes, you see a m
 
 ## Post Deployment
 
-The **deployClusterNotebook.ps1** script is used to deploy a Cluster and a Notebook in the Databricks Workspace . It takes the following parameters:
+The **InfrastructurePlaneDeployment.ps1** script is used to deploy a **Cluster** in the Databricks Workspace . It takes the following parameters:
 
  * $RG_NAME - Resource Group Name containing the Databricks Workspace.
  * $REGION - Resource Group Region
@@ -81,8 +116,21 @@ The **deployClusterNotebook.ps1** script is used to deploy a Cluster and a Noteb
  * $RETRY_LIMIT - Max number of retries.
  * $RETRY_TIME - Interval between each retries in seconds.
  * $CTRL_DEPLOY_CLUSTER - True or false
+
+The **ApplicationPlaneDeployment.ps1** script is used to deploy **Notebooks** and **Pipeline** in the Databricks Workspace . It takes the following parameters:
+
+ * $RG_NAME - Resource Group Name containing the Databricks Workspace
+ * $REGION - Resource Group Region
+ * $LIFETIME_SECONDS - Lifetime of the Databricks token in seconds
+ * $COMMENT - Side note on the token generation
  * $CTRL_DEPLOY_NOTEBOOK - True or false
- * $NOTEBOOK_PATH - Path of the notebook
+ * $CTRL_DEPLOY_PIPELINE - True or false
+ * $PIPELINENAME -  Name of the pipeline
+ * $STORAGE - Storage path for DLT
+ * $TARGETSCHEMA - Target Schema name
+ * $MINWORKERS - Min workers for Cluster
+ * $MAXWORKERS - Max workers for Cluster
+ * $NOTEBOOK_PATH - Path of notebooks to be deployed in workspace
  
 ## Azure Services being deployed
 
@@ -92,7 +140,7 @@ Use the Azure portal, Azure CLI, or Azure PowerShell to list the deployed resour
 az resource list --resource-group <resource-group-name>
 ```
 
-After deployment, the following resources get created:
+After ```InfrastructurePlaneDeployment.bicep``` template deployment, the following resources get created:
 
 1. **Databricks Workspace**: Here we can develop a DLT pipeline and process our data. An All Purpose Cluster will also be created using post deployment script ```clusterDeploy.ps1``` which uses REST API to create the cluster.
 
@@ -102,3 +150,8 @@ After deployment, the following resources get created:
 
 4. **Key Vault**: Used for data security .
 
+After ```ApplicationPlaneDeployment.bicep``` template deployment, the following resources get created in the workspace:
+
+1. **Notebooks** 
+
+2. **Pipeline**
