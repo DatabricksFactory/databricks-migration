@@ -1,7 +1,6 @@
 param(
     [string] $RG_NAME,
     [string] $REGION,
-    [string] $WORKSPACE_NAME,
     [int] $LIFETIME_SECONDS,
     [string] $COMMENT,
     [bool] $CTRL_DEPLOY_NOTEBOOK,
@@ -9,7 +8,7 @@ param(
 )
 Write-Output "Task: Generating Databricks Token"
 
-    $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME -Name $WORKSPACE_NAME
+    $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME
     $ACTUAL_WORKSPACE_ID = $WORKSPACE_ID.ResourceId
     $token = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
     $AZ_TOKEN = (Get-AzAccessToken -ResourceUrl 'https://management.core.windows.net/').Token
