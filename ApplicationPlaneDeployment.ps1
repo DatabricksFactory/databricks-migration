@@ -4,6 +4,12 @@ param(
     [int] $LIFETIME_SECONDS,
     [string] $COMMENT,
     [bool] $CTRL_DEPLOY_NOTEBOOK,
+    [bool] $CTRL_DEPLOY_PIPELINE,
+    [string] $PIPELINENAME,
+    [string] $STORAGE,
+    [string] $TARGETSCHEMA,
+    [int] $MINWORKERS,
+    [int] $MAXWORKERS,
     [string] $NOTEBOOK_PATH
 )
 Write-Output "Task: Generating Databricks Token"
@@ -88,5 +94,41 @@ $jsonBody = ConvertTo-Json -Depth 100 $requestBody
 
    Write-Output $response
   } 
+
+}
+
+if ($CTRL_DEPLOY_PIPELINE) {
+
+  $headers = @{Authorization = "Bearer $DB_PAT"}
+
+  $pipeline_notebook_path = '/Shared/Templates/02_silver-layer-notebook'
+
+  # Create a pipeline
+$pipelineConfig = @{
+    
+  name = $PIPELINENAME
+  storage = $STORAGE
+  target = $TARGETSCHEMA
+  clusters = @{
+      label = 'default'
+      autoscale = @{
+        min_workers = $MINWORKERS
+        max_workers = $MAXWORKERS
+        mode = 'ENHANCED'
+      }
+    }
+  
+  libraries = @{
+      notebook = @{
+        path = $pipeline_notebook_path
+      }
+    }
+  
+  continuous = 'false'
+  allow_duplicate_names = 'true' 
+}
+
+$createPipelineResponse = Invoke-RestMethod -Uri "https://$REGION.azuredatabricks.net/api/2.0/pipelines" -Method POST -Headers $headers -Body ($pipelineConfig | ConvertTo-Json -Depth 10)
+$createPipelineResponse
 
 }
