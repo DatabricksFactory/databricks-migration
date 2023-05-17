@@ -2,13 +2,13 @@
 
 This bicep deployment allows the user to deploy environment of Azure Databricks with cluster, pipeline and notebook.
 
-## Workflow
-
-![Flow diagram](./Assets/Databricks_Deployment_Workflow.png)
-
 ## Overall Flow
 
 ![Flow diagram](./Assets/Development_FlowChart.png)
+
+## Infrastructure and Application Plane Flow
+
+![Flow diagram](./Assets/Databricks_Deployment_Workflow.png)
 
 ## Prerequisites
 
