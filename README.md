@@ -6,6 +6,10 @@ This bicep deployment allows the user to deploy environment of Azure Databricks 
 
 ![Flow diagram](./Assets/Databricks_Deployment_Workflow.png)
 
+## Overall Flow
+
+![Flow diagram](./Assets/Development_FlowChart.png)
+
 ## Prerequisites
 
 To deploy Bicep templates, you need **owner role** as we are assigning RBAC roles and write access on the resources you're deploying and access to all operations on the Microsoft.Resources/deployments resource type.
