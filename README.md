@@ -20,56 +20,63 @@ To deploy Bicep templates, you need **owner role** as we are assigning RBAC role
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDatabricksFactory%2Fdatabricks-migration%2Fmain%2Fmain.json)
 
-Provide the values for:
-- Option (true/false) for Cluster deployment
-
-You can also provide the values for below parameters. If following parameter values are not provided explicitly, it will consider default values.
+Provide the values for the following parameters or default values will be considered:
+- Resource group (create new)
+- Region (Default value is 'east us')
+- Event Hub SKU (Default value is 'Standard')
+- Blob storage account name (Default value is random unique string)
+- Container name (Default value is 'data')
+- Event Hub Rule Name (Default value is 'rule')
+- Identity Name for post deployment script (Default value is 'PostDeploymentScriptuserAssignedName')
+- Unique Suffix (Default value is random unique string)
+- Firstuniquestring (Default value is random unique string)
+- Seconduniquestring (Default value is random unique string)
+- Utc Value (utcNow)
+- Option (true/false) for Cluster deployment (Default value is true)
 - Option (true/false) for Storage account deployment (Default value is true)
 - Option (true/false) for Key Vault deployment (Default value is true)
 - Option (true/false) for Event Hub deployment (Default value is true)
-- Event Hub Namespace (Default value is 'Standard')
-- Storage account name (Default value is random unique string)
-- Container name (Default value is 'data')
-- Identity Name for post deployment script (Default value is 'PostDeploymentScriptuserAssignedName')
-- Unique Suffix (Default value is random unique string)
-- URI for post deployment powershell script for deploying cluster
-- Time Zone (utcNow)
-- Databricks token lifetime (Default value is 1200)
-- Name of the Databricks cluster (Default value is 'dbcluster')
-- Cluster Spark version (Default value is '11.3.x-scala2.12')
-- Cluster terminates after specified minutes of inactivity (Default value is 30)
-- Number of worker nodes (Default value is 2)
-- Type of worker node (Default value is 'Standard_DS3_v2')
-- Type of driver node (Default value is 'Standard_DS3_v2')
-- Max number of retries (Default value is 15)
-- Interval between each retries in seconds (Default value is 60)
+- Lifetime Seconds(Databricks token) (Default value is 1200)
+- Comment (Default value is 'ARM deployment')
+- Cluster name (Default value is 'dbcluster')
+- Spark Version (Default value is '11.3.x-scala2.12')
+- Auto Termination Minutes(cluster) (Default value is 30)
+- Num Workers (Default value is 2)
+- Node Type Id (Default value is 'Standard_DS3_v2')
+- Driver Node Type Id (Default value is 'Standard_DS3_v2')
+- Retry Limit (Default value is 15)
+- Retry Time (Default value is 60)
+- Option (true/false) for Disable public IP (Default value is true)
+- Nsg Name (Default value is 'databricks-nsg')
+- Price Tier (Default value is 'Premium')
+- Private Subnet Cidr (Default value is '10.179.0.0/18')
+- Private Subnet Name (Default value is 'private-subnet')
+- Option (Enabled/Disabled) for Public Network Acess (Default value is 'Enabled')
+- Public Subnet Cidr (Default value is '10.179.64.0/18')
+- Private Endpoint Subnet Cidr (Default value is '10.179.128.0/24')
+- Public Subnet Name (Default value is 'public-subnet')
+- Required Nsg Rules (Default value is 'NoAzureDatabricksRules')
+- Vnet Cidr (Default value is '10.179.0.0/16')
+- Vnet Name (Default value is 'databricks-vnet')
+- Private Endpoint Subnet Name (Default value is 'default')
+- Workspace Name (Default value is 'default')
+- Fileuploaduri (path for post deployment powershell script for deploying cluster, notebook and pipeline)
+- Option (true/false) for Ctrl Deploy Notebook
+- Option (true/false) for Ctrl Deploy Pipeline 
+- Pipeline Name (Default value is 'Sample Pipeline')
+- Storage Path (Default value is 'dbfs:/user/hive/warehouse')
+- Target Schema Name (Default value is 'Sample')
+- Min Workers (Default value is 1)
+- Max Workers (Default value is 5)
+- Notebook Path (URI path of the notebooks to be uploaded)
 
+2. Click **'Review + Create'**.
 
-
-
-
-
-Provide the values for:
-- Option (true/false) for Notebook deployment
-- Option (true/false) for Pipeline deployment
-
-You can also provide the values for below parameters. If following parameter values are not provided explicitly, it will consider default values.
-- Identity Name for post deployment script (Default value is 'PostDeploymentScriptuserAssignedName')
-- Unique Suffix (Default value is random unique string)
-- URI for post deployment powershell script for deploying notebook and pipeline
-- Databricks token lifetime (Default value is 1200)
-- Name of the pipeline (Default value is 'Sample Pipeline')
-- Storage path where DLT will be created (Default value is 'dbfs:/user/hive/warehouse')
-- Target schema name (Default value is 'Sample')
-- Min workers (Default value is 1)
-- Max workers (Default value is 5)
-- URI path of the notebooks to be uploaded
-
-
+3. On successful validation, click **'Create'**.
 
 ## Post Deployment
 
-The **InfrastructurePlaneDeployment.ps1** script is used to deploy a **Cluster** in the Databricks Workspace . It takes the following parameters:
+The **allin1.ps1** script is used to deploy a **Cluster**, upload **notebooks** and create a **pipeline** in the Databricks Workspace . It takes the following parameters:
 
  * $RG_NAME - Resource Group Name containing the Databricks Workspace.
  * $REGION - Resource Group Region
@@ -85,13 +92,6 @@ The **InfrastructurePlaneDeployment.ps1** script is used to deploy a **Cluster**
  * $RETRY_LIMIT - Max number of retries.
  * $RETRY_TIME - Interval between each retries in seconds.
  * $CTRL_DEPLOY_CLUSTER - True or false
-
-The **ApplicationPlaneDeployment.ps1** script is used to deploy **Notebooks** and **Pipeline** in the Databricks Workspace . It takes the following parameters:
-
- * $RG_NAME - Resource Group Name containing the Databricks Workspace
- * $REGION - Resource Group Region
- * $LIFETIME_SECONDS - Lifetime of the Databricks token in seconds
- * $COMMENT - Side note on the token generation
  * $CTRL_DEPLOY_NOTEBOOK - True or false
  * $CTRL_DEPLOY_PIPELINE - True or false
  * $PIPELINENAME -  Name of the pipeline
@@ -103,24 +103,10 @@ The **ApplicationPlaneDeployment.ps1** script is used to deploy **Notebooks** an
  
 ## Azure Services being deployed
 
-Use the Azure portal, Azure CLI, or Azure PowerShell to list the deployed resources in the resource group.
-
-```
-az resource list --resource-group <resource-group-name>
-```
-
-After ```InfrastructurePlaneDeployment.bicep``` template deployment, the following resources get created:
-
-1. **Databricks Workspace**: Here we can develop a DLT pipeline and process our data. An All Purpose Cluster will also be created using post deployment script ```clusterDeploy.ps1``` which uses REST API to create the cluster.
-
+1. **Databricks Workspace**: Here we can develop a DLT pipeline and process our data.
 2. **Eventhub**: To capture streaming data from our source into the ADLS storage via a stream analytics job.
-
 3. **ADLS Gen 2 Storage with a Container**: This will serve as our staging layer where data coming from Eventhub will be stored .
-
-4. **Key Vault**: Used for data security .
-
-After ```ApplicationPlaneDeployment.bicep``` template deployment, the following resources get created in the workspace:
-
-1. **Notebooks** 
-
-2. **Pipeline**
+4. **Key Vault**: Used for data security.
+5. **Cluster** is created in databricks workspace.
+5. **Notebooks** are uploaded in databricks workspace.
+6. **Pipeline** is created in databricks workspace.
