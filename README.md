@@ -16,27 +16,9 @@ To deploy Bicep templates, you need **owner role** as we are assigning RBAC role
 
 ## Deployment Steps
 
-### Infrastructure Plane Automation (```InfrastructurePlaneDeployment.bicep```)
+1. Click 'Deploy To Azure' button given below to deploy all the resources.
 
-Deploying infrastructure resources for Databricks migration: **Databricks workspace**, **Databrciks Cluster**, **Storage account**, **Event Hub** and **Key Vault**.
-
-1. Open **Windows Powershell** or **Azure CLI** and login to your azure account using command:
-
-```
-az login
-```
-
-2. Next, Create a resource group using command:
-
-```
-az group create --name <resource-group-name> --location <location>
-```
-
-3. Save the ```InfrastructurePlaneDeployment.bicep``` file as **template1.bicep** to your local computer. Run the following command to deploy the bicep file:
-
-```
-az deployment group create --resource-group <resource-group-name> --template-file <path-to-template1.bicep>
-```
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDatabricksFactory%2Fdatabricks-migration%2Fmain%2Fmain.json)
 
 Provide the values for:
 - Option (true/false) for Cluster deployment
@@ -62,23 +44,10 @@ You can also provide the values for below parameters. If following parameter val
 - Max number of retries (Default value is 15)
 - Interval between each retries in seconds (Default value is 60)
 
-The deployment can take a few minutes to complete. When it finishes, you see a message that includes the result:
 
-```
-"provisioningState": "Succeeded",
-```
 
-### Application Plane Automation (```ApplicationPlaneDeployment.bicep```)
 
-Deploying application resources for Databricks migration: **Notebooks** and **Pipelines**.
 
-Save the ```ApplicationPlaneDeployment.bicep``` file as **template2.bicep** to your local computer. Deploy the bicep file following the above steps you followed for running ```template1.bicep```:
-
-```
-az deployment group create --resource-group <resource-group-name> --template-file <path-to-template2.bicep>
-```
-
-Use the same **resource group name** you used to deploy ```InfrastructurePlaneDeployment.bicep```.
 
 Provide the values for:
 - Option (true/false) for Notebook deployment
@@ -96,11 +65,7 @@ You can also provide the values for below parameters. If following parameter val
 - Max workers (Default value is 5)
 - URI path of the notebooks to be uploaded
 
-The deployment can take a few minutes to complete. When it finishes, you see a message that includes the result:
 
-```
-"provisioningState": "Succeeded",
-```
 
 ## Post Deployment
 
