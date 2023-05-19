@@ -1,6 +1,6 @@
 # Azure Databricks
 
-This bicep deployment allows the user to deploy environment of Azure Databricks with cluster, pipeline and notebook.
+This 1-click deployment allows the user to deploy environment of Azure Databricks with cluster, pipeline and notebook and other necessary infrastructure resources.
 
 ## Overall Flow
 
@@ -12,11 +12,11 @@ This bicep deployment allows the user to deploy environment of Azure Databricks 
 
 ## Prerequisites
 
-To deploy Bicep templates, you need **owner role** as we are assigning RBAC roles and write access on the resources you're deploying and access to all operations on the Microsoft.Resources/deployments resource type.
+To deploy, you need **owner role** as we are assigning RBAC roles and write access on the resources you're deploying and access to all operations on the Microsoft.Resources/deployments resource type.
 
 ## Deployment Steps
 
-1. Click 'Deploy To Azure' button given below to deploy all the resources.
+1. Click **'Deploy To Azure'** button given below to deploy all the resources.
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDatabricksFactory%2Fdatabricks-migration%2Fmain%2Fmain.json)
 
@@ -76,37 +76,17 @@ Provide the values for the following parameters or default values will be consid
 
 ## Post Deployment
 
-The **allin1.ps1** script is used to deploy a **Cluster**, upload **notebooks** and create a **pipeline** in the Databricks Workspace . It takes the following parameters:
-
- * $RG_NAME - Resource Group Name containing the Databricks Workspace.
- * $REGION - Resource Group Region
- * $WORKSPACE_NAME - Databricks Workspace Name
- * $LIFETIME_SECONDS - Lifetime of the Databricks token in seconds
- * $COMMENT - Side note on the token generation
- * $CLUSTER_NAME - Databricks Cluster Name 
- * $SPARK_VERSION - The version of Spark in the Cluster
- * $AUTOTERMINATION_MINUTES - Cluster terminates after specified minutes of inactivity
- * $NUM_WORKERS - Number of worker nodes in the Cluster
- * $NODE_TYPE_ID - Type of worker node
- * $DRIVER_NODE_TYPE_ID - Type of driver node
- * $RETRY_LIMIT - Max number of retries.
- * $RETRY_TIME - Interval between each retries in seconds.
- * $CTRL_DEPLOY_CLUSTER - True or false
- * $CTRL_DEPLOY_NOTEBOOK - True or false
- * $CTRL_DEPLOY_PIPELINE - True or false
- * $PIPELINENAME -  Name of the pipeline
- * $STORAGE - Storage path for DLT
- * $TARGETSCHEMA - Target Schema name
- * $MINWORKERS - Min workers for Cluster
- * $MAXWORKERS - Max workers for Cluster
- * $NOTEBOOK_PATH - Path of notebooks to be deployed in workspace
+The **allin1.ps1** is the post deployment script is used to deploy a **Cluster**, upload **notebooks** and create a **pipeline** in the Databricks Workspace .
  
 ## Azure Services being deployed
 
-1. **Databricks Workspace**: Here we can develop a DLT pipeline and process our data.
-2. **Eventhub**: To capture streaming data from our source into the ADLS storage via a stream analytics job.
-3. **ADLS Gen 2 Storage with a Container**: This will serve as our staging layer where data coming from Eventhub will be stored .
-4. **Key Vault**: Used for data security.
-5. **Cluster** is created in databricks workspace.
-5. **Notebooks** are uploaded in databricks workspace.
-6. **Pipeline** is created in databricks workspace.
+1. Databricks Workspace
+2. Eventhub
+3. ADLS Gen 2 Storage account with a Container
+4. Key Vault
+5. Network Interface
+6. Network security group
+7. Private DNS zone
+8. Private endpoint
+9. Virtual network
+10. Databricks workspace will have a Cluster, Sample Notebooks and a Pipeline.
