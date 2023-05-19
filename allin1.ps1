@@ -67,7 +67,6 @@ if ($CTRL_DEPLOY_CLUSTER) {
         $STATE = ((Invoke-RestMethod -Method GET -Uri "https://$REGION.azuredatabricks.net/api/2.0/clusters/get?cluster_id=$CLUSTER_ID" -Headers $HEADERS).state)
         if ($STATE -eq "RUNNING") {
             Write-Output "[INFO] Cluster is running, pipeline has been completed successfully"
-            return
         } else {
             Write-Output "[INFO] Cluster is still not ready, current state: $STATE Next check in $RETRY_TIME seconds.."
             Start-Sleep -Seconds $RETRY_TIME
