@@ -77,6 +77,8 @@ if ($CTRL_DEPLOY_CLUSTER) {
     exit 1  
 }
 
+Write-Host 'test1'
+
 if ($CTRL_DEPLOY_NOTEBOOK) {
 
 Write-Output "Task: Uploading notebook"
@@ -97,6 +99,7 @@ $headers = @{
 
 $responseFolder = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
 
+Write-Host 'test2'
  
  $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts"
  $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -129,6 +132,7 @@ $requestBody = @{
   "format" = "JUPYTER"
 }
 
+Write-Host 'test3'
 
 # Convert the request body to JSON
 $jsonBody = ConvertTo-Json -Depth 100 $requestBody
@@ -140,6 +144,8 @@ $jsonBody = ConvertTo-Json -Depth 100 $requestBody
   } 
 
 }
+
+Write-Host 'test4'
 
 if ($CTRL_DEPLOY_PIPELINE) {
 
@@ -172,7 +178,11 @@ $pipelineConfig = @{
   allow_duplicate_names = 'true' 
 }
 
+Write-Host 'test5'
+
 $createPipelineResponse = Invoke-RestMethod -Uri "https://$REGION.azuredatabricks.net/api/2.0/pipelines" -Method POST -Headers $headers -Body ($pipelineConfig | ConvertTo-Json -Depth 10)
 $createPipelineResponse
+
+Write-Host 'test6'
 
 }
