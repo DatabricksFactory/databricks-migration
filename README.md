@@ -23,6 +23,7 @@ To deploy, you need **owner role** as we are assigning RBAC roles and write acce
 Provide the values for the following parameters or default values will be considered:
 - Resource group (create new)
 - Region (Default value is 'east us')
+- Option (Pub/Pvt/PvtHyb) for Endpoint Type (Default value is 'PvtHyb') - Here ```Pub``` is public endpoint deployment, ```Pvt``` is private endpoint deployment and ```PvtHyb``` is private endpoint hybrid deployment. Please select the endpoint according to your requirements.
 - Event Hub SKU (Default value is 'Standard')
 - Blob storage account name (Default value is random unique string)
 - Container name (Default value is 'data')
