@@ -273,12 +273,14 @@
       },
       "ctrlDeployNotebook": {
         "type": "bool",
+        "defaultValue": true,
         "metadata": {
           "description": "Controls the execution of notebook deployment script"
         }
       },
       "ctrlDeployPipeline": {
         "type": "bool",
+        "defaultValue": true,
         "metadata": {
           "description": "Controls the execution of pipeline deployment script"
         }
