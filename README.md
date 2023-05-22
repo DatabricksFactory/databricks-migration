@@ -70,6 +70,11 @@ Provide the values for the following parameters or default values will be consid
 - Max Workers (Default value is 5)
 - Notebook Path (URI path of the notebooks to be uploaded)
 
+#### Implement private endpoint deployment 
+Firstly, to start with making private end point deployment optional, you can choose it to be public/private end point deployment. Secondly, in private end point deployment there are two approaches :
+- Private link – All the resources (ADLS storage gen2, key vault, event hub) along with databricks (Both front-end and back-end) will be on private end point. Downside to this approach will be as Front-end connectivity(databricks workspace, API etc) is locked down to require private link we cannot use deployment script to carry out post deployment activities like cluster deployment, importing artifacts etc through automation. All these activities should be carried out manually.
+- Private link hybrid – Recommended when infrastructure automation is in place. Here databricks would have public access along with private end points configured, since Front-end (databricks workspace, API etc) will be accessed publicly so automation of post deployment script execution is achieved, and back-end can only be accessed privately. Rest of the other resource (ADLS storage gen2, key vault, event hub) will have private end points.
+
 2. Click **'Review + Create'**.
 
 3. On successful validation, click **'Create'**.
