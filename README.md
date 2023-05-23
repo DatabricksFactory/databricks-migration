@@ -16,10 +16,10 @@ To deploy, you need **owner role** as we are assigning RBAC roles and write acce
 
 ## Network Access
  
-Network Access configuration can be carried out in 3 different modes based on the parameter value **Endpoint Type**.
+Network Access configuration is enabled using below mentioned approach based on the Azure Resource Manager parameter value **Endpoint Type**.
 - **Public** - Here, all the deployed resources are accessed publically including databricks workspace, cluster, ADLS gen 2 etc. No private end point configuration. 
-- **Private** – All the resources (ADLS storage gen2, key vault, event hub) along with databricks (Both front-end and back-end) will be on private end point. Downside to this approach will be as Front-end connectivity(databricks workspace, API etc) is locked down to require private link we cannot use deployment script to carry out post deployment activities like cluster deployment, importing artifacts etc through automation. All these activities should be carried out manually.
-- **Hybrid** – **Default, Recommended when infrastructure automation is in place**. Here databricks would have public access along with private end points configured, since Front-end (databricks workspace, API etc) will be accessed publicly so automation of post deployment script execution is achieved, and back-end can only be accessed privately. Rest of the other resource (ADLS storage gen2, key vault, event hub) will have private end points.
+- **Private** – All the resources (ADLS storage gen2, key vault, event hub) along with databricks (Both front-end and back-end) will be on private end point. Downside to this approach will be as Front-end connectivity(databricks workspace, API etc) is locked down to require private link we cannot use Azure Resource Manager deployment script to carry out post deployment activities like cluster deployment, importing artifacts etc through automation. All these activities should be carried out by running post deployment script in Azure CLI/Powershell on virtual machine/bastion in vnet environment.
+- **Hybrid** – (Defaultvalue for Endpoint Type ARM parameter) , **Recommended when infrastructure automation is in place**. Here databricks would have public access along with private end points configured, since Front-end (databricks workspace, API etc) will be accessed publicly so automation of post deployment script execution is achieved, and back-end can only be accessed privately. Rest of the other resource (ADLS storage gen2, key vault, event hub) will have private end points.
 
 ## Deployment Steps
 
