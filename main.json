@@ -5,17 +5,17 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "12727508869752819882"
+      "templateHash": "13062427365805573703"
     }
   },
   "parameters": {
     "endpointType": {
       "type": "string",
-      "defaultValue": "PvtHyb",
+      "defaultValue": "PrivateHybridMode",
       "allowedValues": [
-        "Pub",
-        "Pvt",
-        "PvtHyb"
+        "PublicMode",
+        "PrivateMode",
+        "PrivateHybridMode"
       ]
     },
     "eventHubSku": {
@@ -43,7 +43,7 @@
     },
     "fileuploaduri": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/allin1.ps1",
+      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1",
       "metadata": {
         "description": "The URI of script file to upload blob container"
       }
@@ -363,6 +363,9 @@
           },
           "vnetName": {
             "value": "[parameters('vnetName')]"
+          },
+          "endpointType": {
+            "value": "[parameters('endpointType')]"
           }
         },
         "template": {
@@ -372,7 +375,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "13929841164623520400"
+              "templateHash": "5974685297921340307"
             }
           },
           "parameters": {
@@ -429,6 +432,9 @@
               "metadata": {
                 "description": "CIDR range for the private endpoint subnet.."
               }
+            },
+            "endpointType": {
+              "type": "string"
             }
           },
           "variables": {
@@ -436,6 +442,7 @@
           },
           "resources": [
             {
+              "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
               "type": "Microsoft.Network/networkSecurityGroups",
               "apiVersion": "2021-03-01",
               "name": "[parameters('nsgName')]",
@@ -530,6 +537,7 @@
               }
             },
             {
+              "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2021-08-01",
               "name": "[parameters('vnetName')]",
@@ -604,13 +612,17 @@
                 "description": "Resource ID of the VNet"
               },
               "value": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetName'))]"
+            },
+            "networkResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3}', parameters('nsgName'), 'Microsoft.Network/networkSecurityGroups', parameters('vnetName'), 'Microsoft.Network/virtualNetworks')]"
             }
           }
         }
       }
     },
     {
-      "condition": "[equals(parameters('endpointType'), 'Pub')]",
+      "condition": "[equals(parameters('endpointType'), 'PublicMode')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "Databricks_Public_Deployment",
@@ -634,7 +646,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "10327251689573557822"
+              "templateHash": "578294327525913913"
             }
           },
           "parameters": {
@@ -667,12 +679,18 @@
                 "managedResourceGroupId": "[variables('managedResourceGroupId')]"
               }
             }
-          ]
+          ],
+          "outputs": {
+            "databricksPublicResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1}', parameters('workspaceName'), 'Microsoft.Databricks/workspaces')]"
+            }
+          }
         }
       }
     },
     {
-      "condition": "[equals(parameters('endpointType'), 'Pvt')]",
+      "condition": "[equals(parameters('endpointType'), 'PrivateMode')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "Databricks_Private_Deployment",
@@ -720,7 +738,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "9393018165807964162"
+              "templateHash": "9765227634235757502"
             }
           },
           "parameters": {
@@ -887,6 +905,10 @@
             "databricksPvtResourceId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Databricks/workspaces', parameters('workspaceName'))]"
+            },
+            "databricksPvtResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5} || Name: {6} - Type: {7} || Name: {8} - Type: {9}', parameters('workspaceName'), 'Microsoft.Databricks/workspaces', variables('privateEndpointName'), 'Microsoft.Network/privateEndpoints', format('{0}-link', variables('privateDnsZoneName')), 'Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateDnsZoneName'), 'Microsoft.Network/privateDnsZones', variables('pvtEndpointDnsGroupName'), 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups')]"
             }
           }
         }
@@ -896,7 +918,7 @@
       ]
     },
     {
-      "condition": "[equals(parameters('endpointType'), 'PvtHyb')]",
+      "condition": "[equals(parameters('endpointType'), 'PrivateHybridMode')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "Databricks_Private_Hybrid_Deployment",
@@ -944,7 +966,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "6258363348076417135"
+              "templateHash": "14250276049968688839"
             }
           },
           "parameters": {
@@ -1111,6 +1133,10 @@
             "databricksPvtHybResourceId": {
               "type": "string",
               "value": "[resourceId('Microsoft.Databricks/workspaces', parameters('workspaceName'))]"
+            },
+            "databricksPvtHybResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1} \n Name: {2} - Type: {3} \n Name: {4} - Type: {5} \n Name: {6} - Type: {7} \n Name: {8} - Type: {9}', parameters('workspaceName'), 'Microsoft.Databricks/workspaces', variables('privateEndpointName'), 'Microsoft.Network/privateEndpoints', format('{0}-link', variables('privateDnsZoneName')), 'Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateDnsZoneName'), 'Microsoft.Network/privateDnsZones', variables('pvtEndpointDnsGroupName'), 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups')]"
             }
           }
         }
@@ -1120,10 +1146,91 @@
       ]
     },
     {
-      "condition": "[parameters('ctrlDeployStorageAccount')]",
+      "condition": "[and(parameters('ctrlDeployStorageAccount'), equals(parameters('endpointType'), 'PublicMode'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "Storage_Account_Deployment",
+      "name": "Storage_Account_Public_Deployment",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "blobAccountName": {
+            "value": "[parameters('blobAccountName')]"
+          },
+          "containerName": {
+            "value": "[parameters('containerName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "13486286968583149860"
+            }
+          },
+          "parameters": {
+            "blobAccountName": {
+              "type": "string"
+            },
+            "containerName": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "location": "[resourceGroup().location]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2021-04-01",
+              "name": "[parameters('blobAccountName')]",
+              "location": "[variables('location')]",
+              "kind": "StorageV2",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "properties": {
+                "isHnsEnabled": true,
+                "networkAcls": {
+                  "bypass": "AzureServices",
+                  "virtualNetworkRules": [],
+                  "ipRules": [],
+                  "defaultAction": "Allow"
+                },
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "supportsHttpsTrafficOnly": true,
+                "accessTier": "Hot"
+              }
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/default/{1}', parameters('blobAccountName'), parameters('containerName'))]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "blobAccountResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1}', parameters('blobAccountName'), 'Microsoft.Storage/storageAccounts')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "condition": "[and(parameters('ctrlDeployStorageAccount'), equals(parameters('endpointType'), 'PrivateMode'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "Storage_Account_Private_Deployment",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1141,6 +1248,12 @@
           },
           "vnetName": {
             "value": "[parameters('vnetName')]"
+          },
+          "PrivateEndpointSubnetName": {
+            "value": "[parameters('PrivateEndpointSubnetName')]"
+          },
+          "vnetResourceId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'Network_Deployment'), '2022-09-01').outputs.vnetResourceId.value]"
           }
         },
         "template": {
@@ -1150,7 +1263,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "11447945426226011589"
+              "templateHash": "466929840326200662"
             }
           },
           "parameters": {
@@ -1171,9 +1284,25 @@
             },
             "containerName": {
               "type": "string"
+            },
+            "PrivateEndpointSubnetName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the subnet to create the private endpoint in."
+              }
+            },
+            "vnetResourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of vnet"
+              }
             }
           },
           "variables": {
+            "privateEndpointNamestorage": "storage-pvtEndpoint",
+            "privateDnsZoneNamestorage": "[format('privatelink.dfs.{0}', environment().suffixes.storage)]",
+            "pvtEndpointDnsGroupNamestorage": "storage-pvtEndpoint/mydnsgroupname",
+            "targetSubResourceDfs": "dfs",
             "location": "[resourceGroup().location]"
           },
           "resources": [
@@ -1213,12 +1342,278 @@
               "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]"
               ]
+            },
+            {
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2021-08-01",
+              "name": "[variables('privateEndpointNamestorage')]",
+              "location": "[variables('location')]",
+              "properties": {
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('PrivateEndpointSubnetName'))]"
+                },
+                "privateLinkServiceConnections": [
+                  {
+                    "name": "[variables('privateEndpointNamestorage')]",
+                    "properties": {
+                      "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]",
+                      "groupIds": [
+                        "[variables('targetSubResourceDfs')]"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "[variables('privateDnsZoneNamestorage')]",
+              "location": "global",
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNamestorage'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', variables('privateDnsZoneNamestorage'), format('{0}-link', variables('privateDnsZoneNamestorage')))]",
+              "location": "global",
+              "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                  "id": "[parameters('vnetResourceId')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+              "apiVersion": "2021-12-01",
+              "name": "[variables('pvtEndpointDnsGroupNamestorage')]",
+              "properties": {
+                "privateDnsZoneConfigs": [
+                  {
+                    "name": "config1storage",
+                    "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]",
+                "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNamestorage'))]"
+              ]
             }
           ],
           "outputs": {
-            "blobAccountResourceId": {
+            "blobAccountResourceOp": {
               "type": "string",
-              "value": "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]"
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5} || Name: {6} - Type: {7} || Name: {8} - Type: {9}', parameters('blobAccountName'), 'Microsoft.Storage/storageAccounts', variables('privateEndpointNamestorage'), 'Microsoft.Network/privateEndpoints', variables('privateDnsZoneNamestorage'), 'Microsoft.Network/privateDnsZones', format('{0}-link', variables('privateDnsZoneNamestorage')), 'Microsoft.Network/privateDnsZones/virtualNetworkLinks', reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', split(variables('pvtEndpointDnsGroupNamestorage'), '/')[0], split(variables('pvtEndpointDnsGroupNamestorage'), '/')[1]), '2021-12-01', 'full'), reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', split(variables('pvtEndpointDnsGroupNamestorage'), '/')[0], split(variables('pvtEndpointDnsGroupNamestorage'), '/')[1]), '2021-12-01', 'full'))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'Network_Deployment')]"
+      ]
+    },
+    {
+      "condition": "[and(parameters('ctrlDeployStorageAccount'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "Storage_Account_Private_Hybrid_Deployment",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "blobAccountName": {
+            "value": "[parameters('blobAccountName')]"
+          },
+          "containerName": {
+            "value": "[parameters('containerName')]"
+          },
+          "publicSubnetName": {
+            "value": "[parameters('publicSubnetName')]"
+          },
+          "vnetName": {
+            "value": "[parameters('vnetName')]"
+          },
+          "PrivateEndpointSubnetName": {
+            "value": "[parameters('PrivateEndpointSubnetName')]"
+          },
+          "vnetResourceId": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'Network_Deployment'), '2022-09-01').outputs.vnetResourceId.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "466929840326200662"
+            }
+          },
+          "parameters": {
+            "blobAccountName": {
+              "type": "string"
+            },
+            "vnetName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the virtual network to create."
+              }
+            },
+            "publicSubnetName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the public subnet to create."
+              }
+            },
+            "containerName": {
+              "type": "string"
+            },
+            "PrivateEndpointSubnetName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the subnet to create the private endpoint in."
+              }
+            },
+            "vnetResourceId": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource ID of vnet"
+              }
+            }
+          },
+          "variables": {
+            "privateEndpointNamestorage": "storage-pvtEndpoint",
+            "privateDnsZoneNamestorage": "[format('privatelink.dfs.{0}', environment().suffixes.storage)]",
+            "pvtEndpointDnsGroupNamestorage": "storage-pvtEndpoint/mydnsgroupname",
+            "targetSubResourceDfs": "dfs",
+            "location": "[resourceGroup().location]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2021-04-01",
+              "name": "[parameters('blobAccountName')]",
+              "location": "[variables('location')]",
+              "kind": "StorageV2",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "properties": {
+                "isHnsEnabled": true,
+                "networkAcls": {
+                  "bypass": "AzureServices",
+                  "virtualNetworkRules": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('publicSubnetName'))]",
+                      "action": "Allow",
+                      "state": "succeeded"
+                    }
+                  ],
+                  "ipRules": [],
+                  "defaultAction": "Allow"
+                },
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": false,
+                "supportsHttpsTrafficOnly": true,
+                "accessTier": "Hot"
+              }
+            },
+            {
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/default/{1}', parameters('blobAccountName'), parameters('containerName'))]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateEndpoints",
+              "apiVersion": "2021-08-01",
+              "name": "[variables('privateEndpointNamestorage')]",
+              "location": "[variables('location')]",
+              "properties": {
+                "subnet": {
+                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('PrivateEndpointSubnetName'))]"
+                },
+                "privateLinkServiceConnections": [
+                  {
+                    "name": "[variables('privateEndpointNamestorage')]",
+                    "properties": {
+                      "privateLinkServiceId": "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]",
+                      "groupIds": [
+                        "[variables('targetSubResourceDfs')]"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobAccountName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones",
+              "apiVersion": "2020-06-01",
+              "name": "[variables('privateDnsZoneNamestorage')]",
+              "location": "global",
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNamestorage'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}/{1}', variables('privateDnsZoneNamestorage'), format('{0}-link', variables('privateDnsZoneNamestorage')))]",
+              "location": "global",
+              "properties": {
+                "registrationEnabled": false,
+                "virtualNetwork": {
+                  "id": "[parameters('vnetResourceId')]"
+                }
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+              "apiVersion": "2021-12-01",
+              "name": "[variables('pvtEndpointDnsGroupNamestorage')]",
+              "properties": {
+                "privateDnsZoneConfigs": [
+                  {
+                    "name": "config1storage",
+                    "properties": {
+                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]"
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]",
+                "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNamestorage'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "blobAccountResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5} || Name: {6} - Type: {7} || Name: {8} - Type: {9}', parameters('blobAccountName'), 'Microsoft.Storage/storageAccounts', variables('privateEndpointNamestorage'), 'Microsoft.Network/privateEndpoints', variables('privateDnsZoneNamestorage'), 'Microsoft.Network/privateDnsZones', format('{0}-link', variables('privateDnsZoneNamestorage')), 'Microsoft.Network/privateDnsZones/virtualNetworkLinks', reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', split(variables('pvtEndpointDnsGroupNamestorage'), '/')[0], split(variables('pvtEndpointDnsGroupNamestorage'), '/')[1]), '2021-12-01', 'full'), reference(resourceId('Microsoft.Network/privateEndpoints/privateDnsZoneGroups', split(variables('pvtEndpointDnsGroupNamestorage'), '/')[0], split(variables('pvtEndpointDnsGroupNamestorage'), '/')[1]), '2021-12-01', 'full'))]"
             }
           }
         }
@@ -1252,7 +1647,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "2471592076770621283"
+              "templateHash": "12919321538106393764"
             }
           },
           "parameters": {
@@ -1323,6 +1718,10 @@
             "eventhubResourceId": {
               "type": "string",
               "value": "[resourceId('Microsoft.EventHub/namespaces', variables('eventHubNamespaceName'))]"
+            },
+            "eventHubResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5}', variables('eventHubNamespaceName'), 'Microsoft.EventHub/namespaces', variables('eventHubName'), 'Microsoft.EventHub/namespaces/eventhubs', format('{0}/{1}/{2}', variables('eventHubNamespaceName'), variables('eventHubName'), parameters('eHRuleName')), 'Microsoft.EventHub/namespaces/eventhubs/authorizationRules')]"
             }
           }
         }
@@ -1350,7 +1749,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "7310148213244612204"
+              "templateHash": "3927882035627787026"
             }
           },
           "parameters": {
@@ -1388,154 +1787,17 @@
             "keyvaultResourceId": {
               "type": "string",
               "value": "[resourceId('Microsoft.KeyVault/vaults', format('vault{0}', parameters('utcValue')))]"
+            },
+            "keyvaultResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1}', format('vault{0}', parameters('utcValue')), 'Microsoft.KeyVault/vaults')]"
             }
           }
         }
       }
     },
     {
-      "condition": "[or(equals(parameters('endpointType'), 'Pvt'), equals(parameters('endpointType'), 'PvtHyb'))]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "Storage_Private_Endpoint_Deployment",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "PrivateEndpointSubnetName": {
-            "value": "[parameters('PrivateEndpointSubnetName')]"
-          },
-          "blobAccountResourceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'Storage_Account_Deployment'), '2022-09-01').outputs.blobAccountResourceId.value]"
-          },
-          "vnetName": {
-            "value": "[parameters('vnetName')]"
-          },
-          "vnetResourceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'Network_Deployment'), '2022-09-01').outputs.vnetResourceId.value]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "1694743361720408758"
-            }
-          },
-          "parameters": {
-            "vnetName": {
-              "type": "string",
-              "metadata": {
-                "description": "The name of the virtual network to create."
-              }
-            },
-            "PrivateEndpointSubnetName": {
-              "type": "string",
-              "metadata": {
-                "description": "The name of the subnet to create the private endpoint in."
-              }
-            },
-            "blobAccountResourceId": {
-              "type": "string",
-              "metadata": {
-                "description": "Resource ID of blob account"
-              }
-            },
-            "vnetResourceId": {
-              "type": "string",
-              "metadata": {
-                "description": "Resource ID of vnet"
-              }
-            }
-          },
-          "variables": {
-            "privateEndpointNamestorage": "storage-pvtEndpoint",
-            "privateDnsZoneNamestorage": "[format('privatelink.dfs.{0}', environment().suffixes.storage)]",
-            "pvtEndpointDnsGroupNamestorage": "storage-pvtEndpoint/mydnsgroupname",
-            "targetSubResourceDfs": "dfs",
-            "location": "[resourceGroup().location]"
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Network/privateEndpoints",
-              "apiVersion": "2021-08-01",
-              "name": "[variables('privateEndpointNamestorage')]",
-              "location": "[variables('location')]",
-              "properties": {
-                "subnet": {
-                  "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('PrivateEndpointSubnetName'))]"
-                },
-                "privateLinkServiceConnections": [
-                  {
-                    "name": "[variables('privateEndpointNamestorage')]",
-                    "properties": {
-                      "privateLinkServiceId": "[parameters('blobAccountResourceId')]",
-                      "groupIds": [
-                        "[variables('targetSubResourceDfs')]"
-                      ]
-                    }
-                  }
-                ]
-              }
-            },
-            {
-              "type": "Microsoft.Network/privateDnsZones",
-              "apiVersion": "2020-06-01",
-              "name": "[variables('privateDnsZoneNamestorage')]",
-              "location": "global",
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNamestorage'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
-              "apiVersion": "2020-06-01",
-              "name": "[format('{0}/{1}', variables('privateDnsZoneNamestorage'), format('{0}-link', variables('privateDnsZoneNamestorage')))]",
-              "location": "global",
-              "properties": {
-                "registrationEnabled": false,
-                "virtualNetwork": {
-                  "id": "[parameters('vnetResourceId')]"
-                }
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]"
-              ]
-            },
-            {
-              "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
-              "apiVersion": "2021-12-01",
-              "name": "[variables('pvtEndpointDnsGroupNamestorage')]",
-              "properties": {
-                "privateDnsZoneConfigs": [
-                  {
-                    "name": "config1storage",
-                    "properties": {
-                      "privateDnsZoneId": "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]"
-                    }
-                  }
-                ]
-              },
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]",
-                "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNamestorage'))]"
-              ]
-            }
-          ]
-        }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'Network_Deployment')]",
-        "[resourceId('Microsoft.Resources/deployments', 'Storage_Account_Deployment')]"
-      ]
-    },
-    {
-      "condition": "[or(equals(parameters('endpointType'), 'Pvt'), equals(parameters('endpointType'), 'PvtHyb'))]",
+      "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "EventHub_Private_Endpoint_Deployment",
@@ -1565,7 +1827,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "14652359723667756474"
+              "templateHash": "17670514105283606102"
             }
           },
           "parameters": {
@@ -1667,7 +1929,13 @@
                 "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNameeventhub'))]"
               ]
             }
-          ]
+          ],
+          "outputs": {
+            "eventhubpepResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5} || Name: {6} - Type: {7}', variables('privateEndpointNameeventhub'), 'Microsoft.Network/privateEndpoints', variables('privateDnsZoneNameeventhub'), 'Microsoft.Network/privateDnsZones', format('{0}-link', variables('privateDnsZoneNameeventhub')), 'Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('pvtEndpointDnsGroupNameeventhub'), 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups')]"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -1676,7 +1944,7 @@
       ]
     },
     {
-      "condition": "[or(equals(parameters('endpointType'), 'Pvt'), equals(parameters('endpointType'), 'PvtHyb'))]",
+      "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "Key_Vault_Private_Endpoint_Deployment",
@@ -1706,7 +1974,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "1719892985680008149"
+              "templateHash": "8318249673427675421"
             }
           },
           "parameters": {
@@ -1808,7 +2076,13 @@
                 "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNamevault'))]"
               ]
             }
-          ]
+          ],
+          "outputs": {
+            "keyvaultpepResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5} || Name: {6} - Type: {7}', variables('privateEndpointNamevault'), 'Microsoft.Network/privateEndpoints', variables('privateDnsZoneNamevault'), 'Microsoft.Network/privateDnsZones', format('{0}-link', variables('privateDnsZoneNamevault')), 'Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('pvtEndpointDnsGroupNamevault'), 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups')]"
+            }
+          }
         }
       },
       "dependsOn": [
@@ -1817,10 +2091,10 @@
       ]
     },
     {
-      "condition": "[or(equals(parameters('endpointType'), 'Pub'), equals(parameters('endpointType'), 'PvtHyb'))]",
+      "condition": "[equals(parameters('endpointType'), 'PublicMode')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "Post-Deployment_Scripts",
+      "name": "Post-Deployment_Scripts_Public",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -1898,6 +2172,9 @@
           },
           "maxWorkers": {
             "value": "[parameters('maxWorkers')]"
+          },
+          "endpointType": {
+            "value": "[parameters('endpointType')]"
           }
         },
         "template": {
@@ -1907,7 +2184,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "2715414341928809178"
+              "templateHash": "9121491296614944728"
             }
           },
           "parameters": {
@@ -2054,6 +2331,9 @@
               "metadata": {
                 "description": "seconduniquestring"
               }
+            },
+            "endpointType": {
+              "type": "string"
             }
           },
           "variables": {
@@ -2065,6 +2345,7 @@
           },
           "resources": [
             {
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
               "name": "PostDeploymentScriptForFileUpload",
@@ -2089,12 +2370,14 @@
               ]
             },
             {
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
               "name": "[parameters('identityName')]",
               "location": "[variables('location')]"
             },
             {
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2018-09-01-preview",
               "name": "[variables('bootstrapRoleAssignmentId_var')]",
@@ -2108,13 +2391,347 @@
                 "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
               ]
             }
-          ]
+          ],
+          "outputs": {
+            "postDeploymentsResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5}', 'PostDeploymentScriptForFileUpload', 'Microsoft.Resources/deploymentScripts', parameters('identityName'), 'Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapRoleAssignmentId_var'), 'Microsoft.Authorization/roleAssignments')]"
+            }
+          }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'Databricks_Private_Hybrid_Deployment')]",
         "[resourceId('Microsoft.Resources/deployments', 'Databricks_Public_Deployment')]"
       ]
+    },
+    {
+      "condition": "[equals(parameters('endpointType'), 'PrivateHybridMode')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2022-09-01",
+      "name": "Post-Deployment_Scripts_Private_Hybrid",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "autoTerminationMinutes": {
+            "value": "[parameters('autoTerminationMinutes')]"
+          },
+          "clusterName": {
+            "value": "[parameters('clusterName')]"
+          },
+          "comment": {
+            "value": "[parameters('comment')]"
+          },
+          "ctrlDeployCluster": {
+            "value": "[parameters('ctrlDeployCluster')]"
+          },
+          "ctrlDeployNotebook": {
+            "value": "[parameters('ctrlDeployNotebook')]"
+          },
+          "ctrlDeployPipeline": {
+            "value": "[parameters('ctrlDeployPipeline')]"
+          },
+          "driverNodeTypeId": {
+            "value": "[parameters('driverNodeTypeId')]"
+          },
+          "fileuploaduri": {
+            "value": "[parameters('fileuploaduri')]"
+          },
+          "firstuniquestring": {
+            "value": "[parameters('firstuniquestring')]"
+          },
+          "identityName": {
+            "value": "[parameters('identityName')]"
+          },
+          "lifetimeSeconds": {
+            "value": "[parameters('lifetimeSeconds')]"
+          },
+          "nodeTypeId": {
+            "value": "[parameters('nodeTypeId')]"
+          },
+          "numWorkers": {
+            "value": "[parameters('numWorkers')]"
+          },
+          "retryLimit": {
+            "value": "[parameters('retryLimit')]"
+          },
+          "retryTime": {
+            "value": "[parameters('retryTime')]"
+          },
+          "seconduniquestring": {
+            "value": "[parameters('seconduniquestring')]"
+          },
+          "sparkVersion": {
+            "value": "[parameters('sparkVersion')]"
+          },
+          "workspaceName": {
+            "value": "[parameters('workspaceName')]"
+          },
+          "pipelineName": {
+            "value": "[parameters('pipelineName')]"
+          },
+          "notebookPath": {
+            "value": "[parameters('notebookPath')]"
+          },
+          "storagePath": {
+            "value": "[parameters('storagePath')]"
+          },
+          "targetSchemaName": {
+            "value": "[parameters('targetSchemaName')]"
+          },
+          "minWorkers": {
+            "value": "[parameters('minWorkers')]"
+          },
+          "maxWorkers": {
+            "value": "[parameters('maxWorkers')]"
+          },
+          "endpointType": {
+            "value": "[parameters('endpointType')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.17.1.54307",
+              "templateHash": "9121491296614944728"
+            }
+          },
+          "parameters": {
+            "workspaceName": {
+              "type": "string",
+              "metadata": {
+                "description": "The name of the Azure Databricks workspace to create."
+              }
+            },
+            "ctrlDeployCluster": {
+              "type": "bool",
+              "metadata": {
+                "description": "Controls the execution of cluster deployment script"
+              }
+            },
+            "ctrlDeployNotebook": {
+              "type": "bool",
+              "metadata": {
+                "description": "Controls the execution of notebook deployment script"
+              }
+            },
+            "ctrlDeployPipeline": {
+              "type": "bool",
+              "metadata": {
+                "description": "Controls the execution of pipeline deployment script"
+              }
+            },
+            "lifetimeSeconds": {
+              "type": "int",
+              "metadata": {
+                "description": "Time to live of the Databricks token in seconds"
+              }
+            },
+            "comment": {
+              "type": "string",
+              "metadata": {
+                "description": "Side note on the token generation"
+              }
+            },
+            "clusterName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of the Databricks cluster"
+              }
+            },
+            "sparkVersion": {
+              "type": "string",
+              "metadata": {
+                "description": "Version of Spark in the cluster"
+              }
+            },
+            "autoTerminationMinutes": {
+              "type": "int",
+              "metadata": {
+                "description": "Cluster terminates after specified minutes of inactivity"
+              }
+            },
+            "numWorkers": {
+              "type": "string",
+              "metadata": {
+                "description": "Number of worker nodes"
+              }
+            },
+            "nodeTypeId": {
+              "type": "string",
+              "metadata": {
+                "description": "Type of worker node"
+              }
+            },
+            "driverNodeTypeId": {
+              "type": "string",
+              "metadata": {
+                "description": "Type of driver node"
+              }
+            },
+            "retryLimit": {
+              "type": "int",
+              "metadata": {
+                "description": "Max number of retries"
+              }
+            },
+            "retryTime": {
+              "type": "int",
+              "metadata": {
+                "description": "Interval between each retries in seconds"
+              }
+            },
+            "pipelineName": {
+              "type": "string",
+              "metadata": {
+                "description": "NAme of the pipeline"
+              }
+            },
+            "storagePath": {
+              "type": "string",
+              "metadata": {
+                "description": "Path where DLT will be created"
+              }
+            },
+            "targetSchemaName": {
+              "type": "string",
+              "metadata": {
+                "description": "Target schema name"
+              }
+            },
+            "minWorkers": {
+              "type": "int",
+              "metadata": {
+                "description": "Min workers"
+              }
+            },
+            "maxWorkers": {
+              "type": "int",
+              "metadata": {
+                "description": "Max workers"
+              }
+            },
+            "notebookPath": {
+              "type": "string",
+              "metadata": {
+                "description": "Path of the notebook to be uploaded"
+              }
+            },
+            "fileuploaduri": {
+              "type": "string",
+              "metadata": {
+                "description": "The URI of script file to upload blob container"
+              }
+            },
+            "identityName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of identity"
+              }
+            },
+            "firstuniquestring": {
+              "type": "string",
+              "metadata": {
+                "description": "firstuniquestring"
+              }
+            },
+            "seconduniquestring": {
+              "type": "string",
+              "metadata": {
+                "description": "seconduniquestring"
+              }
+            },
+            "endpointType": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "location": "[resourceGroup().location]",
+            "fileuploadurivariable": "[parameters('fileuploaduri')]",
+            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'))]",
+            "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
+            "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c"
+          },
+          "resources": [
+            {
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2020-10-01",
+              "name": "PostDeploymentScriptForFileUpload",
+              "location": "[variables('location')]",
+              "kind": "AzurePowerShell",
+              "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')))]": {}
+                }
+              },
+              "properties": {
+                "azPowerShellVersion": "7.2.4",
+                "cleanupPreference": "OnSuccess",
+                "retentionInterval": "P1D",
+                "timeout": "PT30M",
+                "arguments": "[variables('scriptParametersToUploadFile')]",
+                "primaryScriptUri": "[variables('fileuploadurivariable')]"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+              ]
+            },
+            {
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+              "apiVersion": "2018-11-30",
+              "name": "[parameters('identityName')]",
+              "location": "[variables('location')]"
+            },
+            {
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2018-09-01-preview",
+              "name": "[variables('bootstrapRoleAssignmentId_var')]",
+              "properties": {
+                "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('contributorRoleDefinitionId'))]",
+                "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName')), '2018-11-30').principalId]",
+                "scope": "[resourceGroup().id]",
+                "principalType": "ServicePrincipal"
+              },
+              "dependsOn": [
+                "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('identityName'))]"
+              ]
+            }
+          ],
+          "outputs": {
+            "postDeploymentsResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5}', 'PostDeploymentScriptForFileUpload', 'Microsoft.Resources/deploymentScripts', parameters('identityName'), 'Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapRoleAssignmentId_var'), 'Microsoft.Authorization/roleAssignments')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'Databricks_Private_Hybrid_Deployment')]"
+      ]
     }
-  ]
+  ],
+  "outputs": {
+    "resourceList": {
+      "type": "array",
+      "value": [
+        "[if(equals(parameters('endpointType'), 'PublicMode'), reference(resourceId('Microsoft.Resources/deployments', 'Databricks_Public_Deployment'), '2022-09-01').outputs.databricksPublicResourceOp.value, if(equals(parameters('endpointType'), 'PrivateMode'), reference(resourceId('Microsoft.Resources/deployments', 'Databricks_Private_Deployment'), '2022-09-01').outputs.databricksPvtResourceOp.value, reference(resourceId('Microsoft.Resources/deployments', 'Databricks_Private_Hybrid_Deployment'), '2022-09-01').outputs.databricksPvtHybResourceOp.value))]",
+        "[if(equals(parameters('endpointType'), 'PublicMode'), reference(resourceId('Microsoft.Resources/deployments', 'Storage_Account_Public_Deployment'), '2022-09-01').outputs.blobAccountResourceOp.value, if(equals(parameters('endpointType'), 'PrivateMode'), reference(resourceId('Microsoft.Resources/deployments', 'Storage_Account_Private_Deployment'), '2022-09-01').outputs.blobAccountResourceOp.value, reference(resourceId('Microsoft.Resources/deployments', 'Storage_Account_Private_Hybrid_Deployment'), '2022-09-01').outputs.blobAccountResourceOp.value))]",
+        "[reference(resourceId('Microsoft.Resources/deployments', 'EventHub_Deployment'), '2022-09-01').outputs.eventHubResourceOp.value]",
+        "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'EventHub_Private_Endpoint_Deployment'), '2022-09-01').outputs.eventhubpepResourceOp.value, '')]",
+        "[reference(resourceId('Microsoft.Resources/deployments', 'Key_Vault_Deployment'), '2022-09-01').outputs.keyvaultResourceOp.value]",
+        "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'Key_Vault_Private_Endpoint_Deployment'), '2022-09-01').outputs.keyvaultpepResourceOp.value, '')]",
+        "[if(equals(parameters('endpointType'), 'PublicMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Public'), '2022-09-01').outputs.postDeploymentsResourceOp.value, if(equals(parameters('endpointType'), 'PrivateHybridMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Private_Hybrid'), '2022-09-01').outputs.postDeploymentsResourceOp.value, ''))]",
+        "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'Network_Deployment'), '2022-09-01').outputs.networkResourceOp.value, '')]"
+      ]
+    }
+  }
 }
