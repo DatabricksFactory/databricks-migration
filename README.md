@@ -2,7 +2,7 @@
 
 This 1-click deployment allows the user to deploy environment of Azure Databricks with cluster, pipeline and notebook and other necessary infrastructure resources.
 
-## Overall Flow
+## SDLC Flow
 
 ![Flow diagram](./Assets/Development_FlowChart.png)
 
