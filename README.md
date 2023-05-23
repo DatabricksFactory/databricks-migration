@@ -29,7 +29,7 @@ Firstly, to start with making private end point deployment optional, you can cho
 Provide the values for the following parameters or default values will be considered:
 - Resource group (create new)
 - Region (Default value is 'east us')
-- Option (PublicMode/PrivateMode/HybridMode) for Endpoint Type (Default value is 'PvtHyb') - Here ```PublicMode``` is public endpoint deployment, ```PrivateMode``` is private endpoint deployment and ```HybridMode``` is private endpoint hybrid deployment. Please select the endpoint according to your requirements.
+- Option (PublicMode/PrivateMode/HybridMode) for Endpoint Type (Default value is 'HybridMode') - Here ```PublicMode``` is public endpoint deployment, ```PrivateMode``` is private endpoint deployment and ```HybridMode``` is private endpoint hybrid deployment. Please select the endpoint according to your requirements.
 - Event Hub SKU (Default value is 'Standard')
 - Blob storage account name (Default value is random unique string)
 - Container name (Default value is 'data')
