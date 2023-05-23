@@ -82,3 +82,7 @@ resource pvtEndpointDnsGroupeventhub 'Microsoft.Network/privateEndpoints/private
     privateEndpointeventhub
   ]
 }
+
+//Outputs
+
+output eventhubpepResourceOp string = 'Name: ${privateEndpointeventhub.name} - Type: ${privateEndpointeventhub.type} || Name: ${privateDnsZoneeventhub.name} - Type: ${privateDnsZoneeventhub.type} || Name: ${privateDnsZoneName_privateDnsZoneName_link_eventhub.name} - Type: ${privateDnsZoneName_privateDnsZoneName_link_eventhub.type} || Name: ${pvtEndpointDnsGroupeventhub.name} - Type: ${pvtEndpointDnsGroupeventhub.type}'

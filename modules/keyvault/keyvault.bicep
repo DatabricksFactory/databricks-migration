@@ -32,3 +32,5 @@ resource vault_utcValue 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
 //Outputs
 
 output keyvaultResourceId string = vault_utcValue.id
+
+output keyvaultResourceOp string = 'Name: ${vault_utcValue.name} - Type: ${vault_utcValue.type}'

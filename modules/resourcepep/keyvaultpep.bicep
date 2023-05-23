@@ -82,3 +82,7 @@ resource pvtEndpointDnsGroupvault 'Microsoft.Network/privateEndpoints/privateDns
     privateEndpointvault
   ]
 }
+
+//Outputs
+
+output keyvaultpepResourceOp string = 'Name: ${privateEndpointvault.name} - Type: ${privateEndpointvault.type} || Name: ${privateDnsZonevault.name} - Type: ${privateDnsZonevault.type} || Name: ${privateDnsZoneName_privateDnsZoneName_link_vault.name} - Type: ${privateDnsZoneName_privateDnsZoneName_link_vault.type} || Name: ${pvtEndpointDnsGroupvault.name} - Type: ${pvtEndpointDnsGroupvault.type}'

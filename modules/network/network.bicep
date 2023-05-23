@@ -27,13 +27,15 @@ param PrivateEndpointSubnetName string
 @description('CIDR range for the private endpoint subnet..')
 param privateEndpointSubnetCidr string 
 
+param endpointType string
+
 //Variables
 
 var location = resourceGroup().location
 
 // NSG
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if(endpointType == 'PrivateMode' || endpointType == 'PrivateHybridMode') {
   name: nsgName
   location: location
   properties: {
@@ -128,7 +130,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = {
 
 // V-Net
 
-resource vnet 'Microsoft.Network/virtualNetworks@2021-08-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2021-08-01' = if(endpointType == 'PrivateMode' || endpointType == 'PrivateHybridMode') {
   name: vnetName
   location: location
   properties: {
@@ -193,4 +195,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2021-08-01' = {
 
 @description('Resource ID of the VNet')
 output vnetResourceId string = vnet.id
+
+output networkResourceOp string = 'Name: ${nsg.name} - Type: ${nsg.type} || Name: ${vnet.name} - Type: ${vnet.type}'
+
 

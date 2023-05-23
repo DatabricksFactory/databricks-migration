@@ -72,6 +72,8 @@ param firstuniquestring string
 @description('seconduniquestring')
 param seconduniquestring string 
 
+param endpointType string
+
 //Variables
 
 var location = resourceGroup().location
@@ -86,7 +88,7 @@ var contributorRoleDefinitionId = 'B24988ac-6180-42a0-ab88-20f7382dd24c'
 
 //Resources
 
-resource PostDeploymentScriptForFileUpload 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+resource PostDeploymentScriptForFileUpload 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(endpointType == 'PublicMode' || endpointType == 'PrivateHybridMode') {
   name: 'PostDeploymentScriptForFileUpload'
   location: location
   kind: 'AzurePowerShell'
@@ -106,12 +108,12 @@ resource PostDeploymentScriptForFileUpload 'Microsoft.Resources/deploymentScript
   }
 }
 
-resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = if(endpointType == 'PublicMode' || endpointType == 'PrivateHybridMode') {
   name: identityName
   location: location
 }
 
-resource bootstrapRoleAssignmentId 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = {
+resource bootstrapRoleAssignmentId 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = if(endpointType == 'PublicMode' || endpointType == 'PrivateHybridMode') {
   name: bootstrapRoleAssignmentId_var
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', contributorRoleDefinitionId)
@@ -121,3 +123,6 @@ resource bootstrapRoleAssignmentId 'Microsoft.Authorization/roleAssignments@2018
   }
 }
 
+//Outputs
+
+output postDeploymentsResourceOp string = 'Name: ${PostDeploymentScriptForFileUpload.name} - Type: ${PostDeploymentScriptForFileUpload.type} || Name: ${identity.name} - Type: ${identity.type} || Name: ${bootstrapRoleAssignmentId.name} - Type: ${bootstrapRoleAssignmentId.type}'

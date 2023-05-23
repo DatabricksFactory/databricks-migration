@@ -133,3 +133,5 @@ resource pvtEndpointDnsGroup 'Microsoft.Network/privateEndpoints/privateDnsZoneG
 //Outputs 
 
 output databricksPvtResourceId string = databricks_privateEndpoint.id
+
+output databricksPvtResourceOp string = 'Name: ${databricks_privateEndpoint.name} - Type: ${databricks_privateEndpoint.type} || Name: ${privateEndpoint.name} - Type: ${privateEndpoint.type} || Name: ${privateDnsZoneName_privateDnsZoneName_link.name} - Type: ${privateDnsZoneName_privateDnsZoneName_link.type} || Name: ${privateDnsZone.name} - Type: ${privateDnsZone.type} || Name: ${pvtEndpointDnsGroup.name} - Type: ${pvtEndpointDnsGroup.type}'

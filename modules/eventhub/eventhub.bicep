@@ -64,3 +64,5 @@ resource eventHubName_rule 'Microsoft.EventHub/namespaces/eventhubs/authorizatio
 //Outputs
 
 output eventhubResourceId string = eventHubNamespace.id
+
+output eventHubResourceOp string = 'Name: ${eventHubNamespace.name} - Type: ${eventHubNamespace.type} || Name: ${eventHubNamespace_eventHubName.name} - Type: ${eventHubNamespace_eventHubName.type} || Name: ${eventHubName_rule.name} - Type: ${eventHubName_rule.type}'

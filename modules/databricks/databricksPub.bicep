@@ -27,3 +27,7 @@ resource databricks_public 'Microsoft.Databricks/workspaces@2018-04-01' = {
     managedResourceGroupId: managedResourceGroupId
   }
 }
+
+//Outputs
+
+output databricksPublicResourceOp string = 'Name: ${databricks_public.name} - Type: ${databricks_public.type}'

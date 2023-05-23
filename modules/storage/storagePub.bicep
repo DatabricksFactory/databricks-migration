@@ -2,12 +2,6 @@
 
 param blobAccountName string 
 
-@description('The name of the virtual network to create.')
-param vnetName string 
-
-@description('The name of the public subnet to create.')
-param publicSubnetName string 
-
 param containerName string 
 
 //Variables
@@ -16,7 +10,7 @@ var location = resourceGroup().location
 
 //Resources
 
-resource blobAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+resource blobAccountPublic 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: blobAccountName
   location: location
   kind: 'StorageV2'
@@ -27,13 +21,7 @@ resource blobAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
     isHnsEnabled: true
     networkAcls: {
       bypass: 'AzureServices'
-      virtualNetworkRules: [
-        {
-          id: resourceId('Microsoft.Network/virtualNetworks/subnets', vnetName, publicSubnetName)
-          action: 'Allow'
-          state: 'succeeded'
-        }
-      ]
+      virtualNetworkRules: []
       ipRules: []
       defaultAction: 'Allow'
     }
@@ -42,18 +30,15 @@ resource blobAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
     supportsHttpsTrafficOnly: true
     accessTier: 'Hot'
   }
-  // dependsOn: [
-  //   vnet
-  // ]
 }
 
 resource blobAccountName_default_container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
   name: '${blobAccountName}/default/${containerName}'
   dependsOn: [
-    blobAccount
+    blobAccountPublic
   ]
 }
 
 //Outputs
 
-output blobAccountResourceId string = blobAccount.id
+output blobAccountResourceOp string = 'Name: ${blobAccountPublic.name} - Type: ${blobAccountPublic.type}'

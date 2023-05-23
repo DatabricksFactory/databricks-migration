@@ -1,11 +1,11 @@
 //Parameters
 
 @allowed([
-  'Pub'
-  'Pvt'
-  'PvtHyb'
+  'PublicMode'
+  'PrivateMode'
+  'PrivateHybridMode'
 ])
-param endpointType string = 'PvtHyb'
+param endpointType string = 'PrivateHybridMode'
 
 @allowed([
   'Basic'
@@ -162,10 +162,11 @@ module networkModule 'modules/network/network.bicep' = {
     publicSubnetName: publicSubnetName
     vnetCidr: vnetCidr
     vnetName: vnetName
+    endpointType: endpointType
   }
 }
 
-module databricksPublicModule 'modules/databricks/databricksPub.bicep' = if(endpointType == 'Pub') {
+module databricksPublicModule 'modules/databricks/databricksPub.bicep' = if(endpointType == 'PublicMode') {
   name: 'Databricks_Public_Deployment'
   params: {
     pricingTier: pricingTier
@@ -173,7 +174,7 @@ module databricksPublicModule 'modules/databricks/databricksPub.bicep' = if(endp
   }
 }
 
-module databricksPrivateModule 'modules/databricks/databricksPvt.bicep' = if(endpointType == 'Pvt') {
+module databricksPrivateModule 'modules/databricks/databricksPvt.bicep' = if(endpointType == 'PrivateMode') {
   name: 'Databricks_Private_Deployment'
   params: {
     customVirtualNetworkResourceId: networkModule.outputs.vnetResourceId
@@ -189,7 +190,7 @@ module databricksPrivateModule 'modules/databricks/databricksPvt.bicep' = if(end
   }
 }
 
-module databricksPrivateHybridModule 'modules/databricks/databricksPvtHyb.bicep' = if(endpointType == 'PvtHyb') {
+module databricksPrivateHybridModule 'modules/databricks/databricksPvtHyb.bicep' = if(endpointType == 'PrivateHybridMode') {
   name: 'Databricks_Private_Hybrid_Deployment'
   params: {
     customVirtualNetworkResourceId: networkModule.outputs.vnetResourceId
@@ -205,13 +206,36 @@ module databricksPrivateHybridModule 'modules/databricks/databricksPvtHyb.bicep'
   }
 }
 
-module storageModule './modules/storage/storage.bicep' = if(ctrlDeployStorageAccount) {
-  name: 'Storage_Account_Deployment'
+module storagePublicModule 'modules/storage/storagePub.bicep' = if(ctrlDeployStorageAccount && endpointType == 'PublicMode') {
+  name: 'Storage_Account_Public_Deployment'
+  params: {
+    blobAccountName: blobAccountName
+    containerName: containerName
+  }
+}
+
+module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(ctrlDeployStorageAccount && endpointType == 'PrivateMode') {
+  name: 'Storage_Account_Private_Deployment'
   params: {
     blobAccountName: blobAccountName
     containerName: containerName
     publicSubnetName: publicSubnetName
     vnetName: vnetName
+    PrivateEndpointSubnetName: PrivateEndpointSubnetName
+    vnetResourceId: networkModule.outputs.vnetResourceId
+  }
+  dependsOn: [networkModule]
+}
+
+module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(ctrlDeployStorageAccount && endpointType == 'PrivateHybridMode') {
+  name: 'Storage_Account_Private_Hybrid_Deployment'
+  params: {
+    blobAccountName: blobAccountName
+    containerName: containerName
+    publicSubnetName: publicSubnetName
+    vnetName: vnetName
+    PrivateEndpointSubnetName: PrivateEndpointSubnetName
+    vnetResourceId: networkModule.outputs.vnetResourceId
   }
   dependsOn: [networkModule]
 }
@@ -231,18 +255,7 @@ module keyvaultModule './modules/keyvault/keyvault.bicep' = if(ctrlDeployKeyVaul
   }
 }
 
-module storagePrivateEndpointModule 'modules/resourcepep/storagepep.bicep' = if(endpointType == 'Pvt' || endpointType == 'PvtHyb') {
-  name: 'Storage_Private_Endpoint_Deployment'
-  params: {
-    PrivateEndpointSubnetName: PrivateEndpointSubnetName
-    blobAccountResourceId: storageModule.outputs.blobAccountResourceId
-    vnetName: vnetName
-    vnetResourceId: networkModule.outputs.vnetResourceId
-  }
-  dependsOn: [storageModule]
-}
-
-module eventhubPrivateEndpointModule './modules/resourcepep/eventhubpep.bicep' = if(endpointType == 'Pvt' || endpointType == 'PvtHyb') {
+module eventhubPrivateEndpointModule './modules/resourcepep/eventhubpep.bicep' = if(endpointType == 'PrivateMode' || endpointType == 'PrivateHybridMode') {
   name: 'EventHub_Private_Endpoint_Deployment'
   params: {
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
@@ -253,7 +266,7 @@ module eventhubPrivateEndpointModule './modules/resourcepep/eventhubpep.bicep' =
   dependsOn: [eventhubModule]
 }
 
-module keyvaultPrivateEndpointModule './modules/resourcepep/keyvaultpep.bicep' = if(endpointType == 'Pvt' || endpointType == 'PvtHyb') {
+module keyvaultPrivateEndpointModule './modules/resourcepep/keyvaultpep.bicep' = if(endpointType == 'PrivateMode' || endpointType == 'PrivateHybridMode') {
   name: 'Key_Vault_Private_Endpoint_Deployment'
   params: {
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
@@ -264,8 +277,8 @@ module keyvaultPrivateEndpointModule './modules/resourcepep/keyvaultpep.bicep' =
   dependsOn: [keyvaultModule]
 }
 
-module deploymentScriptModule './modules/deploymentScripts/deploymentScripts.bicep' = if(endpointType == 'Pub' || endpointType == 'PvtHyb') { //dont exec when pvtep
-  name: 'Post-Deployment_Scripts'
+module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScripts.bicep' = if(endpointType == 'PublicMode') { 
+  name: 'Post-Deployment_Scripts_Public'
   params: {
     autoTerminationMinutes: autoTerminationMinutes
     clusterName: clusterName
@@ -291,6 +304,52 @@ module deploymentScriptModule './modules/deploymentScripts/deploymentScripts.bic
     targetSchemaName: targetSchemaName
     minWorkers: minWorkers
     maxWorkers: maxWorkers
+    endpointType: endpointType
   }
-  dependsOn: endpointType == 'Pub' ? [databricksPublicModule] : [databricksPrivateHybridModule]
+  dependsOn: [databricksPublicModule]
 }
+
+module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deploymentScripts.bicep' = if(endpointType == 'PrivateHybridMode') { 
+  name: 'Post-Deployment_Scripts_Private_Hybrid'
+  params: {
+    autoTerminationMinutes: autoTerminationMinutes
+    clusterName: clusterName
+    comment: comment
+    ctrlDeployCluster: ctrlDeployCluster
+    ctrlDeployNotebook: ctrlDeployNotebook
+    ctrlDeployPipeline: ctrlDeployPipeline
+    driverNodeTypeId: driverNodeTypeId
+    fileuploaduri: fileuploaduri
+    firstuniquestring: firstuniquestring
+    identityName: identityName
+    lifetimeSeconds: lifetimeSeconds
+    nodeTypeId: nodeTypeId
+    numWorkers: numWorkers
+    retryLimit: retryLimit
+    retryTime: retryTime
+    seconduniquestring: seconduniquestring
+    sparkVersion: sparkVersion
+    workspaceName: workspaceName
+    pipelineName: pipelineName
+    notebookPath: notebookPath
+    storagePath: storagePath
+    targetSchemaName: targetSchemaName
+    minWorkers: minWorkers
+    maxWorkers: maxWorkers
+    endpointType: endpointType
+  }
+  dependsOn: [databricksPrivateHybridModule]
+}
+
+//Outputs
+
+output resourceList array = [
+  endpointType == 'PublicMode' ? databricksPublicModule.outputs.databricksPublicResourceOp : (endpointType == 'PrivateMode' ? databricksPrivateModule.outputs.databricksPvtResourceOp : databricksPrivateHybridModule.outputs.databricksPvtHybResourceOp)
+  endpointType == 'PublicMode' ? storagePublicModule.outputs.blobAccountResourceOp : (endpointType == 'PrivateMode' ? storagePrivateModule.outputs.blobAccountResourceOp : storagePrivateHybridModule.outputs.blobAccountResourceOp)
+  eventhubModule.outputs.eventHubResourceOp
+  endpointType != 'PublicMode' ? eventhubPrivateEndpointModule.outputs.eventhubpepResourceOp : ''
+  keyvaultModule.outputs.keyvaultResourceOp
+  endpointType != 'PublicMode' ? keyvaultPrivateEndpointModule.outputs.keyvaultpepResourceOp : ''
+  endpointType == 'PublicMode' ? deploymentScriptPublicModule.outputs.postDeploymentsResourceOp : (endpointType == 'PrivateHybridMode' ? deploymentScriptPrivateHybridModule.outputs.postDeploymentsResourceOp : '')
+  endpointType != 'PublicMode' ? networkModule.outputs.networkResourceOp : ''
+]
