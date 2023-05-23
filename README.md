@@ -14,6 +14,12 @@ This 1-click deployment allows the user to deploy environment of Azure Databrick
 
 To deploy, you need **owner role** as we are assigning RBAC roles and write access on the resources you're deploying and access to all operations on the Microsoft.Resources/deployments resource type.
 
+## Infrastructure Deployment Modes
+ 
+Firstly, to start with making private end point deployment optional, you can choose it to be public/private end point deployment. Secondly, in private end point deployment there are two approaches :
+- Private link – All the resources (ADLS storage gen2, key vault, event hub) along with databricks (Both front-end and back-end) will be on private end point. Downside to this approach will be as Front-end connectivity(databricks workspace, API etc) is locked down to require private link we cannot use deployment script to carry out post deployment activities like cluster deployment, importing artifacts etc through automation. All these activities should be carried out manually.
+- Private link hybrid – Recommended when infrastructure automation is in place. Here databricks would have public access along with private end points configured, since Front-end (databricks workspace, API etc) will be accessed publicly so automation of post deployment script execution is achieved, and back-end can only be accessed privately. Rest of the other resource (ADLS storage gen2, key vault, event hub) will have private end points.
+
 ## Deployment Steps
 
 1. Click **'Deploy To Azure'** button given below to deploy all the resources.
@@ -23,7 +29,7 @@ To deploy, you need **owner role** as we are assigning RBAC roles and write acce
 Provide the values for the following parameters or default values will be considered:
 - Resource group (create new)
 - Region (Default value is 'east us')
-- Option (Pub/Pvt/PvtHyb) for Endpoint Type (Default value is 'PvtHyb') - Here ```Pub``` is public endpoint deployment, ```Pvt``` is private endpoint deployment and ```PvtHyb``` is private endpoint hybrid deployment. Please select the endpoint according to your requirements.
+- Option (PublicMode/PrivateMode/HybridMode) for Endpoint Type (Default value is 'PvtHyb') - Here ```PublicMode``` is public endpoint deployment, ```PrivateMode``` is private endpoint deployment and ```HybridMode``` is private endpoint hybrid deployment. Please select the endpoint according to your requirements.
 - Event Hub SKU (Default value is 'Standard')
 - Blob storage account name (Default value is random unique string)
 - Container name (Default value is 'data')
@@ -71,18 +77,18 @@ Provide the values for the following parameters or default values will be consid
 - Max Workers (Default value is 5)
 - Notebook Path (URI path of the notebooks to be uploaded)
 
-#### Implement private endpoint deployment 
-Firstly, to start with making private end point deployment optional, you can choose it to be public/private end point deployment. Secondly, in private end point deployment there are two approaches :
-- Private link – All the resources (ADLS storage gen2, key vault, event hub) along with databricks (Both front-end and back-end) will be on private end point. Downside to this approach will be as Front-end connectivity(databricks workspace, API etc) is locked down to require private link we cannot use deployment script to carry out post deployment activities like cluster deployment, importing artifacts etc through automation. All these activities should be carried out manually.
-- Private link hybrid – Recommended when infrastructure automation is in place. Here databricks would have public access along with private end points configured, since Front-end (databricks workspace, API etc) will be accessed publicly so automation of post deployment script execution is achieved, and back-end can only be accessed privately. Rest of the other resource (ADLS storage gen2, key vault, event hub) will have private end points.
-
 2. Click **'Review + Create'**.
 
 3. On successful validation, click **'Create'**.
 
 ## Post Deployment
 
-The **allin1.ps1** is the post deployment script is used to deploy a **Cluster**, upload **notebooks** and create a **pipeline** in the Databricks Workspace .
+The **allin1.ps1** is the post deployment script used to deploy a **Cluster**, import **notebooks** and create a **pipeline** in the Databricks Workspace.
+- The script contains the code to create an all-purpose cluster in databricks workspace if you choose **Ctrl Deploy Cluster** parameter as **true**.
+- The script will import all the notebooks from **Artifacts** folder from the GitHub repo if you choose **Ctrl Deploy Notebook** parameter as **true**.
+- And the script will also create a pipeline/workflow if you choose **Ctrl Deploy Notebook** parameter as **true**.
+
+If you choose **false** for the above three parameters, you have to run the script manually in Azure CLI/Powershell by passing the required parameters explicitly or create them using Databricks workspace Interface. 
  
 ## Azure Services being deployed
 
