@@ -87,7 +87,7 @@ Provide the values for the following parameters or default values will be consid
 The **OneClickDeploy.ps1** is the post deployment script used to deploy a **Cluster**, import **notebooks** and create a **pipeline** in the Databricks Workspace.
 - The script contains the code to create an all-purpose cluster in databricks workspace if you choose **Ctrl Deploy Cluster** parameter as **true**.
 - The script will import all the notebooks from **Artifacts** folder from the GitHub repo if you choose **Ctrl Deploy Notebook** parameter as **true**.
-- And the script will also create a pipeline/workflow if you choose **Ctrl Deploy Notebook** parameter as **true**.
+- And the script will also create a pipeline/workflow if you choose **Ctrl Deploy Pipeline** parameter as **true**.
 
 If you choose **false** for the above three parameters, you have to run the script manually in Azure CLI/Powershell by passing the required parameters explicitly or create them using Databricks workspace Interface. 
  
