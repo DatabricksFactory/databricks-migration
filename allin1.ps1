@@ -78,23 +78,78 @@ if ($CTRL_DEPLOY_CLUSTER) {
 if ($CTRL_DEPLOY_NOTEBOOK) {
 
 Write-Output "Task: Uploading notebook"
-
-$requestBodyFolder = @{
-  
-  "path" = "/Shared/Templates"
- 
-}
-
-$jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
-
 # Set the headers
 $headers = @{
   "Authorization" = "Bearer $DB_PAT"
   "Content-Type" = "application/json"
 }
 
-$responseFolder = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
+
+
+# 1st Folder structure
+
+$requestBodyFolder1 = @{
+  
+  "path" = "/Shared/dlt/filesource/batch"
  
+}
+
+$jsonBodyFolder1 = ConvertTo-Json -Depth 100 $requestBodyFolder1
+
+$responseFolder1 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder1
+
+
+# 2nd Folder structure
+
+$requestBodyFolder2 = @{
+  
+  "path" = "/Shared/dlt/azuresqldbsource/batch"
+ 
+}
+
+$jsonBodyFolder2 = ConvertTo-Json -Depth 100 $requestBodyFolder2
+
+$responseFolder2 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder2
+
+# 3rd Folder structure
+
+$requestBodyFolder3 = @{
+  
+  "path" = "/Shared/dlt/eventhub/stream"
+ 
+}
+
+$jsonBodyFolder3 = ConvertTo-Json -Depth 100 $requestBodyFolder3
+
+$responseFolder3 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder3
+
+
+# 4th Folder structure
+
+$requestBodyFolder4 = @{
+  
+  "path" = "/Shared/dlt/postgresdbsource/batch"
+ 
+}
+
+$jsonBodyFolder4 = ConvertTo-Json -Depth 100 $requestBodyFolder4
+
+$responseFolder4 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder4
+
+
+# 5th Folder structure
+
+$requestBodyFolder5 = @{
+  
+  "path" = "/Shared/dlt/azuresqlonpremdbsource/batch"
+ 
+}
+
+$jsonBodyFolder5 = ConvertTo-Json -Depth 100 $requestBodyFolder5
+
+$responseFolder5 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder5
+
+
  $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts"
  $wr = Invoke-WebRequest -Uri $Artifactsuri
  $objects = $wr.Content | ConvertFrom-Json
@@ -115,13 +170,40 @@ $notebookContent = $Webresults.Content
 $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
 $splitfilename =$filename.Split(".")
 $filenamewithoutextension = $splitfilename[0]
+$path = "/Shared/$filenamewithoutextension";
+if($filename.ToLower().Contains("EventHub".ToLower()))
+{
+Write-Output "Copying EventHub Files"
+$path = "/Shared/dlt/eventhub/stream/"+$filenamewithoutextension
+}
+if($filename.ToLower().Contains("RawFiles".ToLower()))
+{
+Write-Output "Copying filesource Files"
+$path = "/Shared/dlt/filesource/batch/"+$filenamewithoutextension
+}
+if($filename.ToLower().Contains("sql_db".ToLower()))
+{
+Write-Output "Copying azuresqldbsource Files"
+$path = "/Shared/dlt/azuresqldbsource/batch/"+$filenamewithoutextension
+}
+if($filename.ToLower().Contains("sql_on_prem".ToLower()))
+{
+Write-Output "Copying azuresqlonpremdbsource Files"
+$path = "/Shared/dlt/azuresqlonpremdbsource/batch/"+$filenamewithoutextension
+}
+if($filename.ToLower().Contains("postgres".ToLower()))
+{
+Write-Output "Copying postgresdbsource Files"
+$path = "/Shared/dlt/postgresdbsource/batch/"+$filenamewithoutextension
+}
+
 
 Write-Output $filenamewithoutextension
 
 # Set the request body
 $requestBody = @{
   "content" = $notebookBase64
-  "path" = "/Shared/Templates/$filenamewithoutextension"
+  "path" = $path
   "language" = "PYTHON"
   "format" = "JUPYTER"
 }
