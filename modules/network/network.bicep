@@ -35,7 +35,7 @@ var location = resourceGroup().location
 
 // NSG
 
-resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if(endpointType == 'PrivateMode' || endpointType == 'PrivateHybridMode') {
+resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if(endpointType == 'PrivateMode' || endpointType == 'HybridMode') {
   name: nsgName
   location: location
   properties: {
@@ -130,7 +130,7 @@ resource nsg 'Microsoft.Network/networkSecurityGroups@2021-03-01' = if(endpointT
 
 // V-Net
 
-resource vnet 'Microsoft.Network/virtualNetworks@2021-08-01' = if(endpointType == 'PrivateMode' || endpointType == 'PrivateHybridMode') {
+resource vnet 'Microsoft.Network/virtualNetworks@2021-08-01' = if(endpointType == 'PrivateMode' || endpointType == 'HybridMode') {
   name: vnetName
   location: location
   properties: {

@@ -5,17 +5,17 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "13062427365805573703"
+      "templateHash": "364075740125418010"
     }
   },
   "parameters": {
     "endpointType": {
       "type": "string",
-      "defaultValue": "PrivateHybridMode",
+      "defaultValue": "HybridMode",
       "allowedValues": [
         "PublicMode",
         "PrivateMode",
-        "PrivateHybridMode"
+        "HybridMode"
       ]
     },
     "eventHubSku": {
@@ -375,7 +375,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "5974685297921340307"
+              "templateHash": "1271751600368636793"
             }
           },
           "parameters": {
@@ -442,7 +442,7 @@
           },
           "resources": [
             {
-              "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.Network/networkSecurityGroups",
               "apiVersion": "2021-03-01",
               "name": "[parameters('nsgName')]",
@@ -537,7 +537,7 @@
               }
             },
             {
-              "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2021-08-01",
               "name": "[parameters('vnetName')]",
@@ -918,7 +918,7 @@
       ]
     },
     {
-      "condition": "[equals(parameters('endpointType'), 'PrivateHybridMode')]",
+      "condition": "[equals(parameters('endpointType'), 'HybridMode')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "Databricks_Private_Hybrid_Deployment",
@@ -966,7 +966,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "14250276049968688839"
+              "templateHash": "7574234842102055127"
             }
           },
           "parameters": {
@@ -1136,7 +1136,7 @@
             },
             "databricksPvtHybResourceOp": {
               "type": "string",
-              "value": "[format('Name: {0} - Type: {1} \n Name: {2} - Type: {3} \n Name: {4} - Type: {5} \n Name: {6} - Type: {7} \n Name: {8} - Type: {9}', parameters('workspaceName'), 'Microsoft.Databricks/workspaces', variables('privateEndpointName'), 'Microsoft.Network/privateEndpoints', format('{0}-link', variables('privateDnsZoneName')), 'Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateDnsZoneName'), 'Microsoft.Network/privateDnsZones', variables('pvtEndpointDnsGroupName'), 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups')]"
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5} || Name: {6} - Type: {7} || Name: {8} - Type: {9}', parameters('workspaceName'), 'Microsoft.Databricks/workspaces', variables('privateEndpointName'), 'Microsoft.Network/privateEndpoints', format('{0}-link', variables('privateDnsZoneName')), 'Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('privateDnsZoneName'), 'Microsoft.Network/privateDnsZones', variables('pvtEndpointDnsGroupName'), 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups')]"
             }
           }
         }
@@ -1425,7 +1425,7 @@
       ]
     },
     {
-      "condition": "[and(parameters('ctrlDeployStorageAccount'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+      "condition": "[and(parameters('ctrlDeployStorageAccount'), equals(parameters('endpointType'), 'HybridMode'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "Storage_Account_Private_Hybrid_Deployment",
@@ -1797,7 +1797,7 @@
       }
     },
     {
-      "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+      "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'HybridMode'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "EventHub_Private_Endpoint_Deployment",
@@ -1944,7 +1944,7 @@
       ]
     },
     {
-      "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+      "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'HybridMode'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "Key_Vault_Private_Endpoint_Deployment",
@@ -2184,7 +2184,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "9121491296614944728"
+              "templateHash": "17855309441590261038"
             }
           },
           "parameters": {
@@ -2345,7 +2345,7 @@
           },
           "resources": [
             {
-              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
               "name": "PostDeploymentScriptForFileUpload",
@@ -2370,14 +2370,14 @@
               ]
             },
             {
-              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
               "name": "[parameters('identityName')]",
               "location": "[variables('location')]"
             },
             {
-              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2018-09-01-preview",
               "name": "[variables('bootstrapRoleAssignmentId_var')]",
@@ -2405,7 +2405,7 @@
       ]
     },
     {
-      "condition": "[equals(parameters('endpointType'), 'PrivateHybridMode')]",
+      "condition": "[equals(parameters('endpointType'), 'HybridMode')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "Post-Deployment_Scripts_Private_Hybrid",
@@ -2498,7 +2498,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "9121491296614944728"
+              "templateHash": "17855309441590261038"
             }
           },
           "parameters": {
@@ -2659,7 +2659,7 @@
           },
           "resources": [
             {
-              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
               "name": "PostDeploymentScriptForFileUpload",
@@ -2684,14 +2684,14 @@
               ]
             },
             {
-              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
               "name": "[parameters('identityName')]",
               "location": "[variables('location')]"
             },
             {
-              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'PrivateHybridMode'))]",
+              "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.Authorization/roleAssignments",
               "apiVersion": "2018-09-01-preview",
               "name": "[variables('bootstrapRoleAssignmentId_var')]",
@@ -2729,7 +2729,7 @@
         "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'EventHub_Private_Endpoint_Deployment'), '2022-09-01').outputs.eventhubpepResourceOp.value, '')]",
         "[reference(resourceId('Microsoft.Resources/deployments', 'Key_Vault_Deployment'), '2022-09-01').outputs.keyvaultResourceOp.value]",
         "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'Key_Vault_Private_Endpoint_Deployment'), '2022-09-01').outputs.keyvaultpepResourceOp.value, '')]",
-        "[if(equals(parameters('endpointType'), 'PublicMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Public'), '2022-09-01').outputs.postDeploymentsResourceOp.value, if(equals(parameters('endpointType'), 'PrivateHybridMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Private_Hybrid'), '2022-09-01').outputs.postDeploymentsResourceOp.value, ''))]",
+        "[if(equals(parameters('endpointType'), 'PublicMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Public'), '2022-09-01').outputs.postDeploymentsResourceOp.value, if(equals(parameters('endpointType'), 'HybridMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Private_Hybrid'), '2022-09-01').outputs.postDeploymentsResourceOp.value, ''))]",
         "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'Network_Deployment'), '2022-09-01').outputs.networkResourceOp.value, '')]"
       ]
     }

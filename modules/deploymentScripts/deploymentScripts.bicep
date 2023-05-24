@@ -88,7 +88,7 @@ var contributorRoleDefinitionId = 'B24988ac-6180-42a0-ab88-20f7382dd24c'
 
 //Resources
 
-resource PostDeploymentScriptForFileUpload 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(endpointType == 'PublicMode' || endpointType == 'PrivateHybridMode') {
+resource PostDeploymentScriptForFileUpload 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(endpointType == 'PublicMode' || endpointType == 'HybridMode') {
   name: 'PostDeploymentScriptForFileUpload'
   location: location
   kind: 'AzurePowerShell'
@@ -108,12 +108,12 @@ resource PostDeploymentScriptForFileUpload 'Microsoft.Resources/deploymentScript
   }
 }
 
-resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = if(endpointType == 'PublicMode' || endpointType == 'PrivateHybridMode') {
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = if(endpointType == 'PublicMode' || endpointType == 'HybridMode') {
   name: identityName
   location: location
 }
 
-resource bootstrapRoleAssignmentId 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = if(endpointType == 'PublicMode' || endpointType == 'PrivateHybridMode') {
+resource bootstrapRoleAssignmentId 'Microsoft.Authorization/roleAssignments@2018-09-01-preview' = if(endpointType == 'PublicMode' || endpointType == 'HybridMode') {
   name: bootstrapRoleAssignmentId_var
   properties: {
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', contributorRoleDefinitionId)
