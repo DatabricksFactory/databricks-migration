@@ -223,7 +223,7 @@ if ($CTRL_DEPLOY_PIPELINE) {
 
   $headers = @{Authorization = "Bearer $DB_PAT"}
 
-  $pipeline_notebook_path = '/Shared/Templates/02_silver-layer-notebook'
+  $pipeline_notebook_path = '/Shared/dlt/azuresqldbsource/batch/azure_sql_db'
 
   # Create a pipeline
 $pipelineConfig = @{
