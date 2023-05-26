@@ -20,7 +20,15 @@ param(
     [string] $TARGETSCHEMA,
     [bool] $CTRL_DEPLOY_NOTEBOOK,
     [bool] $CTRL_DEPLOY_PIPELINE,
-    [string] $NOTEBOOK_PATH
+    [string] $NOTEBOOK_PATH = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts", # change to main
+    [bool] $SRC_FILESOURCE = $true,
+    [bool] $SRC_AZSQL = $true,
+    [bool] $SRC_AZMYSQL = $true,
+    [bool] $SRC_AZPSQL = $true,
+    [bool] $SRC_SQL_ONPREM = $true,
+    [bool] $SRC_PSQL_ONPREM = $true,
+    [bool] $SRC_ORACLE = $true,
+    [bool] $SRC_EVENTHUB = $true
 )
 
 Write-Output "Task: Generating Databricks Token"
@@ -77,147 +85,393 @@ if ($CTRL_DEPLOY_CLUSTER) {
 
 if ($CTRL_DEPLOY_NOTEBOOK) {
 
-Write-Output "Task: Uploading notebook"
-# Set the headers
-$headers = @{
-  "Authorization" = "Bearer $DB_PAT"
-  "Content-Type" = "application/json"
-}
+  Write-Output "Task: Uploading notebook"
+  # Set the headers
+  $headers = @{
+      "Authorization" = "Bearer $DB_PAT"
+      "Content-Type"  = "application/json"
+  }
 
+  $requestBodyFolder = @{
+      "path" = "/Shared/dlt"
+  }
+  $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
+  $responseFolder = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
 
+  # Upload Silver and Gold Layer notebooks
+  try {
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable?ref=dev"
+      $wr = Invoke-WebRequest -Uri $Artifactsuri
+      $objects = $wr.Content | ConvertFrom-Json
+      $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+      Write-Host $fileNames
+  }
+  catch {
+      Write-Host "Error"
+  }
 
-# 1st Folder structure
+  Foreach ($filename in $fileNames) { 
 
-$requestBodyFolder1 = @{
-  
-  "path" = "/Shared/dlt/filesource/batch"
- 
-}
+      # Set the path to the notebook to be imported
+      $url = "$NOTEBOOK_PATH/DeltaLiveTable/$filename"
 
-$jsonBodyFolder1 = ConvertTo-Json -Depth 100 $requestBodyFolder1
+      # Get the notebook
+      $Webresults = Invoke-WebRequest $url -UseBasicParsing
 
-$responseFolder1 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder1
+      # Read the notebook file
+      $notebookContent = $Webresults.Content
 
+      # Base64 encode the notebook content
+      $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+      
+      # Set the path
+      $splitfilename = $filename.Split(".")
+      $filenamewithoutextension = $splitfilename[0]
+      $path = "/Shared/dlt/$filenamewithoutextension";
+      Write-Output $filenamewithoutextension
 
-# 2nd Folder structure
+      # Set the request body
+      $requestBody = @{
+          "content"  = $notebookBase64
+          "path"     = $path
+          "language" = "PYTHON"
+          "format"   = "JUPYTER"
+      }
 
-$requestBodyFolder2 = @{
-  
-  "path" = "/Shared/dlt/azuresqldbsource/batch"
- 
-}
+      # Convert the request body to JSON
+      $jsonBody = ConvertTo-Json -Depth 100 $requestBody
 
-$jsonBodyFolder2 = ConvertTo-Json -Depth 100 $requestBodyFolder2
+      # Make the HTTP request to import the notebook
+      $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
 
-$responseFolder2 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder2
-
-# 3rd Folder structure
-
-$requestBodyFolder3 = @{
-  
-  "path" = "/Shared/dlt/eventhub/stream"
- 
-}
-
-$jsonBodyFolder3 = ConvertTo-Json -Depth 100 $requestBodyFolder3
-
-$responseFolder3 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder3
-
-
-# 4th Folder structure
-
-$requestBodyFolder4 = @{
-  
-  "path" = "/Shared/dlt/postgresdbsource/batch"
- 
-}
-
-$jsonBodyFolder4 = ConvertTo-Json -Depth 100 $requestBodyFolder4
-
-$responseFolder4 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder4
-
-
-# 5th Folder structure
-
-$requestBodyFolder5 = @{
-  
-  "path" = "/Shared/dlt/azuresqlonpremdbsource/batch"
- 
-}
-
-$jsonBodyFolder5 = ConvertTo-Json -Depth 100 $requestBodyFolder5
-
-$responseFolder5 = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder5
-
-
- $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts"
- $wr = Invoke-WebRequest -Uri $Artifactsuri
- $objects = $wr.Content | ConvertFrom-Json
- $filesURL = $objects | where {$_.type -eq "file"} | Select -exp download_url
- $fileNames = $objects | where {$_.type -eq "file"} | Select -exp name
-
-#Set the path to the notebook to be imported
-
-Foreach($filename in $fileNames)  
-{ 
-
-# Set the path to the notebook to be imported
-$url = "$NOTEBOOK_PATH/$filename"
-$Webresults = Invoke-WebRequest $url -UseBasicParsing
-# Read the notebook file
-$notebookContent = $Webresults.Content
-# Base64 encode the notebook content
-$notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
-$splitfilename =$filename.Split(".")
-$filenamewithoutextension = $splitfilename[0]
-$path = "/Shared/$filenamewithoutextension";
-if($filename.ToLower().Contains("EventHub".ToLower()))
-{
-Write-Output "Copying EventHub Files"
-$path = "/Shared/dlt/eventhub/stream/"+$filenamewithoutextension
-}
-if($filename.ToLower().Contains("RawFiles".ToLower()))
-{
-Write-Output "Copying filesource Files"
-$path = "/Shared/dlt/filesource/batch/"+$filenamewithoutextension
-}
-if($filename.ToLower().Contains("sql_db".ToLower()))
-{
-Write-Output "Copying azuresqldbsource Files"
-$path = "/Shared/dlt/azuresqldbsource/batch/"+$filenamewithoutextension
-}
-if($filename.ToLower().Contains("sql_on_prem".ToLower()))
-{
-Write-Output "Copying azuresqlonpremdbsource Files"
-$path = "/Shared/dlt/azuresqlonpremdbsource/batch/"+$filenamewithoutextension
-}
-if($filename.ToLower().Contains("postgres".ToLower()))
-{
-Write-Output "Copying postgresdbsource Files"
-$path = "/Shared/dlt/postgresdbsource/batch/"+$filenamewithoutextension
-}
-
-
-Write-Output $filenamewithoutextension
-
-# Set the request body
-$requestBody = @{
-  "content" = $notebookBase64
-  "path" = $path
-  "language" = "PYTHON"
-  "format" = "JUPYTER"
-}
-
-# Convert the request body to JSON
-$jsonBody = ConvertTo-Json -Depth 100 $requestBody
-
-   # Make the HTTP request to import the notebook
-   $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-
-   Write-Output $response
+      Write-Output $response
   } 
 
+
+  if ($SRC_FILESOURCE) {
+      
+      # Get files under directory
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/FileSource?ref=dev"
+      $wr = Invoke-WebRequest -Uri $Artifactsuri
+      $objects = $wr.Content | ConvertFrom-Json
+      $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+
+      Foreach ($filename in $fileNames) { 
+
+          # Set the path to the notebook to be imported
+          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/FileSource/$filename"
+
+          # Get the notebook
+          $Webresults = Invoke-WebRequest $url -UseBasicParsing
+
+          # Read the notebook file
+          $notebookContent = $Webresults.Content
+
+          # Base64 encode the notebook content
+          $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+          
+          # Set the path
+          $splitfilename = $filename.Split(".")
+          $filenamewithoutextension = $splitfilename[0]
+          $path = "/Shared/dlt/$filenamewithoutextension";
+          Write-Output $filenamewithoutextension
+
+          # Set the request body
+          $requestBody = @{
+              "content"  = $notebookBase64
+              "path"     = $path
+              "language" = "PYTHON"
+              "format"   = "JUPYTER"
+          }
+
+          # Convert the request body to JSON
+          $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+
+          # Make the HTTP request to import the notebook
+          $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+
+          Write-Output $response
+      } 
+  }
+
+  if ($SRC_AZSQL) {
+      
+      # Get files under directory
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/AzureSQLDb?ref=dev"
+      $wr = Invoke-WebRequest -Uri $Artifactsuri
+      $objects = $wr.Content | ConvertFrom-Json
+      $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+
+      Foreach ($filename in $fileNames) { 
+
+          # Set the path to the notebook to be imported
+          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/AzureSQLDb/$filename"
+
+          # Get the notebook
+          $Webresults = Invoke-WebRequest $url -UseBasicParsing
+
+          # Read the notebook file
+          $notebookContent = $Webresults.Content
+
+          # Base64 encode the notebook content
+          $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+          
+          # Set the path
+          $splitfilename = $filename.Split(".")
+          $filenamewithoutextension = $splitfilename[0]
+          $path = "/Shared/dlt/$filenamewithoutextension";
+          Write-Output $filenamewithoutextension
+
+          # Set the request body
+          $requestBody = @{
+              "content"  = $notebookBase64
+              "path"     = $path
+              "language" = "PYTHON"
+              "format"   = "JUPYTER"
+          }
+
+          # Convert the request body to JSON
+          $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+
+          # Make the HTTP request to import the notebook
+          $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+
+          Write-Output $response
+      } 
+  }
+
+  if ($SRC_AZMYSQL) {
+      
+      # Get files under directory
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/AzureMySQL?ref=dev"
+      $wr = Invoke-WebRequest -Uri $Artifactsuri
+      $objects = $wr.Content | ConvertFrom-Json
+      $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+
+      Foreach ($filename in $fileNames) { 
+
+          # Set the path to the notebook to be imported
+          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/AzureMySQL/$filename"
+
+          # Get the notebook
+          $Webresults = Invoke-WebRequest $url -UseBasicParsing
+
+          # Read the notebook file
+          $notebookContent = $Webresults.Content
+
+          # Base64 encode the notebook content
+          $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+          
+          # Set the path
+          $splitfilename = $filename.Split(".")
+          $filenamewithoutextension = $splitfilename[0]
+          $path = "/Shared/dlt/$filenamewithoutextension";
+          Write-Output $filenamewithoutextension
+
+          # Set the request body
+          $requestBody = @{
+              "content"  = $notebookBase64
+              "path"     = $path
+              "language" = "PYTHON"
+              "format"   = "JUPYTER"
+          }
+
+          # Convert the request body to JSON
+          $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+
+          # Make the HTTP request to import the notebook
+          $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+
+          Write-Output $response
+      } 
+  }
+
+  if ($SRC_AZPSQL) {
+      
+      # Get files under directory
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/AzurePostgreSQL?ref=dev"
+      $wr = Invoke-WebRequest -Uri $Artifactsuri
+      $objects = $wr.Content | ConvertFrom-Json
+      $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+
+      Foreach ($filename in $fileNames) { 
+
+          # Set the path to the notebook to be imported
+          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/AzurePostgreSQL/$filename"
+
+          # Get the notebook
+          $Webresults = Invoke-WebRequest $url -UseBasicParsing
+
+          # Read the notebook file
+          $notebookContent = $Webresults.Content
+
+          # Base64 encode the notebook content
+          $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+          
+          # Set the path
+          $splitfilename = $filename.Split(".")
+          $filenamewithoutextension = $splitfilename[0]
+          $path = "/Shared/dlt/$filenamewithoutextension";
+          Write-Output $filenamewithoutextension
+
+          # Set the request body
+          $requestBody = @{
+              "content"  = $notebookBase64
+              "path"     = $path
+              "language" = "PYTHON"
+              "format"   = "JUPYTER"
+          }
+
+          # Convert the request body to JSON
+          $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+
+          # Make the HTTP request to import the notebook
+          $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+
+          Write-Output $response
+      } 
+  }
+
+  if ($SRC_SQL_ONPREM) {
+      
+      # Get files under directory
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/SQLDbOnPrem?ref=dev"
+      $wr = Invoke-WebRequest -Uri $Artifactsuri
+      $objects = $wr.Content | ConvertFrom-Json
+      $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+
+      Foreach ($filename in $fileNames) { 
+
+          # Set the path to the notebook to be imported
+          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/SQLDbOnPrem/$filename"
+
+          # Get the notebook
+          $Webresults = Invoke-WebRequest $url -UseBasicParsing
+
+          # Read the notebook file
+          $notebookContent = $Webresults.Content
+
+          # Base64 encode the notebook content
+          $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+          
+          # Set the path
+          $splitfilename = $filename.Split(".")
+          $filenamewithoutextension = $splitfilename[0]
+          $path = "/Shared/dlt/$filenamewithoutextension";
+          Write-Output $filenamewithoutextension
+
+          # Set the request body
+          $requestBody = @{
+              "content"  = $notebookBase64
+              "path"     = $path
+              "language" = "PYTHON"
+              "format"   = "JUPYTER"
+          }
+
+          # Convert the request body to JSON
+          $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+
+          # Make the HTTP request to import the notebook
+          $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+
+          Write-Output $response
+      } 
+  }
+
+  if ($SRC_PSQL_ONPREM) {
+      
+      # Get files under directory
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/PostgreSQL?ref=dev"
+      $wr = Invoke-WebRequest -Uri $Artifactsuri
+      $objects = $wr.Content | ConvertFrom-Json
+      $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+
+      Foreach ($filename in $fileNames) { 
+
+          # Set the path to the notebook to be imported
+          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/PostgreSQL/$filename"
+
+          # Get the notebook
+          $Webresults = Invoke-WebRequest $url -UseBasicParsing
+
+          # Read the notebook file
+          $notebookContent = $Webresults.Content
+
+          # Base64 encode the notebook content
+          $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+          
+          # Set the path
+          $splitfilename = $filename.Split(".")
+          $filenamewithoutextension = $splitfilename[0]
+          $path = "/Shared/dlt/$filenamewithoutextension";
+          Write-Output $filenamewithoutextension
+
+          # Set the request body
+          $requestBody = @{
+              "content"  = $notebookBase64
+              "path"     = $path
+              "language" = "PYTHON"
+              "format"   = "JUPYTER"
+          }
+
+          # Convert the request body to JSON
+          $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+
+          # Make the HTTP request to import the notebook
+          $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+
+          Write-Output $response
+      } 
+  }
+
+  if ($SRC_EVENTHUB) {
+      
+      # Get files under directory
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Stream/EventHub?ref=dev"
+      $wr = Invoke-WebRequest -Uri $Artifactsuri
+      $objects = $wr.Content | ConvertFrom-Json
+      $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+
+      Foreach ($filename in $fileNames) { 
+
+          # Set the path to the notebook to be imported
+          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Stream/EventHub/$filename"
+
+          # Get the notebook
+          $Webresults = Invoke-WebRequest $url -UseBasicParsing
+
+          # Read the notebook file
+          $notebookContent = $Webresults.Content
+
+          # Base64 encode the notebook content
+          $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+          
+          # Set the path
+          $splitfilename = $filename.Split(".")
+          $filenamewithoutextension = $splitfilename[0]
+          $path = "/Shared/dlt/$filenamewithoutextension";
+          Write-Output $filenamewithoutextension
+
+          # Set the request body
+          $requestBody = @{
+              "content"  = $notebookBase64
+              "path"     = $path
+              "language" = "PYTHON"
+              "format"   = "JUPYTER"
+          }
+
+          # Convert the request body to JSON
+          $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+
+          # Make the HTTP request to import the notebook
+          $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+
+          Write-Output $response
+      } 
+  }
+
 }
+
 
 if ($CTRL_DEPLOY_PIPELINE) {
 
