@@ -20,15 +20,15 @@ param(
     [string] $TARGETSCHEMA,
     [bool] $CTRL_DEPLOY_NOTEBOOK,
     [bool] $CTRL_DEPLOY_PIPELINE,
-    [string] $NOTEBOOK_PATH = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts", # change to main
-    [bool] $SRC_FILESOURCE = $true,
-    [bool] $SRC_AZSQL = $true,
-    [bool] $SRC_AZMYSQL = $true,
-    [bool] $SRC_AZPSQL = $true,
-    [bool] $SRC_SQL_ONPREM = $true,
-    [bool] $SRC_PSQL_ONPREM = $true,
-    [bool] $SRC_ORACLE = $true,
-    [bool] $SRC_EVENTHUB = $true
+    [string] $NOTEBOOK_PATH,
+    [bool] $SRC_FILESOURCE,
+    [bool] $SRC_AZSQL,
+    [bool] $SRC_AZMYSQL,
+    [bool] $SRC_AZPSQL,
+    [bool] $SRC_SQL_ONPREM,
+    [bool] $SRC_PSQL_ONPREM,
+    [bool] $SRC_ORACLE,
+    [bool] $SRC_EVENTHUB
 )
 
 Write-Output "Task: Generating Databricks Token"
