@@ -101,8 +101,9 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
  
   # Upload Silver and Gold Layer notebooks
   try {
-      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable?ref=dev"
-      $wr = Invoke-WebRequest -Uri "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/"+$CTRL_SYNTAX+"?ref=dev"
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/"+$CTRL_SYNTAX+"?ref=dev"
+      Write-Host $Artifactsuri
+      $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
       Write-Host $fileNames
