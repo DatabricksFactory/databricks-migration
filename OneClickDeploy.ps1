@@ -98,10 +98,10 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
   }
   $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
   $responseFolder = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
-  $Artifactsgituri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX?ref=dev"
+ 
   # Upload Silver and Gold Layer notebooks
   try {
-      $Artifactsuri = $Artifactsgituri
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable?ref=dev"
       $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
