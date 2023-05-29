@@ -43,7 +43,7 @@
     },
     "fileuploaduri": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1",
+      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/OneClickDeploy.ps1",
       "metadata": {
         "description": "The URI of script file to upload blob container"
       }
@@ -220,7 +220,7 @@
     },
     "notebookPath": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts",
+      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts",
       "metadata": {
         "description": "Path of the notebook to be uploaded"
       }
@@ -323,6 +323,62 @@
       "defaultValue": "default",
       "metadata": {
         "description": "The name of the Azure Databricks workspace to create."
+      }
+    },
+    "Ctrl_RawFileSource": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Control importing Raw file source notebooks."
+      }
+    },
+    "Ctrl_AzureSQL": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Control importing Azure SQL notebooks."
+      }
+    },
+    "Ctrl_AzureMySQL": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Control importing Azure My SQL notebooks."
+      }
+    },
+    "Ctrl_AzurePostgreSQL": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Control importing AzurePostgreSQL notebooks."
+      }
+    },
+    "Ctrl_SQL_On_Prem": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Control importing SQL_On_Prem notebooks."
+      }
+    },
+    "Ctrl_PostgreSQL_On_Prem": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Control importing PostgreSQL_On_Prem notebooks."
+      }
+    },
+    "Ctrl_Oracle": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Control importing Oracle notebooks."
+      }
+    },
+    "Ctrl_Eventhub": {
+      "type": "bool",
+      "defaultValue": true,
+      "metadata": {
+        "description": "Control importing Eventhub Stream notebooks."
       }
     }
   },
@@ -2175,7 +2231,32 @@
           },
           "endpointType": {
             "value": "[parameters('endpointType')]"
+          },
+          "Ctrl_RawFileSource": {
+            "value": "[parameters('Ctrl_RawFileSource')]"
+          },
+          "Ctrl_AzureSQL": {
+            "value": "[parameters('Ctrl_AzureSQL')]"
+          },
+          "Ctrl_AzureMySQL": {
+            "value": "[parameters('Ctrl_AzureMySQL')]"
+          },
+          "Ctrl_AzurePostgreSQL": {
+            "value": "[parameters('Ctrl_AzurePostgreSQL')]"
+          },
+          "Ctrl_SQL_On_Prem": {
+            "value": "[parameters('Ctrl_SQL_On_Prem')]"
+          },
+          "Ctrl_PostgreSQL_On_Prem": {
+            "value": "[parameters('Ctrl_PostgreSQL_On_Prem')]"
+          },
+          "Ctrl_Oracle": {
+            "value": "[parameters('Ctrl_Oracle')]"
+          },
+          "Ctrl_Eventhub": {
+            "value": "[parameters('Ctrl_Eventhub')]"
           }
+
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -2334,12 +2415,36 @@
             },
             "endpointType": {
               "type": "string"
-            }
+            },
+            "Ctrl_RawFileSource": {
+              "type": "bool"
+              },
+              "Ctrl_AzureSQL": {
+              "type": "bool"
+              },
+              "Ctrl_AzureMySQL": {
+              "type": "bool"
+              },
+              "Ctrl_AzurePostgreSQL": {
+              "type": "bool"
+              },
+              "Ctrl_SQL_On_Prem": {
+              "type": "bool"
+              },
+              "Ctrl_PostgreSQL_On_Prem": {
+              "type": "bool"
+              },
+              "Ctrl_Oracle": {
+              "type": "bool"
+              },
+              "Ctrl_Eventhub": {
+              "type": "bool"
+              }
           },
           "variables": {
             "location": "[resourceGroup().location]",
             "fileuploadurivariable": "[parameters('fileuploaduri')]",
-            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'))]",
+            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(parameters('Ctrl_RawFileSource'), '$true', '$false'), if(parameters('Ctrl_AzureSQL'), '$true', '$false'), if(parameters('Ctrl_AzureMySQL'), '$true', '$false'), if(parameters('Ctrl_AzurePostgreSQL'), '$true', '$false'), if(parameters('Ctrl_SQL_On_Prem'), '$true', '$false'), if(parameters('Ctrl_PostgreSQL_On_Prem'), '$true', '$false'), if(parameters('Ctrl_Oracle'), '$true', '$false'), if(parameters('Ctrl_Eventhub'), '$true', '$false'))]",
             "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
             "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c"
           },
@@ -2489,6 +2594,30 @@
           },
           "endpointType": {
             "value": "[parameters('endpointType')]"
+          },
+          "Ctrl_RawFileSource": {
+            "value": "[parameters('Ctrl_RawFileSource')]"
+          },
+          "Ctrl_AzureSQL": {
+            "value": "[parameters('Ctrl_AzureSQL')]"
+          },
+          "Ctrl_AzureMySQL": {
+            "value": "[parameters('Ctrl_AzureMySQL')]"
+          },
+          "Ctrl_AzurePostgreSQL": {
+            "value": "[parameters('Ctrl_AzurePostgreSQL')]"
+          },
+          "Ctrl_SQL_On_Prem": {
+            "value": "[parameters('Ctrl_SQL_On_Prem')]"
+          },
+          "Ctrl_PostgreSQL_On_Prem": {
+            "value": "[parameters('Ctrl_PostgreSQL_On_Prem')]"
+          },
+          "Ctrl_Oracle": {
+            "value": "[parameters('Ctrl_Oracle')]"
+          },
+          "Ctrl_Eventhub": {
+            "value": "[parameters('Ctrl_Eventhub')]"
           }
         },
         "template": {
@@ -2648,12 +2777,60 @@
             },
             "endpointType": {
               "type": "string"
+            },
+            "Ctrl_RawFileSource": {
+              "type": "bool",
+              "metadata": {
+                "description": "Control importing Raw file source notebooks."
+              }
+            },
+            "Ctrl_AzureSQL": {
+              "type": "bool",
+              "metadata": {
+                "description": "Control importing Azure SQL notebooks."
+              }
+            },
+            "Ctrl_AzureMySQL": {
+              "type": "bool",
+              "metadata": {
+                "description": "Control importing Azure My SQL notebooks."
+              }
+            },
+            "Ctrl_AzurePostgreSQL": {
+              "type": "bool",
+              "metadata": {
+                "description": "Control importing AzurePostgreSQL notebooks."
+              }
+            },
+            "Ctrl_SQL_On_Prem": {
+              "type": "bool",
+              "metadata": {
+                "description": "Control importing SQL_On_Prem notebooks."
+              }
+            },
+            "Ctrl_PostgreSQL_On_Prem": {
+              "type": "bool",
+              "metadata": {
+                "description": "Control importing PostgreSQL_On_Prem notebooks."
+              }
+            },
+            "Ctrl_Oracle": {
+              "type": "bool",
+              "metadata": {
+                "description": "Control importing Oracle notebooks."
+              }
+            },
+            "Ctrl_Eventhub": {
+              "type": "bool",
+              "metadata": {
+                "description": "Control importing Eventhub Stream notebooks."
+              }
             }
           },
           "variables": {
             "location": "[resourceGroup().location]",
             "fileuploadurivariable": "[parameters('fileuploaduri')]",
-            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'))]",
+            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(parameters('Ctrl_RawFileSource'), '$true', '$false'), if(parameters('Ctrl_AzureSQL'), '$true', '$false'), if(parameters('Ctrl_AzureMySQL'), '$true', '$false'), if(parameters('Ctrl_AzurePostgreSQL'), '$true', '$false'), if(parameters('Ctrl_SQL_On_Prem'), '$true', '$false'), if(parameters('Ctrl_PostgreSQL_On_Prem'), '$true', '$false'), if(parameters('Ctrl_Oracle'), '$true', '$false'), if(parameters('Ctrl_Eventhub'), '$true', '$false'))]",
             "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
             "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c"
           },
