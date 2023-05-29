@@ -148,6 +148,24 @@ param PrivateEndpointSubnetName string = 'default'
 @description('The name of the Azure Databricks workspace to create.')
 param workspaceName string = 'default'
 
+@allowed([
+  'DeltaLiveTable'
+  'DeltaTable'
+])
+param Ctrl_Syntax_Type string = 'DeltaLiveTable'
+
+@allowed([
+        'RawFileSource'
+        'AzureSQL'
+        'AzureMySQL'
+        'AzurePostgreSQL'
+        'SQL_On_Prem'
+        'PostgreSQL_On_Prem'
+        'Oracle'
+        'Eventhub'
+])
+param Ctrl_Import_Notebook string = 'RawFileSource'
+
 // Resources
 
 module networkModule 'modules/network/network.bicep' = {
@@ -305,6 +323,8 @@ module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScrip
     minWorkers: minWorkers
     maxWorkers: maxWorkers
     endpointType: endpointType
+    Ctrl_Syntax_Type: Ctrl_Syntax_Type
+    Ctrl_Import_Notebook: Ctrl_Import_Notebook
   }
   dependsOn: [databricksPublicModule]
 }
@@ -337,6 +357,8 @@ module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deployme
     minWorkers: minWorkers
     maxWorkers: maxWorkers
     endpointType: endpointType
+    Ctrl_Syntax_Type: Ctrl_Syntax_Type
+    Ctrl_Import_Notebook: Ctrl_Import_Notebook
   }
   dependsOn: [databricksPrivateHybridModule]
 }
