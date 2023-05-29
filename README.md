@@ -77,6 +77,8 @@ Provide the values for the following parameters or default values will be consid
 - Min Workers (Default value is 1)
 - Max Workers (Default value is 5)
 - Notebook Path (URI path of the notebooks to be uploaded)
+- Ctrl_Syntax_Type (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
+- Ctrl_Import_Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported
 
 2. Click **'Review + Create'**.
 
