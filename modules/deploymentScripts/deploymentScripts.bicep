@@ -74,13 +74,17 @@ param seconduniquestring string
 
 param endpointType string
 
+param Ctrl_Syntax_Type string
+
+param Ctrl_Import_Notebook string
+
 //Variables
 
 var location = resourceGroup().location
 
 var fileuploadurivariable = fileuploaduri
 
-var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${workspaceName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -CTRL_DEPLOY_CLUSTER ${(ctrlDeployCluster ? '$true' : '$false')} -MINWORKERS ${minWorkers} -MAXWORKERS ${maxWorkers} -PIPELINENAME ${pipelineName} -STORAGE ${storagePath} -TARGETSCHEMA ${targetSchemaName} -CTRL_DEPLOY_NOTEBOOK ${(ctrlDeployNotebook ? '$true' : '$false')} -CTRL_DEPLOY_PIPELINE ${(ctrlDeployPipeline ? '$true' : '$false')} -NOTEBOOK_PATH ${notebookPath}'
+var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${workspaceName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -CTRL_DEPLOY_CLUSTER ${(ctrlDeployCluster ? '$true' : '$false')} -MINWORKERS ${minWorkers} -MAXWORKERS ${maxWorkers} -PIPELINENAME ${pipelineName} -STORAGE ${storagePath} -TARGETSCHEMA ${targetSchemaName} -CTRL_DEPLOY_NOTEBOOK ${(ctrlDeployNotebook ? '$true' : '$false')} -CTRL_DEPLOY_PIPELINE ${(ctrlDeployPipeline ? '$true' : '$false')} -NOTEBOOK_PATH ${notebookPath} -SRC_FILESOURCE ${(equals(Ctrl_Import_Notebook,'RawFileSource') ? '$true' : '$false')} -SRC_AZSQL ${(equals(Ctrl_Import_Notebook,'AzureSQL') ? '$true' : '$false')} -SRC_AZMYSQL ${(equals(Ctrl_Import_Notebook,'AzureMySQL') ? '$true' : '$false')} -SRC_AZPSQL ${(equals(Ctrl_Import_Notebook,'AzurePostgreSQL') ? '$true' : '$false')} -SRC_SQL_ONPREM ${(equals(Ctrl_Import_Notebook,'SQL_On_Prem') ? '$true' : '$false')} -SRC_PSQL_ONPREM ${(equals(Ctrl_Import_Notebook,'PostgreSQL_On_Prem') ? '$true' : '$false')} -SRC_ORACLE ${(equals(Ctrl_Import_Notebook,'Oracle') ? '$true' : '$false')} -SRC_EVENTHUB ${(equals(Ctrl_Import_Notebook,'Eventhub') ? '$true' : '$false')} -CTRL_SYNTAX ${Ctrl_Syntax_Type}'
 
 var bootstrapRoleAssignmentId_var = guid(firstuniquestring, seconduniquestring)
 
