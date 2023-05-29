@@ -28,7 +28,8 @@ param(
     [bool] $SRC_SQL_ONPREM,
     [bool] $SRC_PSQL_ONPREM,
     [bool] $SRC_ORACLE,
-    [bool] $SRC_EVENTHUB
+    [bool] $SRC_EVENTHUB,
+    [string] $CTRL_SYNTAX
 )
 
 Write-Output "Task: Generating Databricks Token"
@@ -100,7 +101,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
 
   # Upload Silver and Gold Layer notebooks
   try {
-      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable?ref=dev"
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX?ref=dev"
       $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -113,7 +114,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
   Foreach ($filename in $fileNames) { 
 
       # Set the path to the notebook to be imported
-      $url = "$NOTEBOOK_PATH/DeltaLiveTable/$filename"
+      $url = "$NOTEBOOK_PATH/$CTRL_SYNTAX/$filename"
 
       # Get the notebook
       $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -151,7 +152,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
   if ($SRC_FILESOURCE) {
       
       # Get files under directory
-      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/FileSource?ref=dev"
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/FileSource?ref=dev"
       $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -159,7 +160,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
       Foreach ($filename in $fileNames) { 
 
           # Set the path to the notebook to be imported
-          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/FileSource/$filename"
+          $url = "$NOTEBOOK_PATH/$CTRL_SYNTAX/Batch/FileSource/$filename"
 
           # Get the notebook
           $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -197,7 +198,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
   if ($SRC_AZSQL) {
       
       # Get files under directory
-      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/AzureSQLDb?ref=dev"
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureSQLDb?ref=dev"
       $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -205,7 +206,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
       Foreach ($filename in $fileNames) { 
 
           # Set the path to the notebook to be imported
-          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/AzureSQLDb/$filename"
+          $url = "$NOTEBOOK_PATH/$CTRL_SYNTAX/Batch/AzureSQLDb/$filename"
 
           # Get the notebook
           $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -243,7 +244,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
   if ($SRC_AZMYSQL) {
       
       # Get files under directory
-      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/AzureMySQL?ref=dev"
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureMySQL?ref=dev"
       $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -251,7 +252,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
       Foreach ($filename in $fileNames) { 
 
           # Set the path to the notebook to be imported
-          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/AzureMySQL/$filename"
+          $url = "$NOTEBOOK_PATH/$CTRL_SYNTAX/Batch/AzureMySQL/$filename"
 
           # Get the notebook
           $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -289,7 +290,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
   if ($SRC_AZPSQL) {
       
       # Get files under directory
-      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/AzurePostgreSQL?ref=dev"
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzurePostgreSQL?ref=dev"
       $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -297,7 +298,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
       Foreach ($filename in $fileNames) { 
 
           # Set the path to the notebook to be imported
-          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/AzurePostgreSQL/$filename"
+          $url = "$NOTEBOOK_PATH/$CTRL_SYNTAX/Batch/AzurePostgreSQL/$filename"
 
           # Get the notebook
           $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -335,7 +336,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
   if ($SRC_SQL_ONPREM) {
       
       # Get files under directory
-      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/SQLDbOnPrem?ref=dev"
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/SQLDbOnPrem?ref=dev"
       $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -343,7 +344,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
       Foreach ($filename in $fileNames) { 
 
           # Set the path to the notebook to be imported
-          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/SQLDbOnPrem/$filename"
+          $url = "$NOTEBOOK_PATH/$CTRL_SYNTAX/Batch/SQLDbOnPrem/$filename"
 
           # Get the notebook
           $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -381,7 +382,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
   if ($SRC_PSQL_ONPREM) {
       
       # Get files under directory
-      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Batch/PostgreSQL?ref=dev"
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/PostgreSQL?ref=dev"
       $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -389,7 +390,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
       Foreach ($filename in $fileNames) { 
 
           # Set the path to the notebook to be imported
-          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Batch/PostgreSQL/$filename"
+          $url = "$NOTEBOOK_PATH/$CTRL_SYNTAX/Batch/PostgreSQL/$filename"
 
           # Get the notebook
           $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -427,7 +428,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
   if ($SRC_EVENTHUB) {
       
       # Get files under directory
-      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/DeltaLiveTable/Stream/EventHub?ref=dev"
+      $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Stream/EventHub?ref=dev"
       $wr = Invoke-WebRequest -Uri $Artifactsuri
       $objects = $wr.Content | ConvertFrom-Json
       $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -435,7 +436,7 @@ if ($CTRL_DEPLOY_NOTEBOOK) {
       Foreach ($filename in $fileNames) { 
 
           # Set the path to the notebook to be imported
-          $url = "$NOTEBOOK_PATH/DeltaLiveTable/Stream/EventHub/$filename"
+          $url = "$NOTEBOOK_PATH/$CTRL_SYNTAX/Stream/EventHub/$filename"
 
           # Get the notebook
           $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -477,7 +478,7 @@ if ($CTRL_DEPLOY_PIPELINE) {
 
   $headers = @{Authorization = "Bearer $DB_PAT"}
 
-  $pipeline_notebook_path = '/Shared/dlt/azuresqldbsource/batch/azure_sql_db'
+  $pipeline_notebook_path = '/Shared/dlt/azure_sql_db'
 
   # Create a pipeline
 $pipelineConfig = @{
