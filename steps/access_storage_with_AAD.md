@@ -1,8 +1,11 @@
 
-## App registration process
+## Access storage with Azure Active Directory
 
-By **registering an app** in **Azure Active Directory** provides you with Application ID which can be used in client application's *(here, Databricks)* 
-authentication code. 
+Registering an application with Azure Active Directory (Azure AD) creates a service principal you can use to provide access to Azure storage accounts. You can then configure access to these service principals using credentials stored with secrets.
+
+Databricks recommends using Azure Active Directory service principals scoped to clusters or SQL warehouses to configure data access.
+
+### Register an Azure Active Directory application
 
 1.	Go to **Azure Active Directory** and click on **App Registrations** under **Manage** on the left pane.
 3.	Now click on **"+ New Registration"** to create a new **App Registration**.
