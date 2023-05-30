@@ -64,7 +64,7 @@ if ($CTRL_DEPLOY_CLUSTER) {
         Write-Output "[INFO] CLUSTER_ID: $CLUSTER_ID"
     } else {
         Write-Output "[ERROR] cluster was not created"
-        exit 1
+        break
     }
     
     Write-Output "Task: Checking cluster"
@@ -77,6 +77,7 @@ if ($CTRL_DEPLOY_CLUSTER) {
         $STATE = ((Invoke-RestMethod -Method GET -Uri "https://$REGION.azuredatabricks.net/api/2.0/clusters/get?cluster_id=$CLUSTER_ID" -Headers $HEADERS).state)
         if ($STATE -eq "RUNNING") {
             Write-Output "[INFO] Cluster is running, pipeline has been completed successfully"
+            break
         } else {
             Write-Output "[INFO] Cluster is still not ready, current state: $STATE Next check in $RETRY_TIME seconds.."
             Start-Sleep -Seconds $RETRY_TIME
@@ -94,6 +95,7 @@ $headers = @{
 }
 
 # Create folder based on the syntax
+Write-Host "Create folder based on the syntax"
 if ($CTRL_SYNTAX -eq "DeltaLiveTable") {
     $requestBodyFolder = @{
         "path" = "/Shared/$CTRL_SYNTAX"
@@ -109,6 +111,7 @@ if ($CTRL_SYNTAX -eq "DeltaLiveTable") {
 }
 
 # Create folder for examples
+Write-Host "Create folder for examples"
 $requestBodyFolder = @{
     "path" = "/Shared/Example"
 }
@@ -116,6 +119,7 @@ $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
 $responseFolder = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder  
 
 # Upload example notebooks
+Write-Host "Upload example notebooks"
 try {
     $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=dev"
     Write-Host $Artifactsuri
@@ -166,6 +170,7 @@ catch {
 }    
 
 # Upload Silver and Gold Layer notebooks for a batch source
+Write-Host "Upload Silver and Gold Layer notebooks for a batch source"
 if (!$SRC_EVENTHUB) {
     try {
         $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/"+$CTRL_SYNTAX+"?ref=dev"
