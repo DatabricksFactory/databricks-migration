@@ -20,8 +20,11 @@ param containerName string = 'data'
 @description('')
 param eHRuleName string = 'rule'
 
+// @description('The URI of script file to upload blob container')
+// param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1'
+
 @description('The URI of script file to upload blob container')
-param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1'
+param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/OneClickDeploy.ps1'
 
 @description('Name of identity')
 param identityName string = 'PostDeploymentScriptuserAssignedName'
@@ -97,8 +100,11 @@ param minWorkers int = 1
 @description('Max workers')
 param maxWorkers int = 5
 
+// @description('Path of the notebook to be uploaded')
+// param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts'
+
 @description('Path of the notebook to be uploaded')
-param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts'
+param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts'
 
 @description('Specifies whether to deploy Azure Databricks workspace with secure cluster connectivity (SCC) enabled or not (No Public IP).')
 param disablePublicIp bool = true
@@ -147,6 +153,24 @@ param PrivateEndpointSubnetName string = 'default'
 
 @description('The name of the Azure Databricks workspace to create.')
 param workspaceName string = 'default'
+
+@allowed([
+  'DeltaLiveTable'
+  'DeltaTable'
+])
+param Ctrl_Syntax_Type string = 'DeltaTable'
+
+@allowed([
+        'RawFileSource'
+        'AzureSQL'
+        'AzureMySQL'
+        'AzurePostgreSQL'
+        'SQL_On_Prem'
+        'PostgreSQL_On_Prem'
+        'Oracle'
+        'Eventhub'
+])
+param Ctrl_Import_Notebook string = 'RawFileSource'
 
 // Resources
 
@@ -206,15 +230,16 @@ module databricksPrivateHybridModule 'modules/databricks/databricksPvtHyb.bicep'
   }
 }
 
-module storagePublicModule 'modules/storage/storagePub.bicep' = if(ctrlDeployStorageAccount && endpointType == 'PublicMode') {
+module storagePublicModule 'modules/storage/storagePub.bicep' = if(endpointType == 'PublicMode') {
   name: 'Storage_Account_Public_Deployment'
   params: {
     blobAccountName: blobAccountName
     containerName: containerName
+    ctrlDeployStorageAccount: ctrlDeployStorageAccount 
   }
 }
 
-module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(ctrlDeployStorageAccount && endpointType == 'PrivateMode') {
+module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(endpointType == 'PrivateMode') {
   name: 'Storage_Account_Private_Deployment'
   params: {
     blobAccountName: blobAccountName
@@ -223,11 +248,12 @@ module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(ctrlDeploySt
     vnetName: vnetName
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
     vnetResourceId: networkModule.outputs.vnetResourceId
+    ctrlDeployStorageAccount: ctrlDeployStorageAccount
   }
   dependsOn: [networkModule]
 }
 
-module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(ctrlDeployStorageAccount && endpointType == 'HybridMode') {
+module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(endpointType == 'HybridMode') {
   name: 'Storage_Account_Private_Hybrid_Deployment'
   params: {
     blobAccountName: blobAccountName
@@ -236,6 +262,7 @@ module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(ctr
     vnetName: vnetName
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
     vnetResourceId: networkModule.outputs.vnetResourceId
+    ctrlDeployStorageAccount: ctrlDeployStorageAccount
   }
   dependsOn: [networkModule]
 }
@@ -305,6 +332,9 @@ module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScrip
     minWorkers: minWorkers
     maxWorkers: maxWorkers
     endpointType: endpointType
+    Ctrl_Syntax_Type: Ctrl_Syntax_Type
+    Ctrl_Import_Notebook: Ctrl_Import_Notebook
+    sa_name: blobAccountName
   }
   dependsOn: [databricksPublicModule]
 }
@@ -337,6 +367,9 @@ module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deployme
     minWorkers: minWorkers
     maxWorkers: maxWorkers
     endpointType: endpointType
+    Ctrl_Syntax_Type: Ctrl_Syntax_Type
+    Ctrl_Import_Notebook: Ctrl_Import_Notebook
+    sa_name: blobAccountName
   }
   dependsOn: [databricksPrivateHybridModule]
 }

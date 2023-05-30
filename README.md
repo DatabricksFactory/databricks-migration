@@ -69,7 +69,6 @@ Provide the values for the following parameters or default values will be consid
 - Private Endpoint Subnet Name (Default value is 'default')
 - Workspace Name (Default value is 'default')
 - Fileuploaduri (path for post deployment powershell script for deploying cluster, notebook and pipeline)
-- Option (true/false) for Ctrl Deploy Notebook
 - Option (true/false) for Ctrl Deploy Pipeline 
 - Pipeline Name (Default value is 'Sample Pipeline')
 - Storage Path (Default value is 'dbfs:/user/hive/warehouse')
@@ -77,6 +76,8 @@ Provide the values for the following parameters or default values will be consid
 - Min Workers (Default value is 1)
 - Max Workers (Default value is 5)
 - Notebook Path (URI path of the notebooks to be uploaded)
+- Ctrl_Syntax_Type (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
+- Ctrl_Import_Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported
 
 2. Click **'Review + Create'**.
 
@@ -86,11 +87,15 @@ Provide the values for the following parameters or default values will be consid
 
 The **OneClickDeploy.ps1** is the post deployment script used to deploy a **Cluster**, import **notebooks** and create a **pipeline** in the Databricks Workspace.
 - The script contains the code to create an all-purpose cluster in databricks workspace if you choose **Ctrl Deploy Cluster** parameter as **true**.
-- The script will import all the notebooks from **Artifacts** folder from the GitHub repo if you choose **Ctrl Deploy Notebook** parameter as **true**.
+- The script will import all the notebooks from **Artifacts** folder from the GitHub repo based on your input.
 - And the script will also create a pipeline/workflow if you choose **Ctrl Deploy Pipeline** parameter as **true**.
 
 If you choose **false** for the above three parameters, you have to run the script manually in Azure CLI/Powershell by passing the required parameters explicitly or create them using Databricks workspace Interface. 
- 
+
+## Azure Key Vaults: Assign Access Policies to Owner using PowerShell
+
+Please run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/azure-key-vaults-assign-access-policies.ps1) script in Azure CLI by updating with key vault name and user email id. The script will assign all the **Key permissions** and ```Set```, ```Get```, ```List```, ```Delete``` **Secret permissions** to the user.
+
 ## Azure Services being deployed
 
 1. Databricks Workspace

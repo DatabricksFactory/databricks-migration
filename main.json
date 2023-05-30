@@ -43,7 +43,7 @@
     },
     "fileuploaduri": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1",
+      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/OneClickDeploy.ps1",
       "metadata": {
         "description": "The URI of script file to upload blob container"
       }
@@ -220,7 +220,7 @@
     },
     "notebookPath": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts",
+      "defaultValue": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts",
       "metadata": {
         "description": "Path of the notebook to be uploaded"
       }
@@ -324,7 +324,36 @@
       "metadata": {
         "description": "The name of the Azure Databricks workspace to create."
       }
+    },
+    "Ctrl_Syntax_Type": {
+      "type": "string",
+      "defaultValue":"DeltaLiveTable",
+      "allowedValues": [
+       "DeltaLiveTable",
+       "DeltaTable" 
+      ],
+      "metadata": {
+        "description": "Controls which sytax notebooks to be imported"
+      }
+    },
+    "Ctrl_Import_Notebook": {
+      "type": "string",
+      "defaultValue":"RawFileSource",
+      "allowedValues": [
+        "RawFileSource",
+        "AzureSQL",
+        "AzureMySQL",
+        "AzurePostgreSQL",
+        "SQL_On_Prem",
+        "PostgreSQL_On_Prem",
+        "Oracle",
+        "Eventhub"
+      ],
+      "metadata": {
+        "description": "Controls importing of notebook"
+      }
     }
+    
   },
   "resources": [
     {
@@ -2175,6 +2204,13 @@
           },
           "endpointType": {
             "value": "[parameters('endpointType')]"
+          },
+          "Ctrl_Import_Notebook": {
+            "value": "[parameters('Ctrl_Import_Notebook')]"
+          }
+          ,
+          "Ctrl_Syntax_Type": {
+            "value": "[parameters('Ctrl_Syntax_Type')]"
           }
         },
         "template": {
@@ -2334,12 +2370,24 @@
             },
             "endpointType": {
               "type": "string"
+            },
+            "Ctrl_Import_Notebook": {
+              "type": "string",
+              "metadata": {
+                "description": "Controls importing notebook"
+              }
+            },
+            "Ctrl_Syntax_Type": {
+              "type": "string",
+              "metadata": {
+                "description": "Controls which sytax notebooks to be imported"
+              }
             }
           },
           "variables": {
             "location": "[resourceGroup().location]",
             "fileuploadurivariable": "[parameters('fileuploaduri')]",
-            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'))]",
+            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29} -CTRL_SYNTAX {30}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(equals(parameters('Ctrl_Import_Notebook'),'RawFileSource'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'AzureSQL'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'AzureMySQL'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'AzurePostgreSQL'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'SQL_On_Prem'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'PostgreSQL_On_Prem'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'Oracle'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'Eventhub'), '$true', '$false'),parameters('Ctrl_Syntax_Type'))]",
             "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
             "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c"
           },
@@ -2489,6 +2537,12 @@
           },
           "endpointType": {
             "value": "[parameters('endpointType')]"
+          },
+          "Ctrl_Import_Notebook": {
+            "value": "[parameters('Ctrl_Import_Notebook')]"
+          },
+          "Ctrl_Syntax_Type": {
+            "value": "[parameters('Ctrl_Syntax_Type')]"
           }
         },
         "template": {
@@ -2648,12 +2702,24 @@
             },
             "endpointType": {
               "type": "string"
+            },
+            "Ctrl_Import_Notebook": {
+              "type": "string",
+              "metadata": {
+                "description": "Controls importing notebook"
+              }
+            },
+            "Ctrl_Syntax_Type": {
+              "type": "string",
+              "metadata": {
+                "description": "Controls importing notebook"
+              }
             }
           },
           "variables": {
             "location": "[resourceGroup().location]",
             "fileuploadurivariable": "[parameters('fileuploaduri')]",
-            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'))]",
+            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29} -CTRL_SYNTAX {30}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(equals(parameters('Ctrl_Import_Notebook'),'RawFileSource'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'AzureSQL'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'AzureMySQL'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'AzurePostgreSQL'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'SQL_On_Prem'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'PostgreSQL_On_Prem'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'Oracle'), '$true', '$false'),if(equals(parameters('Ctrl_Import_Notebook'),'Eventhub'), '$true', '$false'),parameters('Ctrl_Syntax_Type'))]",
             "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
             "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c"
           },
