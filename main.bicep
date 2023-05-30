@@ -20,8 +20,11 @@ param containerName string = 'data'
 @description('')
 param eHRuleName string = 'rule'
 
+// @description('The URI of script file to upload blob container')
+// param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1'
+
 @description('The URI of script file to upload blob container')
-param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1'
+param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/OneClickDeploy.ps1'
 
 @description('Name of identity')
 param identityName string = 'PostDeploymentScriptuserAssignedName'
@@ -97,8 +100,11 @@ param minWorkers int = 1
 @description('Max workers')
 param maxWorkers int = 5
 
+// @description('Path of the notebook to be uploaded')
+// param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts'
+
 @description('Path of the notebook to be uploaded')
-param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts'
+param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts'
 
 @description('Specifies whether to deploy Azure Databricks workspace with secure cluster connectivity (SCC) enabled or not (No Public IP).')
 param disablePublicIp bool = true
@@ -325,6 +331,7 @@ module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScrip
     endpointType: endpointType
     Ctrl_Syntax_Type: Ctrl_Syntax_Type
     Ctrl_Import_Notebook: Ctrl_Import_Notebook
+    sa_name: blobAccountName
   }
   dependsOn: [databricksPublicModule]
 }
@@ -359,6 +366,7 @@ module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deployme
     endpointType: endpointType
     Ctrl_Syntax_Type: Ctrl_Syntax_Type
     Ctrl_Import_Notebook: Ctrl_Import_Notebook
+    sa_name: blobAccountName
   }
   dependsOn: [databricksPrivateHybridModule]
 }
