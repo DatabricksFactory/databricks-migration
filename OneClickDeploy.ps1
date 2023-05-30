@@ -84,7 +84,7 @@ if ($CTRL_DEPLOY_CLUSTER) {
     Write-Output "[ERROR] No more attempts left, breaking.."
 }
 
-if ($CTRL_DEPLOY_NOTEBOOK) {
+if (-not($SRC_EVENTHUB)) {
 
   Write-Output "Task: Uploading notebook"
   # Set the headers
