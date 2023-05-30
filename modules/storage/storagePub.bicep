@@ -4,13 +4,15 @@ param blobAccountName string
 
 param containerName string 
 
+param ctrlDeployStorageAccount bool
+
 //Variables
 
 var location = resourceGroup().location
 
 //Resources
 
-resource blobAccountPublic 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+resource blobAccountPublic 'Microsoft.Storage/storageAccounts@2021-04-01' = if(ctrlDeployStorageAccount) {
   name: blobAccountName
   location: location
   kind: 'StorageV2'
@@ -32,7 +34,7 @@ resource blobAccountPublic 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-resource blobAccountName_default_container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
+resource blobAccountName_default_container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = if(ctrlDeployStorageAccount) {
   name: '${blobAccountName}/default/${containerName}'
   dependsOn: [
     blobAccountPublic

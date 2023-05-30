@@ -158,7 +158,7 @@ param workspaceName string = 'default'
   'DeltaLiveTable'
   'DeltaTable'
 ])
-param Ctrl_Syntax_Type string = 'DeltaLiveTable'
+param Ctrl_Syntax_Type string = 'DeltaTable'
 
 @allowed([
         'RawFileSource'
@@ -230,15 +230,16 @@ module databricksPrivateHybridModule 'modules/databricks/databricksPvtHyb.bicep'
   }
 }
 
-module storagePublicModule 'modules/storage/storagePub.bicep' = if(ctrlDeployStorageAccount && endpointType == 'PublicMode') {
+module storagePublicModule 'modules/storage/storagePub.bicep' = if(endpointType == 'PublicMode') {
   name: 'Storage_Account_Public_Deployment'
   params: {
     blobAccountName: blobAccountName
     containerName: containerName
+    ctrlDeployStorageAccount: ctrlDeployStorageAccount 
   }
 }
 
-module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(ctrlDeployStorageAccount && endpointType == 'PrivateMode') {
+module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(endpointType == 'PrivateMode') {
   name: 'Storage_Account_Private_Deployment'
   params: {
     blobAccountName: blobAccountName
@@ -247,11 +248,12 @@ module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(ctrlDeploySt
     vnetName: vnetName
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
     vnetResourceId: networkModule.outputs.vnetResourceId
+    ctrlDeployStorageAccount: ctrlDeployStorageAccount
   }
   dependsOn: [networkModule]
 }
 
-module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(ctrlDeployStorageAccount && endpointType == 'HybridMode') {
+module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(endpointType == 'HybridMode') {
   name: 'Storage_Account_Private_Hybrid_Deployment'
   params: {
     blobAccountName: blobAccountName
@@ -260,6 +262,7 @@ module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(ctr
     vnetName: vnetName
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
     vnetResourceId: networkModule.outputs.vnetResourceId
+    ctrlDeployStorageAccount: ctrlDeployStorageAccount
   }
   dependsOn: [networkModule]
 }

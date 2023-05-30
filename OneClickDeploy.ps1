@@ -101,13 +101,13 @@ if ($CTRL_SYNTAX -eq "DeltaLiveTable") {
         "path" = "/Shared/$CTRL_SYNTAX"
     }
     $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
-    $responseFolder = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
+    Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
 } else {
     $requestBodyFolder = @{
         "path" = "/Shared/$CTRL_SYNTAX"
     }
     $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
-    $responseFolder = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
+    Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
 }
 
 # Create folder for examples
@@ -116,7 +116,7 @@ $requestBodyFolder = @{
     "path" = "/Shared/Example"
 }
 $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
-$responseFolder = Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder  
+Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder  
 
 # Upload example notebooks
 Write-Host "Upload example notebooks"
