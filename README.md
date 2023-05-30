@@ -96,6 +96,10 @@ If you choose **false** for the above three parameters, you have to run the scri
 
 Please run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/azure-key-vaults-assign-access-policies.ps1) script in Azure CLI by updating with key vault name and user email id. The script will assign all the **Key permissions** and ```Set```, ```Get```, ```List```, ```Delete``` **Secret permissions** to the user.
 
+## Connect to Azure Data Lake Storage Gen2 or Blob Storage using Azure credentials
+
+OAuth 2.0 with an Azure service principal: Databricks recommends using Azure service principals to connect to Azure storage. To create an Azure service principal and provide it access to Azure storage accounts please refer **Steps** folder document.
+
 ## Azure Services being deployed
 
 1. Databricks Workspace
