@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "9649752568012292722"
+      "templateHash": "5805781647863401937"
     }
   },
   "parameters": {
@@ -327,7 +327,7 @@
     },
     "Ctrl_Syntax_Type": {
       "type": "string",
-      "defaultValue": "DeltaTable",
+      "defaultValue": "DeltaLiveTable",
       "allowedValues": [
         "DeltaLiveTable",
         "DeltaTable"
@@ -1296,7 +1296,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "1465033181779737069"
+              "templateHash": "15088129261096514980"
             }
           },
           "parameters": {
@@ -1449,7 +1449,8 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]"
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]",
+                "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNamestorage'))]"
               ]
             }
           ],
@@ -1505,7 +1506,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "1465033181779737069"
+              "templateHash": "15088129261096514980"
             }
           },
           "parameters": {
@@ -1658,7 +1659,8 @@
                 ]
               },
               "dependsOn": [
-                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]"
+                "[resourceId('Microsoft.Network/privateDnsZones', variables('privateDnsZoneNamestorage'))]",
+                "[resourceId('Microsoft.Network/privateEndpoints', variables('privateEndpointNamestorage'))]"
               ]
             }
           ],
@@ -1849,7 +1851,7 @@
       }
     },
     {
-      "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'HybridMode'))]",
+      "condition": "[and(or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'HybridMode')), parameters('ctrlDeployEventHub'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "EventHub_Private_Endpoint_Deployment",
@@ -1996,7 +1998,7 @@
       ]
     },
     {
-      "condition": "[or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'HybridMode'))]",
+      "condition": "[and(or(equals(parameters('endpointType'), 'PrivateMode'), equals(parameters('endpointType'), 'HybridMode')), parameters('ctrlDeployKeyVault'))]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
       "name": "Key_Vault_Private_Endpoint_Deployment",
@@ -2236,6 +2238,9 @@
           },
           "sa_name": {
             "value": "[parameters('blobAccountName')]"
+          },
+          "saExists": {
+            "value": "[parameters('ctrlDeployStorageAccount')]"
           }
         },
         "template": {
@@ -2245,7 +2250,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "12976949418505588590"
+              "templateHash": "17636689935167718642"
             }
           },
           "parameters": {
@@ -2404,12 +2409,15 @@
             },
             "sa_name": {
               "type": "string"
+            },
+            "saExists": {
+              "type": "bool"
             }
           },
           "variables": {
             "location": "[resourceGroup().location]",
             "fileuploadurivariable": "[parameters('fileuploaduri')]",
-            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29} -CTRL_SYNTAX {30} -SA_NAME {31}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(equals(parameters('Ctrl_Import_Notebook'), 'RawFileSource'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzureSQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzureMySQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzurePostgreSQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'SQL_On_Prem'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'PostgreSQL_On_Prem'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'Oracle'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'Eventhub'), '$true', '$false'), parameters('Ctrl_Syntax_Type'), parameters('sa_name'))]",
+            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29} -CTRL_SYNTAX {30} -SA_NAME {31} -SA_EXISTS {32}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(equals(parameters('Ctrl_Import_Notebook'), 'RawFileSource'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzureSQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzureMySQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzurePostgreSQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'SQL_On_Prem'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'PostgreSQL_On_Prem'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'Oracle'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'Eventhub'), '$true', '$false'), parameters('Ctrl_Syntax_Type'), parameters('sa_name'), parameters('saExists'))]",
             "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
             "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c"
           },
@@ -2568,6 +2576,9 @@
           },
           "sa_name": {
             "value": "[parameters('blobAccountName')]"
+          },
+          "saExists": {
+            "value": "[parameters('ctrlDeployStorageAccount')]"
           }
         },
         "template": {
@@ -2577,7 +2588,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "12976949418505588590"
+              "templateHash": "17636689935167718642"
             }
           },
           "parameters": {
@@ -2736,12 +2747,15 @@
             },
             "sa_name": {
               "type": "string"
+            },
+            "saExists": {
+              "type": "bool"
             }
           },
           "variables": {
             "location": "[resourceGroup().location]",
             "fileuploadurivariable": "[parameters('fileuploaduri')]",
-            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29} -CTRL_SYNTAX {30} -SA_NAME {31}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(equals(parameters('Ctrl_Import_Notebook'), 'RawFileSource'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzureSQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzureMySQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzurePostgreSQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'SQL_On_Prem'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'PostgreSQL_On_Prem'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'Oracle'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'Eventhub'), '$true', '$false'), parameters('Ctrl_Syntax_Type'), parameters('sa_name'))]",
+            "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29} -CTRL_SYNTAX {30} -SA_NAME {31} -SA_EXISTS {32}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(equals(parameters('Ctrl_Import_Notebook'), 'RawFileSource'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzureSQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzureMySQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'AzurePostgreSQL'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'SQL_On_Prem'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'PostgreSQL_On_Prem'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'Oracle'), '$true', '$false'), if(equals(parameters('Ctrl_Import_Notebook'), 'Eventhub'), '$true', '$false'), parameters('Ctrl_Syntax_Type'), parameters('sa_name'), parameters('saExists'))]",
             "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
             "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c"
           },

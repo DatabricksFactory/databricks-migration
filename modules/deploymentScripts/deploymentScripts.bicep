@@ -80,13 +80,15 @@ param Ctrl_Import_Notebook string
 
 param sa_name string
 
+param saExists bool
+
 //Variables
 
 var location = resourceGroup().location
 
 var fileuploadurivariable = fileuploaduri
 
-var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${workspaceName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -CTRL_DEPLOY_CLUSTER ${(ctrlDeployCluster ? '$true' : '$false')} -MINWORKERS ${minWorkers} -MAXWORKERS ${maxWorkers} -PIPELINENAME ${pipelineName} -STORAGE ${storagePath} -TARGETSCHEMA ${targetSchemaName} -CTRL_DEPLOY_NOTEBOOK ${(ctrlDeployNotebook ? '$true' : '$false')} -CTRL_DEPLOY_PIPELINE ${(ctrlDeployPipeline ? '$true' : '$false')} -NOTEBOOK_PATH ${notebookPath} -SRC_FILESOURCE ${Ctrl_Import_Notebook == 'RawFileSource' ? '$true' : '$false'} -SRC_AZSQL ${Ctrl_Import_Notebook == 'AzureSQL' ? '$true' : '$false'} -SRC_AZMYSQL ${Ctrl_Import_Notebook == 'AzureMySQL' ? '$true' : '$false'} -SRC_AZPSQL ${Ctrl_Import_Notebook == 'AzurePostgreSQL' ? '$true' : '$false'} -SRC_SQL_ONPREM ${Ctrl_Import_Notebook == 'SQL_On_Prem' ? '$true' : '$false'} -SRC_PSQL_ONPREM ${Ctrl_Import_Notebook == 'PostgreSQL_On_Prem' ? '$true' : '$false'} -SRC_ORACLE ${Ctrl_Import_Notebook == 'Oracle' ? '$true' : '$false'} -SRC_EVENTHUB ${Ctrl_Import_Notebook == 'Eventhub' ? '$true' : '$false'} -CTRL_SYNTAX ${Ctrl_Syntax_Type} -SA_NAME ${sa_name}'
+var scriptParametersToUploadFile = '-RG_NAME ${resourceGroup().name} -REGION ${location} -WORKSPACE_NAME ${workspaceName} -LIFETIME_SECONDS ${lifetimeSeconds} -COMMENT ${comment} -CLUSTER_NAME ${clusterName} -SPARK_VERSION ${sparkVersion} -AUTOTERMINATION_MINUTES ${autoTerminationMinutes} -NUM_WORKERS ${numWorkers} -NODE_TYPE_ID ${nodeTypeId} -DRIVER_NODE_TYPE_ID ${driverNodeTypeId} -RETRY_LIMIT ${retryLimit} -RETRY_TIME ${retryTime} -CTRL_DEPLOY_CLUSTER ${(ctrlDeployCluster ? '$true' : '$false')} -MINWORKERS ${minWorkers} -MAXWORKERS ${maxWorkers} -PIPELINENAME ${pipelineName} -STORAGE ${storagePath} -TARGETSCHEMA ${targetSchemaName} -CTRL_DEPLOY_NOTEBOOK ${(ctrlDeployNotebook ? '$true' : '$false')} -CTRL_DEPLOY_PIPELINE ${(ctrlDeployPipeline ? '$true' : '$false')} -NOTEBOOK_PATH ${notebookPath} -SRC_FILESOURCE ${Ctrl_Import_Notebook == 'RawFileSource' ? '$true' : '$false'} -SRC_AZSQL ${Ctrl_Import_Notebook == 'AzureSQL' ? '$true' : '$false'} -SRC_AZMYSQL ${Ctrl_Import_Notebook == 'AzureMySQL' ? '$true' : '$false'} -SRC_AZPSQL ${Ctrl_Import_Notebook == 'AzurePostgreSQL' ? '$true' : '$false'} -SRC_SQL_ONPREM ${Ctrl_Import_Notebook == 'SQL_On_Prem' ? '$true' : '$false'} -SRC_PSQL_ONPREM ${Ctrl_Import_Notebook == 'PostgreSQL_On_Prem' ? '$true' : '$false'} -SRC_ORACLE ${Ctrl_Import_Notebook == 'Oracle' ? '$true' : '$false'} -SRC_EVENTHUB ${Ctrl_Import_Notebook == 'Eventhub' ? '$true' : '$false'} -CTRL_SYNTAX ${Ctrl_Syntax_Type} -SA_NAME ${sa_name} -SA_EXISTS ${saExists ? '$true' : '$false'}'
 
 var bootstrapRoleAssignmentId_var = guid(firstuniquestring, seconduniquestring)
 

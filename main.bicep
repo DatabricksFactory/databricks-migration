@@ -158,7 +158,7 @@ param workspaceName string = 'default'
   'DeltaLiveTable'
   'DeltaTable'
 ])
-param Ctrl_Syntax_Type string = 'DeltaTable'
+param Ctrl_Syntax_Type string = 'DeltaLiveTable'
 
 @allowed([
         'RawFileSource'
@@ -282,7 +282,7 @@ module keyvaultModule './modules/keyvault/keyvault.bicep' = if(ctrlDeployKeyVaul
   }
 }
 
-module eventhubPrivateEndpointModule './modules/resourcepep/eventhubpep.bicep' = if(endpointType == 'PrivateMode' || endpointType == 'HybridMode') {
+module eventhubPrivateEndpointModule './modules/resourcepep/eventhubpep.bicep' = if((endpointType == 'PrivateMode' || endpointType == 'HybridMode') && ctrlDeployEventHub) {
   name: 'EventHub_Private_Endpoint_Deployment'
   params: {
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
@@ -293,7 +293,7 @@ module eventhubPrivateEndpointModule './modules/resourcepep/eventhubpep.bicep' =
   dependsOn: [eventhubModule]
 }
 
-module keyvaultPrivateEndpointModule './modules/resourcepep/keyvaultpep.bicep' = if(endpointType == 'PrivateMode' || endpointType == 'HybridMode') {
+module keyvaultPrivateEndpointModule './modules/resourcepep/keyvaultpep.bicep' = if((endpointType == 'PrivateMode' || endpointType == 'HybridMode') && ctrlDeployKeyVault) {
   name: 'Key_Vault_Private_Endpoint_Deployment'
   params: {
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
@@ -335,6 +335,7 @@ module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScrip
     Ctrl_Syntax_Type: Ctrl_Syntax_Type
     Ctrl_Import_Notebook: Ctrl_Import_Notebook
     sa_name: blobAccountName
+    saExists: ctrlDeployStorageAccount
   }
   dependsOn: [databricksPublicModule]
 }
@@ -370,6 +371,7 @@ module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deployme
     Ctrl_Syntax_Type: Ctrl_Syntax_Type
     Ctrl_Import_Notebook: Ctrl_Import_Notebook
     sa_name: blobAccountName
+    saExists: ctrlDeployStorageAccount
   }
   dependsOn: [databricksPrivateHybridModule]
 }
