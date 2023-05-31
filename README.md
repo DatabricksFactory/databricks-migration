@@ -41,7 +41,6 @@ Provide the values for the following parameters or default values will be consid
 - Seconduniquestring (Default value is random unique string)
 - Utc Value (utcNow)
 - Option (true/false) for Cluster deployment (Default value is true)
-- Option (true/false) for Storage account deployment (Default value is true)
 - Option (true/false) for Key Vault deployment (Default value is true)
 - Option (true/false) for Event Hub deployment (Default value is true)
 - Lifetime Seconds(Databricks token) (Default value is 1200)
