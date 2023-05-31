@@ -4,11 +4,11 @@ This 1-click deployment allows the user to deploy environment of Azure Databrick
 
 ## SDLC Flow
 
-![Flow diagram](./Assets/Development_FlowChart.png)
+![Flow diagram](./assets/Development_FlowChart.png)
 
 ## Infrastructure and Application Plane Flow
 
-![Flow diagram](./Assets/Databricks_Deployment_Workflow.png)
+![Flow diagram](./assets/Databricks_Deployment_Workflow.png)
 
 ## Prerequisites For Deployment
 
@@ -77,7 +77,7 @@ Provide the values for the following parameters or default values will be consid
 - Max Workers (Default value is 5)
 - Notebook Path (URI path of the notebooks to be uploaded)
 - Ctrl_Syntax_Type (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
-- Ctrl_Import_Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported
+- Ctrl_Import_Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported from the syntax parameter you selected above.
 
 2. Click **'Review + Create'**.
 
@@ -85,12 +85,14 @@ Provide the values for the following parameters or default values will be consid
 
 ## Post Deployment
 
-The **OneClickDeploy.ps1** is the post deployment script used to deploy a **Cluster**, import **notebooks** and create a **pipeline** in the Databricks Workspace.
+The **OneClickDeploy.ps1** is the post deployment script used to deploy a **Cluster**, import **notebooks**, create a **pipeline** and upload files to storage account in the Databricks Workspace.
 - The script contains the code to create an all-purpose cluster in databricks workspace if you choose **Ctrl Deploy Cluster** parameter as **true**.
-- The script will import all the notebooks from **Artifacts** folder from the GitHub repo based on your input.
+- The script will import the notebooks into workspace from **Artifacts** folder from the GitHub repo based on your input.
 - And the script will also create a pipeline/workflow if you choose **Ctrl Deploy Pipeline** parameter as **true**.
+- Script will also import Notebooks from **Artifacts/Example/** folder from Git repo to workspace.
+- Also the files from **data** folder from git repo will be uploaded to data container in storage account.
 
-If you choose **false** for the above three parameters, you have to run the script manually in Azure CLI/Powershell by passing the required parameters explicitly or create them using Databricks workspace Interface. 
+If you choose **false** for the above parameters or if you choose for Private mode deployment, you have to run the script manually in Azure CLI/Powershell by passing the required parameters explicitly or create them using Databricks workspace Interface. 
 
 ## Azure Key Vaults: Assign Access Policies to Owner using PowerShell
 
@@ -98,17 +100,17 @@ Please run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubu
 
 ## Connect to Azure Data Lake Storage Gen2 or Blob Storage using Azure credentials
 
-OAuth 2.0 with an Azure service principal: Databricks recommends using Azure service principals to connect to Azure storage. To create an Azure service principal and provide it access to Azure storage accounts please refer **Steps** folder document.
+**OAuth 2.0 with an Azure service principal**: Databricks recommends using Azure service principals to connect to Azure storage. To create an Azure service principal and provide it access to Azure storage accounts please refer **Steps** folder document.
 
 ## Azure Services being deployed
 
 1. Databricks Workspace
 2. Eventhub
-3. ADLS Gen 2 Storage account with a Container
+3. ADLS Gen 2 Storage account with a Container **data** and csv files uploaded in it.
 4. Key Vault
 5. Network Interface
 6. Network security group
 7. Private DNS zone
 8. Private endpoint
 9. Virtual network
-10. Databricks workspace will have a Cluster, Sample Notebooks and a Pipeline.
+10. Databricks workspace will have a Cluster, Notebooks and a Pipeline.
