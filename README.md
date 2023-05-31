@@ -4,11 +4,11 @@ This 1-click deployment allows the user to deploy environment of Azure Databrick
 
 ## SDLC Flow
 
-![Flow diagram](./Assets/Development_FlowChart.png)
+![Flow diagram](./assets/Development_FlowChart.png)
 
 ## Infrastructure and Application Plane Flow
 
-![Flow diagram](./Assets/Databricks_Deployment_Workflow.png)
+![Flow diagram](./assets/Databricks_Deployment_Workflow.png)
 
 ## Prerequisites For Deployment
 
