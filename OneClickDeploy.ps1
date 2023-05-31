@@ -3,6 +3,7 @@ param(
     [string] $REGION,
     [string] $WORKSPACE_NAME,
     [string] $SA_NAME,
+    [bool] $SA_EXISTS,
     [int] $LIFETIME_SECONDS,
     [string] $COMMENT,
     [string] $CLUSTER_NAME,
@@ -589,29 +590,30 @@ $createPipelineResponse
 }
 
 # Upload data files
-
-$storageaccountkey = Get-AzStorageAccountKey -ResourceGroupName $RG_NAME -Name $SA_NAME;
-
-$ctx = New-AzStorageContext -StorageAccountName $SA_NAME -StorageAccountKey $storageaccountkey.Value[0]
-
-$Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/data?ref=dev" #change to main branch
-
-$wr = Invoke-WebRequest -Uri $Artifactsuri
-
-$objects = $wr.Content | ConvertFrom-Json
-
-$fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
-
-Write-Host $fileNames
-
-Foreach ($filename in $fileNames) {
-
-$url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/data/$filename" #change to main branch
-
-$Webresults = Invoke-WebRequest $url -UseBasicParsing
-
-Invoke-WebRequest -Uri $url -OutFile $filename
-
-Set-AzStorageBlobContent -File $filename -Container "data" -Blob $filename -Context $ctx
-
+if ($SA_EXISTS) {
+    $storageaccountkey = Get-AzStorageAccountKey -ResourceGroupName $RG_NAME -Name $SA_NAME;
+    
+    $ctx = New-AzStorageContext -StorageAccountName $SA_NAME -StorageAccountKey $storageaccountkey.Value[0]
+    
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/data?ref=dev" #change to main branch
+    
+    $wr = Invoke-WebRequest -Uri $Artifactsuri
+    
+    $objects = $wr.Content | ConvertFrom-Json
+    
+    $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+    
+    Write-Host $fileNames
+    
+    Foreach ($filename in $fileNames) {
+    
+    $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/data/$filename" #change to main branch
+    
+    $Webresults = Invoke-WebRequest $url -UseBasicParsing
+    
+    Invoke-WebRequest -Uri $url -OutFile $filename
+    
+    Set-AzStorageBlobContent -File $filename -Container "data" -Blob $filename -Context $ctx
+    
+    }
 }
