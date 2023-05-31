@@ -46,8 +46,8 @@ param ctrlDeployKeyVault bool = true
 
 param ctrlDeployEventHub bool = true
 
-@description('Controls the execution of notebook deployment script')
-param ctrlDeployNotebook bool = true
+// @description('Controls the execution of notebook deployment script')
+// param ctrlDeployNotebook bool = true
 
 @description('Controls the execution of pipeline deployment script')
 param ctrlDeployPipeline bool = true
@@ -175,6 +175,8 @@ param Ctrl_Import_Notebook string = 'RawFileSource'
 // Variables 
 
 var ctrlDeployStorageAccount = true
+
+var ctrlDeployNotebook = true
 
 // Resources
 

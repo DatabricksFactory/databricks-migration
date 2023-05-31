@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "6449999355831264977"
+      "templateHash": "9521364058882240983"
     }
   },
   "parameters": {
@@ -87,13 +87,6 @@
     "ctrlDeployEventHub": {
       "type": "bool",
       "defaultValue": true
-    },
-    "ctrlDeployNotebook": {
-      "type": "bool",
-      "defaultValue": true,
-      "metadata": {
-        "description": "Controls the execution of notebook deployment script"
-      }
     },
     "ctrlDeployPipeline": {
       "type": "bool",
@@ -345,7 +338,8 @@
     }
   },
   "variables": {
-    "ctrlDeployStorageAccount": true
+    "ctrlDeployStorageAccount": true,
+    "ctrlDeployNotebook": true
   },
   "resources": [
     {
@@ -2201,7 +2195,7 @@
             "value": "[parameters('ctrlDeployCluster')]"
           },
           "ctrlDeployNotebook": {
-            "value": "[parameters('ctrlDeployNotebook')]"
+            "value": "[variables('ctrlDeployNotebook')]"
           },
           "ctrlDeployPipeline": {
             "value": "[parameters('ctrlDeployPipeline')]"
@@ -2539,7 +2533,7 @@
             "value": "[parameters('ctrlDeployCluster')]"
           },
           "ctrlDeployNotebook": {
-            "value": "[parameters('ctrlDeployNotebook')]"
+            "value": "[variables('ctrlDeployNotebook')]"
           },
           "ctrlDeployPipeline": {
             "value": "[parameters('ctrlDeployPipeline')]"
