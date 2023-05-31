@@ -20,8 +20,11 @@ param containerName string = 'data'
 @description('')
 param eHRuleName string = 'rule'
 
+// @description('The URI of script file to upload blob container')
+// param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1'
+
 @description('The URI of script file to upload blob container')
-param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1'
+param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/OneClickDeploy.ps1'
 
 @description('Name of identity')
 param identityName string = 'PostDeploymentScriptuserAssignedName'
@@ -37,7 +40,7 @@ param seconduniquestring string = 'secondunique${uniqueSuffix}'
 
 param utcValue string = utcNow()
 
-param ctrlDeployStorageAccount bool = true
+// param ctrlDeployStorageAccount bool = true
 
 param ctrlDeployKeyVault bool = true
 
@@ -97,8 +100,11 @@ param minWorkers int = 1
 @description('Max workers')
 param maxWorkers int = 5
 
+// @description('Path of the notebook to be uploaded')
+// param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts'
+
 @description('Path of the notebook to be uploaded')
-param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts'
+param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts'
 
 @description('Specifies whether to deploy Azure Databricks workspace with secure cluster connectivity (SCC) enabled or not (No Public IP).')
 param disablePublicIp bool = true
@@ -148,6 +154,28 @@ param PrivateEndpointSubnetName string = 'default'
 @description('The name of the Azure Databricks workspace to create.')
 param workspaceName string = 'default'
 
+@allowed([
+  'DeltaLiveTable'
+  'DeltaTable'
+])
+param Ctrl_Syntax_Type string = 'DeltaLiveTable'
+
+@allowed([
+        'RawFileSource'
+        'AzureSQL'
+        'AzureMySQL'
+        'AzurePostgreSQL'
+        'SQL_On_Prem'
+        'PostgreSQL_On_Prem'
+        'Oracle'
+        'Eventhub'
+])
+param Ctrl_Import_Notebook string = 'RawFileSource'
+
+// Variables 
+
+var ctrlDeployStorageAccount = true
+
 // Resources
 
 module networkModule 'modules/network/network.bicep' = {
@@ -191,7 +219,7 @@ module databricksPrivateModule 'modules/databricks/databricksPvt.bicep' = if(end
 }
 
 module databricksPrivateHybridModule 'modules/databricks/databricksPvtHyb.bicep' = if(endpointType == 'HybridMode') {
-  name: 'Databricks_Private_Hybrid_Deployment'
+  name: 'Databricks_Hybrid_Deployment'
   params: {
     customVirtualNetworkResourceId: networkModule.outputs.vnetResourceId
     disablePublicIp: disablePublicIp
@@ -206,15 +234,16 @@ module databricksPrivateHybridModule 'modules/databricks/databricksPvtHyb.bicep'
   }
 }
 
-module storagePublicModule 'modules/storage/storagePub.bicep' = if(ctrlDeployStorageAccount && endpointType == 'PublicMode') {
+module storagePublicModule 'modules/storage/storagePub.bicep' = if(endpointType == 'PublicMode') {
   name: 'Storage_Account_Public_Deployment'
   params: {
     blobAccountName: blobAccountName
     containerName: containerName
+    ctrlDeployStorageAccount: ctrlDeployStorageAccount 
   }
 }
 
-module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(ctrlDeployStorageAccount && endpointType == 'PrivateMode') {
+module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(endpointType == 'PrivateMode') {
   name: 'Storage_Account_Private_Deployment'
   params: {
     blobAccountName: blobAccountName
@@ -223,12 +252,13 @@ module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(ctrlDeploySt
     vnetName: vnetName
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
     vnetResourceId: networkModule.outputs.vnetResourceId
+    ctrlDeployStorageAccount: ctrlDeployStorageAccount
   }
   dependsOn: [networkModule]
 }
 
-module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(ctrlDeployStorageAccount && endpointType == 'HybridMode') {
-  name: 'Storage_Account_Private_Hybrid_Deployment'
+module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(endpointType == 'HybridMode') {
+  name: 'Storage_Account_Hybrid_Deployment'
   params: {
     blobAccountName: blobAccountName
     containerName: containerName
@@ -236,43 +266,48 @@ module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(ctr
     vnetName: vnetName
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
     vnetResourceId: networkModule.outputs.vnetResourceId
+    ctrlDeployStorageAccount: ctrlDeployStorageAccount
   }
   dependsOn: [networkModule]
 }
 
-module eventhubModule './modules/eventhub/eventhub.bicep' = if(ctrlDeployEventHub) {
+module eventhubModule './modules/eventhub/eventhub.bicep' = {
   name: 'EventHub_Deployment'
   params: {
     eHRuleName: eHRuleName
     eventHubSku: eventHubSku
+    ctrlDeployEventHub: ctrlDeployEventHub
   }
 }
 
-module keyvaultModule './modules/keyvault/keyvault.bicep' = if(ctrlDeployKeyVault) {
-  name: 'Key_Vault_Deployment'
+module keyvaultModule './modules/keyvault/keyvault.bicep' = {
+  name: 'KeyVault_Deployment'
   params: {
     utcValue: utcValue
+    ctrlDeployKeyVault: ctrlDeployKeyVault
   }
 }
 
-module eventhubPrivateEndpointModule './modules/resourcepep/eventhubpep.bicep' = if(endpointType == 'PrivateMode' || endpointType == 'HybridMode') {
+module eventhubPrivateEndpointModule './modules/resourcepep/eventhubpep.bicep' = if((endpointType == 'PrivateMode' || endpointType == 'HybridMode')) {
   name: 'EventHub_Private_Endpoint_Deployment'
   params: {
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
     eventhubResourceId: eventhubModule.outputs.eventhubResourceId
     vnetName: vnetName
     vnetResourceId: networkModule.outputs.vnetResourceId
+    ctrlDeployEventHub: ctrlDeployEventHub
   }
   dependsOn: [eventhubModule]
 }
 
-module keyvaultPrivateEndpointModule './modules/resourcepep/keyvaultpep.bicep' = if(endpointType == 'PrivateMode' || endpointType == 'HybridMode') {
-  name: 'Key_Vault_Private_Endpoint_Deployment'
+module keyvaultPrivateEndpointModule './modules/resourcepep/keyvaultpep.bicep' = if((endpointType == 'PrivateMode' || endpointType == 'HybridMode')) {
+  name: 'KeyVault_Private_Endpoint_Deployment'
   params: {
     PrivateEndpointSubnetName: PrivateEndpointSubnetName
     keyvaultResourceId: keyvaultModule.outputs.keyvaultResourceId
     vnetName: vnetName
     vnetResourceId: networkModule.outputs.vnetResourceId
+    ctrlDeployKeyVault: ctrlDeployKeyVault
   }
   dependsOn: [keyvaultModule]
 }
@@ -305,12 +340,16 @@ module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScrip
     minWorkers: minWorkers
     maxWorkers: maxWorkers
     endpointType: endpointType
+    Ctrl_Syntax_Type: Ctrl_Syntax_Type
+    Ctrl_Import_Notebook: Ctrl_Import_Notebook
+    sa_name: blobAccountName
+    saExists: ctrlDeployStorageAccount
   }
   dependsOn: [databricksPublicModule]
 }
 
 module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deploymentScripts.bicep' = if(endpointType == 'HybridMode') { 
-  name: 'Post-Deployment_Scripts_Private_Hybrid'
+  name: 'Post-Deployment_Scripts_Hybrid'
   params: {
     autoTerminationMinutes: autoTerminationMinutes
     clusterName: clusterName
@@ -337,6 +376,10 @@ module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deployme
     minWorkers: minWorkers
     maxWorkers: maxWorkers
     endpointType: endpointType
+    Ctrl_Syntax_Type: Ctrl_Syntax_Type
+    Ctrl_Import_Notebook: Ctrl_Import_Notebook
+    sa_name: blobAccountName
+    saExists: ctrlDeployStorageAccount
   }
   dependsOn: [databricksPrivateHybridModule]
 }

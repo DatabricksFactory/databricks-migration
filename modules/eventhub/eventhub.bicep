@@ -7,7 +7,9 @@
 param eventHubSku string 
 
 @description('')
-param eHRuleName string 
+param eHRuleName string
+
+param ctrlDeployEventHub bool
 
 //Variables
 
@@ -21,7 +23,7 @@ var eventHubName = 'streamdata-${randomString}-ns'
 
 //Resources
 
-resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
+resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = if(ctrlDeployEventHub) {
   name: eventHubNamespaceName
   location: location
   sku: {
@@ -35,7 +37,7 @@ resource eventHubNamespace 'Microsoft.EventHub/namespaces@2021-11-01' = {
   }
 }
 
-resource eventHubNamespace_eventHubName 'Microsoft.EventHub/namespaces/eventhubs@2021-01-01-preview' = {
+resource eventHubNamespace_eventHubName 'Microsoft.EventHub/namespaces/eventhubs@2021-01-01-preview' = if(ctrlDeployEventHub) {
   parent: eventHubNamespace
   name: eventHubName
   properties: {
@@ -48,7 +50,7 @@ resource eventHubNamespace_eventHubName 'Microsoft.EventHub/namespaces/eventhubs
 }
 
 
-resource eventHubName_rule 'Microsoft.EventHub/namespaces/eventhubs/authorizationRules@2021-01-01-preview' = {
+resource eventHubName_rule 'Microsoft.EventHub/namespaces/eventhubs/authorizationRules@2021-01-01-preview' = if(ctrlDeployEventHub) {
   name: '${eventHubNamespaceName}/${eventHubName}/${eHRuleName}'
   properties: {
     rights: [

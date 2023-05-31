@@ -11,6 +11,8 @@ param vnetResourceId string
 @description('Resource ID of EventHub')
 param keyvaultResourceId string
 
+param ctrlDeployKeyVault bool
+
 //Variables
 
 var privateEndpointNamevault = 'keyvault-pvtEndpoint'
@@ -25,7 +27,7 @@ var location = resourceGroup().location
 
 //Resources
 
-resource privateEndpointvault 'Microsoft.Network/privateEndpoints@2021-08-01' = {
+resource privateEndpointvault 'Microsoft.Network/privateEndpoints@2021-08-01' = if(ctrlDeployKeyVault) {
   name: privateEndpointNamevault
   location: location
   properties: {
@@ -46,7 +48,7 @@ resource privateEndpointvault 'Microsoft.Network/privateEndpoints@2021-08-01' = 
   }
 }
 
-resource privateDnsZonevault 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateDnsZonevault 'Microsoft.Network/privateDnsZones@2020-06-01' = if(ctrlDeployKeyVault) {
   name: privateDnsZoneNamevault
   location: 'global'
   dependsOn: [
@@ -54,7 +56,7 @@ resource privateDnsZonevault 'Microsoft.Network/privateDnsZones@2020-06-01' = {
   ]
 }
 
-resource privateDnsZoneName_privateDnsZoneName_link_vault 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource privateDnsZoneName_privateDnsZoneName_link_vault 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if(ctrlDeployKeyVault) {
   parent: privateDnsZonevault
   name: '${privateDnsZoneNamevault}-link'
   location: 'global'
@@ -66,7 +68,7 @@ resource privateDnsZoneName_privateDnsZoneName_link_vault 'Microsoft.Network/pri
   }
 }
 
-resource pvtEndpointDnsGroupvault 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-12-01' = {
+resource pvtEndpointDnsGroupvault 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-12-01' = if(ctrlDeployKeyVault) {
   name: pvtEndpointDnsGroupNamevault
   properties: {
     privateDnsZoneConfigs: [

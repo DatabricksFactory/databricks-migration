@@ -16,6 +16,8 @@ param PrivateEndpointSubnetName string
 @description('Resource ID of vnet')
 param vnetResourceId string
 
+param ctrlDeployStorageAccount bool
+
 //Variables
 
 var privateEndpointNamestorage = 'storage-pvtEndpoint'
@@ -30,7 +32,7 @@ var location = resourceGroup().location
 
 //Resources
 
-resource blobAccountPrivate 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+resource blobAccountPrivate 'Microsoft.Storage/storageAccounts@2021-04-01' = if(ctrlDeployStorageAccount) {
   name: blobAccountName
   location: location
   kind: 'StorageV2'
@@ -58,14 +60,14 @@ resource blobAccountPrivate 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   }
 }
 
-resource blobAccountName_default_container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = {
+resource blobAccountName_default_container 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-06-01' = if(ctrlDeployStorageAccount) {
   name: '${blobAccountName}/default/${containerName}'
   dependsOn: [
     blobAccountPrivate
   ]
 }
 
-resource privateEndpointstorage 'Microsoft.Network/privateEndpoints@2021-08-01' = {
+resource privateEndpointstorage 'Microsoft.Network/privateEndpoints@2021-08-01' = if(ctrlDeployStorageAccount) {
   name: privateEndpointNamestorage
   location: location
   properties: {
@@ -86,7 +88,7 @@ resource privateEndpointstorage 'Microsoft.Network/privateEndpoints@2021-08-01' 
   }
 }
 
-resource privateDnsZonestorage 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateDnsZonestorage 'Microsoft.Network/privateDnsZones@2020-06-01' = if(ctrlDeployStorageAccount) {
   name: privateDnsZoneNamestorage
   location: 'global'
   dependsOn: [
@@ -94,7 +96,7 @@ resource privateDnsZonestorage 'Microsoft.Network/privateDnsZones@2020-06-01' = 
   ]
 }
 
-resource privateDnsZoneName_privateDnsZoneName_link_storage 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource privateDnsZoneName_privateDnsZoneName_link_storage 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if(ctrlDeployStorageAccount) {
   parent: privateDnsZonestorage
   name: '${privateDnsZoneNamestorage}-link'
   location: 'global'
@@ -106,7 +108,7 @@ resource privateDnsZoneName_privateDnsZoneName_link_storage 'Microsoft.Network/p
   }
 }
 
-resource pvtEndpointDnsGroupstorage 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-12-01' = {
+resource pvtEndpointDnsGroupstorage 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-12-01' = if(ctrlDeployStorageAccount) {
   name: pvtEndpointDnsGroupNamestorage
   properties: {
     privateDnsZoneConfigs: [

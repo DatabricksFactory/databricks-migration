@@ -11,6 +11,8 @@ param vnetResourceId string
 @description('Resource ID of EventHub')
 param eventhubResourceId string
 
+param ctrlDeployEventHub bool
+
 //Variables
 
 var privateEndpointNameeventhub = 'eventhub-pvtEndpoint'
@@ -25,7 +27,7 @@ var location = resourceGroup().location
 
 //Resources
 
-resource privateEndpointeventhub 'Microsoft.Network/privateEndpoints@2021-08-01' = {
+resource privateEndpointeventhub 'Microsoft.Network/privateEndpoints@2021-08-01' = if(ctrlDeployEventHub) {
   name: privateEndpointNameeventhub
   location: location
   properties: {
@@ -46,7 +48,7 @@ resource privateEndpointeventhub 'Microsoft.Network/privateEndpoints@2021-08-01'
   }
 }
 
-resource privateDnsZoneeventhub 'Microsoft.Network/privateDnsZones@2020-06-01' = {
+resource privateDnsZoneeventhub 'Microsoft.Network/privateDnsZones@2020-06-01' = if(ctrlDeployEventHub) {
   name: privateDnsZoneNameeventhub
   location: 'global'
   dependsOn: [
@@ -54,7 +56,7 @@ resource privateDnsZoneeventhub 'Microsoft.Network/privateDnsZones@2020-06-01' =
   ]
 }
 
-resource privateDnsZoneName_privateDnsZoneName_link_eventhub 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource privateDnsZoneName_privateDnsZoneName_link_eventhub 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = if(ctrlDeployEventHub) {
   parent: privateDnsZoneeventhub
   name: '${privateDnsZoneNameeventhub}-link'
   location: 'global'
@@ -66,7 +68,7 @@ resource privateDnsZoneName_privateDnsZoneName_link_eventhub 'Microsoft.Network/
   }
 }
 
-resource pvtEndpointDnsGroupeventhub 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-12-01' = {
+resource pvtEndpointDnsGroupeventhub 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2021-12-01' = if(ctrlDeployEventHub) {
   name: pvtEndpointDnsGroupNameeventhub
   properties: {
     privateDnsZoneConfigs: [

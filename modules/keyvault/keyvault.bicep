@@ -2,13 +2,15 @@
 
 param utcValue string 
 
+param ctrlDeployKeyVault bool
+
 //Variables
 
 var location = resourceGroup().location
 
 //Resources
 
-resource vault_utcValue 'Microsoft.KeyVault/vaults@2021-04-01-preview' = {
+resource vault_utcValue 'Microsoft.KeyVault/vaults@2021-04-01-preview' = if(ctrlDeployKeyVault) {
   name: 'vault${utcValue}'
   location: location
   properties: {
