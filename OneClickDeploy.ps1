@@ -31,10 +31,24 @@ param(
     [bool] $SRC_PSQL_ONPREM,
     [bool] $SRC_ORACLE,
     [bool] $SRC_EVENTHUB ,
-    [string] $CTRL_SYNTAX
+    [string] $CTRL_SYNTAX,
+    [string] $SUBSCRIPTION_ID
 )
 
 Write-Output "Task: Generating Databricks Token"
+
+try {
+    $token = (Get-AzAccessToken).Token
+    $url = "https://management.azure.com/subscriptions/" + $SUBSCRIPTION_ID + "/resourceGroups/" + $RG_NAME + "/providers/Microsoft.Databricks/workspaces/" + $WORKSPACE_NAME + "?api-version=2023-02-01"
+    $headers1 = @{ Authorization = "Bearer $token"; 'ContentType' = "application/json"}
+    $res1 = Invoke-RestMethod -Method Get -ContentType "application/json" -Uri $url  -Headers $headers1
+    $WorkspaceUrl =  $res1.properties.workspaceUrl
+    Write-Host $WorkspaceUrl
+}
+catch {
+    $errorMessage = $_.Exception.Message
+    Write-Host "Error message: $errorMessage"
+}
 
 try {
     $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME -Name $WORKSPACE_NAME
@@ -47,7 +61,7 @@ catch {
 }
     
 try {
-    $token = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
+    $TOKEN = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
     Write-Host "Resource Token: $token"
 }
 catch {
@@ -76,7 +90,7 @@ $BODY = @"
 "@
     
 try {
-    $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
+    $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
     Write-Output "PAT: $DB_PAT"
 }
 catch {
