@@ -48,7 +48,7 @@ Write-Output "Task: Generating Databricks Token"
     $BODY = @"
     { "lifetime_seconds": $LIFETIME_SECONDS, "comment": "$COMMENT" }
 "@
-    Write-Output ""Test:$BODY"
+    Write-Output "$BODY"
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
     Write-Output "$DB_PAT"
     
