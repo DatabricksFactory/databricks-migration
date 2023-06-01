@@ -122,7 +122,7 @@ Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/
 # Upload example notebooks
 Write-Host "Upload example notebooks"
 try {
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=dev"
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=main"
     Write-Host $Artifactsuri
     $wr = Invoke-WebRequest -Uri $Artifactsuri
     $objects = $wr.Content | ConvertFrom-Json
@@ -174,7 +174,7 @@ catch {
 Write-Host "Upload Silver and Gold Layer notebooks for a batch source"
 if (!$SRC_EVENTHUB) {
     try {
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/"+$CTRL_SYNTAX+"?ref=dev"
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/"+$CTRL_SYNTAX+"?ref=main"
         Write-Host $Artifactsuri
         $wr = Invoke-WebRequest -Uri $Artifactsuri
         $objects = $wr.Content | ConvertFrom-Json
@@ -227,7 +227,7 @@ if (!$SRC_EVENTHUB) {
 if ($SRC_FILESOURCE) {
     
     # Get files under directory
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/FileSource?ref=dev"
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/FileSource?ref=main"
     $wr = Invoke-WebRequest -Uri $Artifactsuri
     $objects = $wr.Content | ConvertFrom-Json
     $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -274,7 +274,7 @@ if ($SRC_FILESOURCE) {
 if ($SRC_AZSQL) {
     
     # Get files under directory
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureSQLDb?ref=dev"
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureSQLDb?ref=main"
     $wr = Invoke-WebRequest -Uri $Artifactsuri
     $objects = $wr.Content | ConvertFrom-Json
     $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -321,7 +321,7 @@ if ($SRC_AZSQL) {
 if ($SRC_AZMYSQL) {
     
     # Get files under directory
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureMySQL?ref=dev"
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureMySQL?ref=main"
     $wr = Invoke-WebRequest -Uri $Artifactsuri
     $objects = $wr.Content | ConvertFrom-Json
     $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -368,7 +368,7 @@ if ($SRC_AZMYSQL) {
 if ($SRC_AZPSQL) {
     
     # Get files under directory
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzurePostgreSQL?ref=dev"
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzurePostgreSQL?ref=main"
     $wr = Invoke-WebRequest -Uri $Artifactsuri
     $objects = $wr.Content | ConvertFrom-Json
     $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -415,7 +415,7 @@ if ($SRC_AZPSQL) {
 if ($SRC_SQL_ONPREM) {
     
     # Get files under directory
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/SQLDbOnPrem?ref=dev"
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/SQLDbOnPrem?ref=main"
     $wr = Invoke-WebRequest -Uri $Artifactsuri
     $objects = $wr.Content | ConvertFrom-Json
     $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -462,7 +462,7 @@ if ($SRC_SQL_ONPREM) {
 if ($SRC_PSQL_ONPREM) {
     
     # Get files under directory
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/PostgreSQL?ref=dev"
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/PostgreSQL?ref=main"
     $wr = Invoke-WebRequest -Uri $Artifactsuri
     $objects = $wr.Content | ConvertFrom-Json
     $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -509,7 +509,7 @@ if ($SRC_PSQL_ONPREM) {
 if ($SRC_EVENTHUB) {
     
     # Get files under directory
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Stream/EventHub?ref=dev"
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Stream/EventHub?ref=main"
     $wr = Invoke-WebRequest -Uri $Artifactsuri
     $objects = $wr.Content | ConvertFrom-Json
     $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
@@ -557,7 +557,7 @@ if ($CTRL_DEPLOY_PIPELINE) {
 
   $headers = @{Authorization = "Bearer $DB_PAT"}
 
-  $pipeline_notebook_path = '/Shared/dlt/azure_sql_db'
+  $pipeline_notebook_path = '/Shared/$CTRL_SYNTAX/azure_sql_db'
 
   # Create a pipeline
 $pipelineConfig = @{
@@ -595,7 +595,7 @@ if ($SA_EXISTS) {
     
     $ctx = New-AzStorageContext -StorageAccountName $SA_NAME -StorageAccountKey $storageaccountkey.Value[0]
     
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/data?ref=dev" #change to main branch
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/data?ref=main" 
     
     $wr = Invoke-WebRequest -Uri $Artifactsuri
     
@@ -607,7 +607,7 @@ if ($SA_EXISTS) {
     
     Foreach ($filename in $fileNames) {
     
-    $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/data/$filename" #change to main branch
+    $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/data/$filename" 
     
     $Webresults = Invoke-WebRequest $url -UseBasicParsing
     
