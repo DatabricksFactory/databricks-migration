@@ -62,7 +62,7 @@ catch {
 }
     
 try {
-    $TOKEN = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
+    [string] $TOKEN = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
     Write-Host "Resource Token: $token"
 }
 catch {
@@ -72,7 +72,7 @@ catch {
 }
     
 try {
-    $AZ_TOKEN = (Get-AzAccessToken -ResourceUrl 'https://management.core.windows.net/').Token   
+    [string] $AZ_TOKEN = (Get-AzAccessToken -ResourceUrl 'https://management.core.windows.net/').Token   
     Write-Host "Management token: $AZ_TOKEN"
 }
 catch {
