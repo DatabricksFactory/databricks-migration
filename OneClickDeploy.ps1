@@ -124,12 +124,22 @@ if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT) ) {
 "@
 
     try {
+        Write-Host "Attempt 1: Databricks API for creating the cluster"
         $CLUSTER_ID = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/clusters/create" -Headers $HEADERS -Body $BODY).cluster_id)
     }
     catch {
-        Write-Host "Error while calling the Databricks API for creating the cluster"
+        Write-Host "Attempt 1: Error while calling the Databricks API for creating the cluster"
         $errorMessage = $_.Exception.Message
-        Write-Host "Error message: $errorMessage"    
+        Write-Host "Error message: $errorMessage"   
+        try {
+        Write-Host "Attempt 2: Databricks API for creating the cluster"
+        $CLUSTER_ID = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/clusters/create" -Headers $HEADERS -Body $BODY).cluster_id)
+        }
+        catch {
+        Write-Host "Attempt 2: Error while calling the Databricks API for creating the cluster"
+        $errorMessage = $_.Exception.Message
+        Write-Host "Error message: $errorMessage" 
+        }
     }
 
     if ( $CLUSTER_ID -ne "null" ) {
