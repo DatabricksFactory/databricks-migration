@@ -48,7 +48,7 @@ catch {
 }
     
 try {
-    $token = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
+    [string]$token = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
 }
 catch {
     Write-Host "Error while getting the resource token"
