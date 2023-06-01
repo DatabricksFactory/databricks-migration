@@ -46,7 +46,6 @@ try {
     Write-Host $WorkspaceUrl
 }
 catch {
-    Write-Host "Error while getting workspace URL"
     $errorMessage = $_.Exception.Message
     Write-Host "Error message: $errorMessage"
 }
@@ -114,7 +113,7 @@ if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT) ) {
 "@
 
     try {
-        $CLUSTER_ID = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/clusters/create" -Headers $HEADERS -Body $BODY).cluster_id)
+        $CLUSTER_ID = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/clusters/create" -Headers $HEADERS -Body $BODY).cluster_id)
     }
     catch {
         Write-Host "Error while calling the Databricks API for creating the cluster"
@@ -137,7 +136,7 @@ if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT) ) {
             }
             
             try {
-                $STATE = ((Invoke-RestMethod -Method GET -Uri "https://$REGION.azuredatabricks.net/api/2.0/clusters/get?cluster_id=$CLUSTER_ID" -Headers $HEADERS).state)
+                $STATE = ((Invoke-RestMethod -Method GET -Uri "https://$WorkspaceUrl/api/2.0/clusters/get?cluster_id=$CLUSTER_ID" -Headers $HEADERS).state)
             }
             catch {
                 Write-Host "Error while calling the Databricks API for checking the clusters' state"
@@ -180,10 +179,10 @@ if ($null -ne $DB_PAT) {
         $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
 
         if ($CTRL_SYNTAX -eq "DeltaLiveTable") {
-            Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
+            Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
         }
         else {
-            Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
+            Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
         }
         $mkdirDelta = $true
     }
@@ -201,7 +200,7 @@ if ($null -ne $DB_PAT) {
             "path" = "/Shared/Example"
         }
         $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
-        Invoke-RestMethod -Method POST -Uri "https://eastus.azuredatabricks.net/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
+        Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
         $mkdirExample = $true
     }
     catch {
@@ -273,7 +272,7 @@ if ($null -ne $DB_PAT) {
                 
                 try {
                     # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
                     Write-Output $response
                 }
                 catch {
@@ -346,7 +345,7 @@ if ($null -ne $DB_PAT) {
                 
                 try {
                     # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
                     Write-Output $response
                 }
                 catch {
@@ -418,7 +417,7 @@ if ($null -ne $DB_PAT) {
         
                 try {
                     # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
                     Write-Output $response
                 }
                 catch {
@@ -490,7 +489,7 @@ if ($null -ne $DB_PAT) {
         
                 try {
                     # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
                     Write-Output $response
                 }
                 catch {
@@ -562,7 +561,7 @@ if ($null -ne $DB_PAT) {
         
                 try {
                     # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
                     Write-Output $response
                 }
                 catch {
@@ -634,7 +633,7 @@ if ($null -ne $DB_PAT) {
         
                 try {
                     # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
                     Write-Output $response
                 }
                 catch {
@@ -707,7 +706,7 @@ if ($null -ne $DB_PAT) {
     
                 try {
                     # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
                     Write-Output $response
                 }
                 catch {
@@ -779,7 +778,7 @@ if ($null -ne $DB_PAT) {
         
                 try {
                     # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
                     Write-Output $response
                 }
                 catch {
@@ -789,77 +788,6 @@ if ($null -ne $DB_PAT) {
                 }
             }
         } 
-    }
-
-    # Oracle
-    if ($SRC_ORACLE) {
-        # Get files under directory
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/Oracle?ref=dev"
-        
-        try {
-            $wr = Invoke-WebRequest -Uri $Artifactsuri
-            $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
-            $getOrclFilename = $true
-        }
-        catch {
-            $getOrclFilename = $false
-            Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX/Batch/Oracle"
-            $errorMessage = $_.Exception.Message
-            Write-Host "Error message: $errorMessage"
-        }
-            
-        if ($getOrclFilename) {
-            Foreach ($filename in $fileNames) { 
-                
-                try {
-                    # Set the path to the notebook to be imported
-                    $url = "$NOTEBOOK_PATH/$CTRL_SYNTAX/Batch/Oracle/$filename"
-                    
-                    # Get the notebook
-                    $Webresults = Invoke-WebRequest $url -UseBasicParsing
-                    
-                    # Read the notebook file
-                    $notebookContent = $Webresults.Content
-                    
-                    # Base64 encode the notebook content
-                    $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
-                            
-                    # Set the path
-                    $splitfilename = $filename.Split(".")
-                    $filenamewithoutextension = $splitfilename[0]
-                    $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
-                    
-                    # Set the request body
-                    $requestBody = @{
-                        "content"  = $notebookBase64
-                        "path"     = $path
-                        "language" = "PYTHON"
-                        "format"   = "JUPYTER"
-                    }
-                    
-                    # Convert the request body to JSON
-                    $jsonBody = ConvertTo-Json -Depth 100 $requestBody
-                }
-                catch {
-                    Write-Host "Error while reading the notebook: $filename"
-                    $errorMessage = $_.Exception.Message
-                    Write-Host "Error message: $errorMessage"
-                }
-                
-                try {
-                    # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
-                }
-                catch {
-                    Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
-                    $errorMessage = $_.Exception.Message
-                    Write-Host "Error message: $errorMessage"
-                }
-            }
-        }         
     }
     
     # EventHub
@@ -922,7 +850,7 @@ if ($null -ne $DB_PAT) {
         
                 try {
                     # Make the HTTP request to import the notebook
-                    $response = Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
                     Write-Output $response
                 }
                 catch {
@@ -966,7 +894,7 @@ if ($CTRL_DEPLOY_PIPELINE -and ($null -ne $DB_PAT)) {
     }
 
     try {
-        $createPipelineResponse = Invoke-RestMethod -Uri "https://$REGION.azuredatabricks.net/api/2.0/pipelines" -Method POST -Headers $headers -Body ($pipelineConfig | ConvertTo-Json -Depth 10)
+        $createPipelineResponse = Invoke-RestMethod -Uri "https://$WorkspaceUrl/api/2.0/pipelines" -Method POST -Headers $headers -Body ($pipelineConfig | ConvertTo-Json -Depth 10)
         $createPipelineResponse
     }
     catch {
