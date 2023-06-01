@@ -90,13 +90,24 @@ $BODY = @"
 "@
     
 try {
+    Write-Host "Attempt 1 : generating Personal Access Token"
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
     Write-Output "PAT: $DB_PAT"
 }
 catch {
-    Write-Host "Error while calling the Databricks API for generating Personal Access Token"
+    Write-Host "Attempt 1 : Error while calling the Databricks API for generating Personal Access Token"
     $errorMessage = $_.Exception.Message
-    Write-Host "Error message: $errorMessage"    
+    Write-Host "Error message: $errorMessage" 
+    try {
+    Write-Host "Attempt 2 : generating Personal Access Token"
+    $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
+    Write-Output "PAT: $DB_PAT"
+    }
+    catch {
+    Write-Host "Attempt 2 : Error while calling the Databricks API for generating Personal Access Token"
+    $errorMessage = $_.Exception.Message
+    Write-Host "Error message: $errorMessage" 
+    }
 }
 
 
