@@ -37,23 +37,18 @@ param(
 Write-Output "Task: Generating Databricks Token"
 
     $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME -Name $WORKSPACE_NAME
-    Write-Output "$WORKSPACE_ID"
     $ACTUAL_WORKSPACE_ID = $WORKSPACE_ID.ResourceId
-    Write-Output "$ACTUAL_WORKSPACE_ID"
     $token = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
-    Write-Output "$token"
     $AZ_TOKEN = (Get-AzAccessToken -ResourceUrl 'https://management.core.windows.net/').Token
-    Write-Output "$AZ_TOKEN"
     $HEADERS = @{
         "Authorization"                            = "Bearer $TOKEN"
         "X-Databricks-Azure-SP-Management-Token"   = "$AZ_TOKEN"
         "X-Databricks-Azure-Workspace-Resource-Id" = "$ACTUAL_WORKSPACE_ID"
     }
-    Write-Output "$HEADERS"
     $BODY = @"
     { "lifetime_seconds": $LIFETIME_SECONDS, "comment": "$COMMENT" }
 "@
-    Write-Output "$BODY"
+    Write-Output ""Test:$BODY"
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
     Write-Output "$DB_PAT"
     
