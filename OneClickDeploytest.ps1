@@ -37,14 +37,24 @@ param(
 Write-Output "Task: Generating Databricks Token"
 
 try {
+Write-Host " Getting workspace ID Attempt 1"
     $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME -Name $WORKSPACE_NAME
     $ACTUAL_WORKSPACE_ID = $WORKSPACE_ID.ResourceId
     
 }
 catch {
-    Write-Host "Error while getting workspace ID"
+Write-Host "Error while getting workspace ID Attempt 1"
     $errorMessage = $_.Exception.Message
     Write-Host "Error message: $errorMessage"
+try {
+    $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME -Name $WORKSPACE_NAME
+    $ACTUAL_WORKSPACE_ID = $WORKSPACE_ID.ResourceId 
+}
+catch {
+Write-Host "Error while getting workspace ID Attempt 2"
+    $errorMessage = $_.Exception.Message
+    Write-Host "Error message: $errorMessage"
+    
 }
     
 try {
