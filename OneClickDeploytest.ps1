@@ -35,10 +35,10 @@ param(
 )
 
 Write-Output "Task: Generating Databricks Token"
-
+try{
     $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME -Name $WORKSPACE_NAME
     $ACTUAL_WORKSPACE_ID = $WORKSPACE_ID.ResourceId
-    $token = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
+    [string]$token = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
     $AZ_TOKEN = (Get-AzAccessToken -ResourceUrl 'https://management.core.windows.net/').Token
     $HEADERS = @{
         "Authorization"                            = "Bearer $TOKEN"
@@ -48,7 +48,30 @@ Write-Output "Task: Generating Databricks Token"
     $BODY = @"
     { "lifetime_seconds": $LIFETIME_SECONDS, "comment": "$COMMENT" }
 "@
-    $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
+
+try{
+$DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_valu)
+}
+catch {
+Write-Output "Failed : First Attemt Generating token."
+try{
+Write-Output "Second Attemt Generating token:"
+$DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$REGION.azuredatabricks.net/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
+}
+catch {
+Write-Output "Failed : Second Attemt Generating token."
+}
+
+}
+
+}
+catch {
+
+Write-Host "An error occurred:"
+  Write-Host $_
+}
+
+    
     
 if ($CTRL_DEPLOY_CLUSTER) {
         
