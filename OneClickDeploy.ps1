@@ -62,7 +62,7 @@ catch {
     
 try {
     [string] $TOKEN = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
-    Write-Host "Resource Token: $token"
+    Write-Host "Resource Token generated"
 }
 catch {
     Write-Host "Error while getting the resource token"
@@ -72,7 +72,7 @@ catch {
     
 try {
     [string] $AZ_TOKEN = (Get-AzAccessToken -ResourceUrl 'https://management.core.windows.net/').Token   
-    Write-Host "Management token: $AZ_TOKEN"
+    Write-Host "Management token generated"
 }
 catch {
     Write-Host "Error while getting the management token"
@@ -92,7 +92,7 @@ $BODY = @"
 try {
     Write-Host "Attempt 1 : generating Personal Access Token"
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
-    Write-Output "PAT: $DB_PAT"
+    Write-Output "Personal Access Token generated"
 }
 catch {
     Write-Host "Attempt 1 : Error while calling the Databricks API for generating Personal Access Token"
@@ -101,7 +101,7 @@ catch {
     try {
     Write-Host "Attempt 2 : generating Personal Access Token"
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
-    Write-Output "PAT: $DB_PAT"
+    Write-Output "Personal Access Token generated"
     }
     catch {
     Write-Host "Attempt 2 : Error while calling the Databricks API for generating Personal Access Token"
