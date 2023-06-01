@@ -40,9 +40,9 @@ Write-Output "Task: Generating Databricks Token"
 try {
     $token = (Get-AzAccessToken).Token
     $url = "https://management.azure.com/subscriptions/" + $SUBSCRIPTION_ID + "/resourceGroups/" + $RG_NAME + "/providers/Microsoft.Databricks/workspaces/" + $WORKSPACE_NAME + "?api-version=2023-02-01"
-    $headers1 = @{ Authorization = "Bearer $token"; 'ContentType' = "application/json"}
-    $res1 = Invoke-RestMethod -Method Get -ContentType "application/json" -Uri $url  -Headers $headers1
-    $WorkspaceUrl =  $res1.properties.workspaceUrl
+    $headerstkn = @{ Authorization = "Bearer $token"; 'ContentType' = "application/json"}
+    $resurl = Invoke-RestMethod -Method Get -ContentType "application/json" -Uri $url  -Headers $headerstkn
+    $WorkspaceUrl =  $resurl.properties.workspaceUrl
     Write-Host $WorkspaceUrl
 }
 catch {
