@@ -1,5 +1,6 @@
 //Parameters
 
+@description('Mode of deployment')
 @allowed([
   'PublicMode'
   'PrivateMode'
@@ -7,67 +8,90 @@
 ])
 param endpointType string = 'HybridMode'
 
+// Databricks params
+@description('The pricing tier of the Azure Databricks workspace.')
+@allowed([
+  'trial'
+  'standard'
+  'premium'
+])
+param pricingTier string = 'premium'
+
+@description('The name of the Azure Databricks workspace to create (Note: Valid characters are alphanumerics, underscores, and hyphens and length between 3 and 51)')
+@minLength(3)
+@maxLength(51)
+param workspaceName string = 'default'
+
+// EventHub params
+@description('Controls the deployment of EventHub')
+param ctrlDeployEventHub bool = true
+
+@description('EventHub SKU')
 @allowed([
   'Basic'
   'Standard'
 ])
 param eventHubSku string = 'Standard'
 
-param blobAccountName string = 'adls${uniqueString(resourceGroup().id)}'
-
-param containerName string = 'data'
-
-@description('')
+@description('EventHub Rule name')
 param eHRuleName string = 'rule'
 
-// @description('The URI of script file to upload blob container')
-// param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/OneClickDeploy.ps1'
+// SA params
+@description('Storage Account name. (Note: Valid characters are lowercase letters and numbers and length between 3 and 11)')
+@minLength(3)
+@maxLength(11)
+param userBlobAccountName string
 
-@description('The URI of script file to upload blob container')
-param fileuploaduri string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/OneClickDeploy.ps1'
-
-@description('Name of identity')
-param identityName string = 'PostDeploymentScriptuserAssignedName'
-
-@description('Unique Suffix')
-param uniqueSuffix string = substring(uniqueString(resourceGroup().id), 0, 6)
-
-@description('firstuniquestring')
-param firstuniquestring string = 'firstunique${uniqueSuffix}'
-
-@description('seconduniquestring')
-param seconduniquestring string = 'secondunique${uniqueSuffix}'
-
-param utcValue string = utcNow()
-
-// param ctrlDeployStorageAccount bool = true
-
+// KeyVault params
+@description('Controls the deployment of KeyVault')
 param ctrlDeployKeyVault bool = true
 
-param ctrlDeployEventHub bool = true
+@description('UTC datetime (Note: Default value should not be altered)')
+param utcValue string = utcNow() 
 
-// @description('Controls the execution of notebook deployment script')
-// param ctrlDeployNotebook bool = true
-
+// Script params
 @description('Controls the execution of pipeline deployment script')
 param ctrlDeployPipeline bool = true
 
 @description('Controls the execution of cluster deployment script')
 param ctrlDeployCluster bool = true
 
+@description('Either DeltaLiveTable or DeltaTable Notebooks will be imported')
+@allowed([
+  'DeltaLiveTable'
+  'DeltaTable'
+])
+param ctrlSyntaxType string = 'DeltaLiveTable'
+
+@description('Data source')
+@allowed([
+        'RawFileSource'
+        'AzureSQL'
+        'AzureMySQL'
+        'AzurePostgreSQL'
+        'SQL_On_Prem'
+        'PostgreSQL_On_Prem'
+        'Oracle'
+        'Eventhub'
+])
+param ctrlSourceNotebook string = 'RawFileSource'
+
 @description('Time to live of the Databricks token in seconds')
 param lifetimeSeconds int = 1200
 
-@description('Side note on the token generation')
-param comment string = 'ARM deployment'
-
+// Cluster params
 @description('Name of the Databricks cluster')
 param clusterName string = 'dbcluster'
 
-@description('Version of Spark in the cluster')
+@description('LTS version of Spark in the cluster')
+@allowed([
+  '12.2.x-scala2.12'
+  '11.3.x-scala2.12'
+  '10.4.x-scala2.12'
+])
 param sparkVersion string = '11.3.x-scala2.12'
 
-@description('Cluster terminates after specified minutes of inactivity')
+@description('Cluster terminates after specified minutes of inactivity. Threshold must be between 10 and 10000 minutes. Users can also set this value to 0 to explicitly disable automatic termination.')
 param autoTerminationMinutes int = 30
 
 @description('Number of worker nodes')
@@ -79,46 +103,29 @@ param nodeTypeId string = 'Standard_DS3_v2'
 @description('Type of driver node')
 param driverNodeTypeId string = 'Standard_DS3_v2'
 
-@description('Max number of retries')
+@description('Max number of retries to check if the cluster is running')
+@allowed([
+  10
+  15
+  20
+])
 param retryLimit int = 15
 
 @description('Interval between each retries in seconds')
+@allowed([
+  30
+  45
+  60
+])
 param retryTime int = 60
 
+// Pipeline params
 @description('NAme of the pipeline')
 param pipelineName string = 'Sample Pipeline'
 
-@description('Path where DLT will be created')
-param storagePath string = 'dbfs:/user/hive/warehouse'
-
-@description('Target schema name')
-param targetSchemaName string = 'Sample'
-
-@description('Min workers')
-param minWorkers int = 1
-
-@description('Max workers')
-param maxWorkers int = 5
-
-// @description('Path of the notebook to be uploaded')
-// param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts'
-
-@description('Path of the notebook to be uploaded')
-param notebookPath string = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts'
-
-@description('Specifies whether to deploy Azure Databricks workspace with secure cluster connectivity (SCC) enabled or not (No Public IP).')
-param disablePublicIp bool = true
-
+// Network params
 @description('The name of the network security group to create.')
 param nsgName string = 'databricks-nsg'
-
-@description('The pricing tier of workspace.')
-@allowed([
-  'trial'
-  'standard'
-  'premium'
-])
-param pricingTier string = 'premium'
 
 @description('CIDR range for the private subnet.')
 param privateSubnetCidr string = '10.179.0.0/18'
@@ -151,32 +158,58 @@ param vnetName string = 'databricks-vnet'
 @description('The name of the subnet to create the private endpoint in.')
 param PrivateEndpointSubnetName string = 'default'
 
-@description('The name of the Azure Databricks workspace to create.')
-param workspaceName string = 'default'
-
-@allowed([
-  'DeltaLiveTable'
-  'DeltaTable'
-])
-param Ctrl_Syntax_Type string = 'DeltaLiveTable'
-
-@allowed([
-        'RawFileSource'
-        'AzureSQL'
-        'AzureMySQL'
-        'AzurePostgreSQL'
-        'SQL_On_Prem'
-        'PostgreSQL_On_Prem'
-        'Oracle'
-        'Eventhub'
-])
-param Ctrl_Import_Notebook string = 'RawFileSource'
-
 // Variables 
 
+@description('Controls the deployment of SA')
 var ctrlDeployStorageAccount = true
 
+@description('Controls the execution of notebook deployment script')
 var ctrlDeployNotebook = true
+
+@description('Creating a unique SA name')
+var blobAccountName = '${userBlobAccountName}${uniqueString(resourceGroup().id)}'
+
+@description('Container name')
+var containerName = 'data' 
+
+@description('URI of the automation script')
+var fileuploaduri = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/OneClickDeploy.ps1'
+
+@description('Relative path of the notebooks to be uploaded')
+var notebookPath = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts'
+
+@description('Name of identity')
+var identityName = 'PostDeploymentScriptuserAssignedName' 
+
+@description('Unique Suffix')
+var uniqueSuffix = substring(uniqueString(resourceGroup().id), 0, 6) 
+
+@description('firstuniquestring')
+var firstuniquestring = 'firstunique${uniqueSuffix}' 
+
+@description('seconduniquestring')
+var seconduniquestring = 'secondunique${uniqueSuffix}' 
+
+@description('Side note on the token generation')
+var comment = 'ARM deployment' 
+
+@description('Path where DLT will be created')
+var storagePath = 'dbfs:/user/hive/warehouse' 
+
+@description('Target schema name')
+var targetSchemaName = 'Sample' 
+
+@description('Min workers')
+var minWorkers = 1 
+
+@description('Max workers')
+var maxWorkers = 5 
+
+@description('Specifies whether to deploy Azure Databricks workspace with secure cluster connectivity (SCC) enabled or not (No Public IP).')
+var disablePublicIp = true 
+
+@description('Subscription ID')
+var subscriptionId = subscription().subscriptionId
 
 // Resources
 
@@ -342,10 +375,11 @@ module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScrip
     minWorkers: minWorkers
     maxWorkers: maxWorkers
     endpointType: endpointType
-    Ctrl_Syntax_Type: Ctrl_Syntax_Type
-    Ctrl_Import_Notebook: Ctrl_Import_Notebook
+    ctrlSyntaxType: ctrlSyntaxType
+    ctrlSourceNotebook: ctrlSourceNotebook
     sa_name: blobAccountName
     saExists: ctrlDeployStorageAccount
+    subscriptionId: subscriptionId
   }
   dependsOn: [databricksPublicModule]
 }
@@ -378,10 +412,11 @@ module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deployme
     minWorkers: minWorkers
     maxWorkers: maxWorkers
     endpointType: endpointType
-    Ctrl_Syntax_Type: Ctrl_Syntax_Type
-    Ctrl_Import_Notebook: Ctrl_Import_Notebook
+    ctrlSyntaxType: ctrlSyntaxType
+    ctrlSourceNotebook: ctrlSourceNotebook
     sa_name: blobAccountName
     saExists: ctrlDeployStorageAccount
+    subscriptionId: subscriptionId
   }
   dependsOn: [databricksPrivateHybridModule]
 }
