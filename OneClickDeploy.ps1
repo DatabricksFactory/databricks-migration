@@ -1,3 +1,4 @@
+# Parameters passed from ARM template 
 param(
     [string] $RG_NAME,
     [string] $REGION,
@@ -35,64 +36,93 @@ param(
     [string] $SUBSCRIPTION_ID
 )
 
-Write-Output "Task: Generating Databricks Token"
+# Generating Databricks Workspace URL
+
+Write-Output "Task: Generating Databricks Workspace URL"
 
 try {
     $token = (Get-AzAccessToken).Token
+    
+    # https url for getting workspace details
     $url = "https://management.azure.com/subscriptions/" + $SUBSCRIPTION_ID + "/resourceGroups/" + $RG_NAME + "/providers/Microsoft.Databricks/workspaces/" + $WORKSPACE_NAME + "?api-version=2023-02-01"
+    
+    # Set the headers
     $headerstkn = @{ Authorization = "Bearer $token"; 'ContentType' = "application/json"}
+    
+    #call http method to get workspace url
     $resurl = Invoke-RestMethod -Method Get -ContentType "application/json" -Uri $url  -Headers $headerstkn
     $WorkspaceUrl =  $resurl.properties.workspaceUrl
-    Write-Host $WorkspaceUrl
+    Write-Host "Successful: Databricks workspace url is generated"
 }
 catch {
+    Write-Host "Error while getting the Workspace URL"
     $errorMessage = $_.Exception.Message
     Write-Host "Error message: $errorMessage"
 }
 
+# Generating Databricks Workspace resource ID
+
+Write-Output "Task: Generating Databricks Workspace resource ID"
+
 try {
     $WORKSPACE_ID = Get-AzResource -ResourceType Microsoft.Databricks/workspaces -ResourceGroupName $RG_NAME -Name $WORKSPACE_NAME
     $ACTUAL_WORKSPACE_ID = $WORKSPACE_ID.ResourceId
+    Write-Host "Successful: Databricks workspace resource ID is generated"
 }
 catch {
     Write-Host "Error while getting workspace ID"
     $errorMessage = $_.Exception.Message
     Write-Host "Error message: $errorMessage"
 }
-    
+
+# Generating Databricks resource token
+
+Write-Output "Task: Generating Databricks resource token"
+
 try {
+    # unique resource ID for the Azure Databricks service
     [string] $TOKEN = (Get-AzAccessToken -Resource '2ff814a6-3304-4ab8-85cb-cd0e6f879c1d').Token
-    Write-Host "Resource Token generated"
+    Write-Host "Successful: Resource Token generated"
 }
 catch {
     Write-Host "Error while getting the resource token"
     $errorMessage = $_.Exception.Message
     Write-Host "Error message: $errorMessage"    
 }
-    
+
+# Generating Databricks management token
+
+Write-Output "Task: Generating management token"
+
 try {
     [string] $AZ_TOKEN = (Get-AzAccessToken -ResourceUrl 'https://management.core.windows.net/').Token   
-    Write-Host "Management token generated"
+    Write-Host "Successful: Management token generated"
 }
 catch {
     Write-Host "Error while getting the management token"
     $errorMessage = $_.Exception.Message
     Write-Host "Error message: $errorMessage"    
 }
-    
+
+# Generating Databricks Personal access token
+
+Write-Output "Task: Generating Databricks Personal access token"
+# Set the headers
 $HEADERS = @{
     "Authorization"                            = "Bearer $TOKEN"
     "X-Databricks-Azure-SP-Management-Token"   = "$AZ_TOKEN"
     "X-Databricks-Azure-Workspace-Resource-Id" = "$ACTUAL_WORKSPACE_ID"
 }
+# Set the request body
 $BODY = @"
     { "lifetime_seconds": $LIFETIME_SECONDS, "comment": "$COMMENT" }
 "@
     
 try {
-    Write-Host "Attempt 1 : generating Personal Access Token"
+    #https request for generating token
+    Write-Host "Attempt 1 : Generating Personal Access Token"
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
-    Write-Output "Personal Access Token generated"
+    Write-Output "Successful: Personal Access Token generated"
 }
 catch {
     Write-Host "Attempt 1 : Error while calling the Databricks API for generating Personal Access Token"
@@ -101,7 +131,7 @@ catch {
     try {
     Write-Host "Attempt 2 : generating Personal Access Token"
     $DB_PAT = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/token/create" -Headers $HEADERS -Body $BODY).token_value)
-    Write-Output "Personal Access Token generated"
+    Write-Output "Successful: Personal Access Token generated"
     }
     catch {
     Write-Host "Attempt 2 : Error while calling the Databricks API for generating Personal Access Token"
@@ -110,22 +140,31 @@ catch {
     }
 }
 
+# Creating All-purpose compute cluster
 
-if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT) ) {
-        
-    Write-Output "Task: Creating cluster"
-    
+Write-Output "Task: Creating all-purpose compute cluster"
+
+if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT)) {
+    # Set the headers        
     $HEADERS = @{
         "Authorization" = "Bearer $DB_PAT"
         "Content-Type"  = "application/json"
     }
+    # Set the request body
     $BODY = @"
-            {"cluster_name": "$CLUSTER_NAME", "spark_version": "$SPARK_VERSION", "autotermination_minutes": $AUTOTERMINATION_MINUTES, "num_workers": "$NUM_WORKERS", "node_type_id": "$NODE_TYPE_ID", "driver_node_type_id": "$DRIVER_NODE_TYPE_ID" }
+            {"cluster_name": "$CLUSTER_NAME", "spark_version": "$SPARK_VERSION", "autotermination_minutes": $AUTOTERMINATION_MINUTES, "num_workers": 0, "node_type_id": "$NODE_TYPE_ID", "spark_conf": {
+        "spark.master": "local[*, 4]",
+        "spark.databricks.cluster.profile": "singleNode"
+    }, "custom_tags": {
+        "ResourceClass": "SingleNode"
+    } }
 "@
 
     try {
+        #https request for creating cluster
         Write-Host "Attempt 1: Databricks API for creating the cluster"
         $CLUSTER_ID = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/clusters/create" -Headers $HEADERS -Body $BODY).cluster_id)
+        Write-Output "Successful: Databricks API for creating the cluster is called"
     }
     catch {
         Write-Host "Attempt 1: Error while calling the Databricks API for creating the cluster"
@@ -134,6 +173,7 @@ if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT) ) {
         try {
         Write-Host "Attempt 2: Databricks API for creating the cluster"
         $CLUSTER_ID = ((Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/clusters/create" -Headers $HEADERS -Body $BODY).cluster_id)
+        Write-Output "Successful: Databricks API for creating the cluster is called"
         }
         catch {
         Write-Host "Attempt 2: Error while calling the Databricks API for creating the cluster"
@@ -142,12 +182,16 @@ if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT) ) {
         }
     }
 
-    if ( $CLUSTER_ID -ne "null" ) {
-        Write-Output "[INFO] Cluster created with CLUSTER_ID: $CLUSTER_ID"
+    # Checking the All-purpose compute cluster status
 
-        Write-Output "Task: Checking cluster"
+    if ( $CLUSTER_ID -ne "null" ) {
+
+        Write-Output "[INFO] Cluster is being created"
+
+        Write-Output "Task: Checking cluster status"
 
         $RETRY_COUNT = 0
+
         for( $RETRY_COUNT = 1; $RETRY_COUNT -le $RETRY_LIMIT; $RETRY_COUNT++ ) {
             
             Write-Output "[INFO] Attempt $RETRY_COUNT of $RETRY_LIMIT"
@@ -157,7 +201,9 @@ if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT) ) {
             }
             
             try {
+                #https request for getting cluster details
                 $STATE = ((Invoke-RestMethod -Method GET -Uri "https://$WorkspaceUrl/api/2.0/clusters/get?cluster_id=$CLUSTER_ID" -Headers $HEADERS).state)
+                Write-Output "Cluster is still getting ready"
             }
             catch {
                 Write-Host "Error while calling the Databricks API for checking the clusters' state"
@@ -166,33 +212,38 @@ if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT) ) {
             }
             
             if ($STATE -eq "RUNNING") {
-                Write-Output "[INFO] Cluster is running, pipeline has been completed successfully"
+                Write-Output "Successful: Cluster is healthy and in running state"
                 break
-            } else {
+            } 
+            else {
                 Write-Output "[INFO] Cluster is still not ready, current state: $STATE Next check in $RETRY_TIME seconds.."
                 Start-Sleep -Seconds $RETRY_TIME
+                
                 if ($RETRY_COUNT -eq $RETRY_LIMIT) {
-                    Write-Output "[ERROR] No more attempts left, breaking.."
+                    Write-Output "No more attempts left, breaking.."
                 }
             }
         }    
-    } else {
-        Write-Output "[ERROR] Cluster was not created"
+    } 
+    else {
+        Write-Output "[ERROR]: Cluster was not created"
     }
 }
 
+# Creating Folder strucrure and Importing Notebooks
+
+Write-Output "Task: Importing Notebooks"
 
 if ($null -ne $DB_PAT) {
 
-    Write-Output "Task: Uploading notebook"
     # Set the headers
     $headers = @{
         "Authorization" = "Bearer $DB_PAT"
         "Content-Type"  = "application/json"
     }
     
-    # Create folder based on the syntax
-    Write-Host "Create folder based on the syntax"
+    # Create folder strucrure based on the syntax
+    Write-Host "Create $CTRL_SYNTAX folder"
     try {
         $requestBodyFolder = @{
             "path" = "/Shared/$CTRL_SYNTAX"
@@ -200,10 +251,14 @@ if ($null -ne $DB_PAT) {
         $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
 
         if ($CTRL_SYNTAX -eq "DeltaLiveTable") {
-            Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
+            #https request for creating folder
+            Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
+            Write-Output "Successful: Created $CTRL_SYNTAX folder"    
         }
         else {
-            Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder    
+            #https request for creating folder
+            Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
+            Write-Output "Successful: Created $CTRL_SYNTAX folder"  
         }
         $mkdirDelta = $true
     }
@@ -214,14 +269,16 @@ if ($null -ne $DB_PAT) {
         Write-Host "Error message: $errorMessage"    
     }    
 
-    # Create folder for examples
+    # Create folder structure for examples
     Write-Host "Create folder for examples"
     try {
         $requestBodyFolder = @{
             "path" = "/Shared/Example"
         }
         $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
+        #https request for creating folder
         Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
+        Write-Output "Successful: Created Examples folder" 
         $mkdirExample = $true
     }
     catch {
@@ -231,18 +288,21 @@ if ($null -ne $DB_PAT) {
         Write-Host "Error message: $errorMessage"
     }  
     
-    # Upload example notebooks to Example folder
+    # Import example notebooks to Example folder
+    
     if ($mkdirExample) {
-        Write-Host "Upload example notebooks"
-
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=dev"
-        Write-Host $Artifactsuri
         
+        Write-Host "Importing example notebooks"
+        
+        #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=dev" # change to respective git branch
+        
+        # Calling GitHub API for getting the filenames under Artifacts/Example folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
-            Write-Host $fileNames
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/Example folder is successful"
             $getExmpFilenames = $true
         }
         catch {
@@ -253,6 +313,7 @@ if ($null -ne $DB_PAT) {
         }        
 
         if ($getExmpFilenames) {
+
             Foreach ($filename in $fileNames) {
             
                 try {
@@ -272,7 +333,6 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/Example/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
                     
                     # Set the request body
                     $requestBody = @{
@@ -294,7 +354,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing example notebook: $filename"
@@ -305,17 +365,20 @@ if ($null -ne $DB_PAT) {
         }    
     }    
 
-    # Upload Silver and Gold Layer notebooks for a batch source to its respective synatx folder
-    Write-Host "Upload Silver and Gold Layer notebooks for a batch source"
+    # Upload Silver and Gold Layer notebooks for a batch source to its respective syntax folder
+   
     if (!$SRC_EVENTHUB -and $mkdirDelta) {
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/" + $CTRL_SYNTAX + "?ref=dev"
-        Write-Host $Artifactsuri
 
+        Write-Host "Task: Import Silver and Gold Layer notebooks for a batch source"
+        #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/" + $CTRL_SYNTAX + "?ref=dev" # change to respective git branch
+        
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
-            Write-Host $fileNames
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/$CTRL_SYNTAX folder is successful"
             $getSGFilenames = $true
         }
         catch {
@@ -345,7 +408,6 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
                     
                     # Set the request body
                     $requestBody = @{
@@ -367,7 +429,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
@@ -378,16 +440,19 @@ if ($null -ne $DB_PAT) {
         }   
     }
     
-    # FileSource
+    # Import bronze layer notebook for raw file source
     if ($SRC_FILESOURCE -and $mkdirDelta) {
+
+        Write-Host "Task: Import Bronze Layer notebook for raw file source"
         
-        # Get files under directory
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/FileSource?ref=dev"
-        
+        #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/FileSource?ref=dev" # change to respective git branch
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/$CTRL_SYNTAX/Batch/FileSource folder is successful"
             $getFSFilename = $true
         }
         catch {
@@ -398,6 +463,7 @@ if ($null -ne $DB_PAT) {
         }
     
         if ($getFSFilename) {
+
             Foreach ($filename in $fileNames) { 
         
                 try {
@@ -417,7 +483,6 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
             
                     # Set the request body
                     $requestBody = @{
@@ -439,7 +504,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
@@ -450,16 +515,19 @@ if ($null -ne $DB_PAT) {
         }
     }
     
-    # Azure SQL 
+    # # Import bronze layer notebook for Azure SQL 
     if ($SRC_AZSQL -and $mkdirDelta) {
+
+        Write-Host "Task: Import Bronze Layer notebook for Azure SQL"
         
-        # Get files under directory
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureSQLDb?ref=dev"
-        
+        # Get files under directory #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureSQLDb?ref=dev" # change to respective git branch
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/$CTRL_SYNTAX/Batch/AzureSQLDb folder is successful"
             $getAZSQLFilenames = $true
         }
         catch {
@@ -489,8 +557,7 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
-            
+                    
                     # Set the request body
                     $requestBody = @{
                         "content"  = $notebookBase64
@@ -511,7 +578,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
@@ -522,16 +589,19 @@ if ($null -ne $DB_PAT) {
         }
     }
     
-    # Azure MySQL
+    # Import bronze layer notebook for Azure MySQL
     if ($SRC_AZMYSQL -and $mkdirDelta) {
+
+        Write-Host "Task: Import bronze layer notebook for Azure MySQL"
         
-        # Get files under directory
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureMySQL?ref=dev"
-        
+        # Get files under directory #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureMySQL?ref=dev" # change to respective git branch
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/$CTRL_SYNTAX/Batch/AzureMySQL folder is successful"
             $getAZMYSQLFilenames = $true
         }
         catch {
@@ -561,8 +631,7 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
-            
+                    
                     # Set the request body
                     $requestBody = @{
                         "content"  = $notebookBase64
@@ -583,7 +652,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
@@ -594,16 +663,19 @@ if ($null -ne $DB_PAT) {
         }
     }
     
-    # Azure PSQL
+    # Import bronze layer notebook for Azure PSQL
     if ($SRC_AZPSQL -and $mkdirDelta) {
+
+        Write-Host "Task: Import Bronze Layer notebooks for Azure PSQL"
         
-        # Get files under directory
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzurePostgreSQL?ref=dev"
-        
+        # Get files under directory #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzurePostgreSQL?ref=dev" # change to respective git branch
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/$CTRL_SYNTAX/Batch/AzurePostgreSQL folder is successful"
             $getAZPSQLFilename = $true
         }
         catch {
@@ -633,8 +705,7 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
-            
+                    
                     # Set the request body
                     $requestBody = @{
                         "content"  = $notebookBase64
@@ -655,7 +726,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
@@ -666,16 +737,19 @@ if ($null -ne $DB_PAT) {
         }
     }
     
-    # SQL on-prem
+    # Import bronze layer notebook for SQL on-prem
     if ($SRC_SQL_ONPREM -and $mkdirDelta) {
+
+        Write-Host "Task: Import Bronze Layer notebooks for SQL on-prem"
         
-        # Get files under directory
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/SQLDbOnPrem?ref=dev"
-        
+        # Get files under directory #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/SQLDbOnPrem?ref=dev" # change to respective git branch
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/$CTRL_SYNTAX/Batch/SQLDbOnPrem folder is successful"
             $getSQLOPFilenames = $true
         }
         catch {
@@ -705,8 +779,7 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
-            
+                    
                     # Set the request body
                     $requestBody = @{
                         "content"  = $notebookBase64
@@ -728,7 +801,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
@@ -739,16 +812,19 @@ if ($null -ne $DB_PAT) {
         } 
     }
     
-    # PSQL on-prem
+    # Import bronze layer notebook for PSQL on-prem
     if ($SRC_PSQL_ONPREM -and $mkdirDelta) {
+
+        Write-Host "Task: Import Bronze Layer notebooks for PSQL on-prem"
         
-        # Get files under directory
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/PostgreSQL?ref=dev"
-        
+        # Get files under directory #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/PostgreSQL?ref=dev" # change to respective git branch
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/$CTRL_SYNTAX/Batch/PostgreSQL folder is successful"
             $getPSQLOPFilename = $true
         }
         catch {
@@ -778,8 +854,7 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
-            
+                    
                     # Set the request body
                     $requestBody = @{
                         "content"  = $notebookBase64
@@ -800,7 +875,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
@@ -812,15 +887,19 @@ if ($null -ne $DB_PAT) {
     }
 
 
-    # Oracle
-    if ($SRC_ORACLE) {
-        # Get files under directory
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/Oracle?ref=dev"
+    # Import bronze layer notebook for Oracle
+    if ($SRC_ORACLE -and $mkdirDelta) {
 
+        Write-Host "Task: Import Bronze Layer notebooks for Oracle"
+
+        # Get files under directory #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/Oracle?ref=dev" # change to respective git branch
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/$CTRL_SYNTAX/Batch/Oracle folder is successful"
             $getOrclFilename = $true
         }
         catch {
@@ -850,8 +929,7 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
-
+                    
                     # Set the request body
                     $requestBody = @{
                         "content"  = $notebookBase64
@@ -872,7 +950,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
@@ -883,16 +961,19 @@ if ($null -ne $DB_PAT) {
         }         
     }
     
-    # EventHub
+    # Import bronze, silver and gold layer notebooks for EventHub stream
     if ($SRC_EVENTHUB -and $mkdirDelta) {
+
+        Write-Host "Task: Import bronze, silver and gold layer notebooks for EventHub stream"
         
-        # Get files under directory
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Stream/EventHub?ref=dev"
-        
+        # Get files under directory #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Stream/EventHub?ref=dev" # change to respective git branch
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
-            $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/$CTRL_SYNTAX/Stream/EventHub folder is successful"
             $getEHFilenames = $true
         }
         catch {
@@ -922,8 +1003,7 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
-                    Write-Output $filenamewithoutextension
-            
+                    
                     # Set the request body
                     $requestBody = @{
                         "content"  = $notebookBase64
@@ -944,7 +1024,7 @@ if ($null -ne $DB_PAT) {
                 try {
                     # Make the HTTP request to import the notebook
                     $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                    Write-Output $response
+                    Write-Host "Successful: $filename is imported"
                 }
                 catch {
                     Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
@@ -956,15 +1036,16 @@ if ($null -ne $DB_PAT) {
     }
 }
 
-# Deploy pipeline
+# Deploy a DLT pipeline
 if ($CTRL_DEPLOY_PIPELINE -and ($null -ne $DB_PAT)) {
-    Write-Host "Deploy pipeline"
-
+    
+    Write-Host "Task: Deploy pipeline"
+    # Set the headers
     $headers = @{Authorization = "Bearer $DB_PAT" }
 
-    $pipeline_notebook_path = '/Shared/dlt/azure_sql_db'
+    $pipeline_notebook_path = "/Shared/$CTRL_SYNTAX/azure_sql_db"
 
-    # Create a pipeline
+    # Create a pipeline configurations
     $pipelineConfig = @{
         name = $PIPELINENAME
         storage = $STORAGE
@@ -987,8 +1068,8 @@ if ($CTRL_DEPLOY_PIPELINE -and ($null -ne $DB_PAT)) {
     }
 
     try {
-        $createPipelineResponse = Invoke-RestMethod -Uri "https://$WorkspaceUrl/api/2.0/pipelines" -Method POST -Headers $headers -Body ($pipelineConfig | ConvertTo-Json -Depth 10)
-        $createPipelineResponse
+        Invoke-RestMethod -Uri "https://$WorkspaceUrl/api/2.0/pipelines" -Method POST -Headers $headers -Body ($pipelineConfig | ConvertTo-Json -Depth 10)
+        Write-Host "Successful: Pipeline is created"
     }
     catch {
         Write-Host "Error while calling the Azure Databricks API for creating the pipeline"
@@ -997,10 +1078,15 @@ if ($CTRL_DEPLOY_PIPELINE -and ($null -ne $DB_PAT)) {
     }
 }
 
-# Upload data files
+# Upload data files to storage account
 if ($SA_EXISTS) {
+
+    Write-Host "Task: Upload data files to storage account"
+
+    #Get storage account access key
     try {
         $storageaccountkey = Get-AzStorageAccountKey -ResourceGroupName $RG_NAME -Name $SA_NAME;
+        Write-Host "Successful: Storage account access key is generated"
     }
     catch {
         Write-Host "Error while getting Storage Account Key"
@@ -1008,26 +1094,24 @@ if ($SA_EXISTS) {
         Write-Host "Error message: $errorMessage"
     }
     
+    #Create storage account context
     try {
         $ctx = New-AzStorageContext -StorageAccountName $SA_NAME -StorageAccountKey $storageaccountkey.Value[0]
+        Write-Host "Successful: Storage account context is created"
     }
     catch {
         Write-Host "Error while creating Azure Storage context"
         $errorMessage = $_.Exception.Message
         Write-Host "Error message: $errorMessage"
     }
-    
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/data?ref=dev" #change to main branch
-    
+    #github api for a folder
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/data?ref=dev" # change to respective git branch
+    # Calling GitHub API for getting the filenames under /data folder
     try {
         $wr = Invoke-WebRequest -Uri $Artifactsuri
-        
         $objects = $wr.Content | ConvertFrom-Json
-        
-        $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
-        
-        Write-Host $fileNames
-
+        $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+        Write-Host "Successful: getting the filenames under /data folder is successful"
         $getCsvFilenames = $true
     }
     catch {
@@ -1040,13 +1124,15 @@ if ($SA_EXISTS) {
     if ($getCsvFilenames) {
         Foreach ($filename in $fileNames) {
             try {
-                $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/data/$filename" #change to main branch
+                $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/data/$filename" # change to respective git branch
             
                 $Webresults = Invoke-WebRequest $url -UseBasicParsing
             
                 Invoke-WebRequest -Uri $url -OutFile $filename
             
                 Set-AzStorageBlobContent -File $filename -Container "data" -Blob $filename -Context $ctx
+
+                Write-Host "Successful: $filename is uploaded to storage account"
             }
             catch {
                 Write-Host "Error while uploading data file: $filename"
