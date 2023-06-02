@@ -36,7 +36,7 @@ param(
     [string] $SUBSCRIPTION_ID
 )
 
-[string] $REF_BRANCH = "dev"
+[string] $REF_BRANCH = "main"
 
 # Generating Databricks Workspace URL
 
