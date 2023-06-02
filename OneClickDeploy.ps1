@@ -192,7 +192,7 @@ if ($null -ne $DB_PAT) {
     }
     
     # Create folder based on the syntax
-    Write-Host "Create folder based on the syntax"
+    Write-Host "Creating folder based on the syntax"
     try {
         $requestBodyFolder = @{
             "path" = "/Shared/$CTRL_SYNTAX"
@@ -215,7 +215,7 @@ if ($null -ne $DB_PAT) {
     }    
 
     # Create folder for examples
-    Write-Host "Create folder for examples"
+    Write-Host "Creating folder for examples"
     try {
         $requestBodyFolder = @{
             "path" = "/Shared/Example"
@@ -233,16 +233,14 @@ if ($null -ne $DB_PAT) {
     
     # Upload example notebooks to Example folder
     if ($mkdirExample) {
-        Write-Host "Upload example notebooks"
+        Write-Host "Uploading example notebooks"
 
         $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=dev"
-        Write-Host $Artifactsuri
-        
+                
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
             $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
-            Write-Host $fileNames
             $getExmpFilenames = $true
         }
         catch {
@@ -309,13 +307,13 @@ if ($null -ne $DB_PAT) {
     Write-Host "Upload Silver and Gold Layer notebooks for a batch source"
     if (!$SRC_EVENTHUB -and $mkdirDelta) {
         $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/" + $CTRL_SYNTAX + "?ref=dev"
-        Write-Host $Artifactsuri
+      
 
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
             $objects = $wr.Content | ConvertFrom-Json
             $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
-            Write-Host $fileNames
+            
             $getSGFilenames = $true
         }
         catch {
@@ -1025,7 +1023,7 @@ if ($SA_EXISTS) {
         $objects = $wr.Content | ConvertFrom-Json
         
         $fileNames = $objects | where { $_.type -eq "file" } | Select -exp name
-        
+        Write-Host "Coping below Data Files : "
         Write-Host $fileNames
 
         $getCsvFilenames = $true
