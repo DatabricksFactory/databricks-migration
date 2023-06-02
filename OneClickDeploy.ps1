@@ -152,7 +152,12 @@ if ($CTRL_DEPLOY_CLUSTER -and ($null -ne $DB_PAT)) {
     }
     # Set the request body
     $BODY = @"
-            {"cluster_name": "$CLUSTER_NAME", "spark_version": "$SPARK_VERSION", "autotermination_minutes": $AUTOTERMINATION_MINUTES, "num_workers": "$NUM_WORKERS", "node_type_id": "$NODE_TYPE_ID", "driver_node_type_id": "$DRIVER_NODE_TYPE_ID" }
+            {"cluster_name": "$CLUSTER_NAME", "spark_version": "$SPARK_VERSION", "autotermination_minutes": $AUTOTERMINATION_MINUTES, "num_workers": 0, "node_type_id": "$NODE_TYPE_ID", "spark_conf": {
+        "spark.master": "local[*, 4]",
+        "spark.databricks.cluster.profile": "singleNode"
+    }, "custom_tags": {
+        "ResourceClass": "SingleNode"
+    } }
 "@
 
     try {
