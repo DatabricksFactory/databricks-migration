@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "4668208589151754324"
+      "templateHash": "15399882969438207558"
     }
   },
   "parameters": {
@@ -69,6 +69,7 @@
     },
     "userBlobAccountName": {
       "type": "string",
+      "defaultValue": "adls",
       "maxLength": 11,
       "minLength": 3,
       "metadata": {

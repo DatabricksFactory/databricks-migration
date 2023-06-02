@@ -40,7 +40,7 @@ param eHRuleName string = 'rule'
 @description('Storage Account name. (Note: Valid characters are lowercase letters and numbers and length between 3 and 11)')
 @minLength(3)
 @maxLength(11)
-param userBlobAccountName string
+param userBlobAccountName string = 'adls'
 
 // KeyVault params
 @description('Controls the deployment of KeyVault')
