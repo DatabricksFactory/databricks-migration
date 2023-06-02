@@ -39,7 +39,7 @@ Provide the values for the following parameters or default values will be consid
 - Blob storage account name (Default value is 'adls')
 - Option (true/false) for Key Vault deployment (Default value is true)
 - Utc Value (utcNow)
-- Option (true/false) for Ctrl Deploy Pipeline 
+- Option (true/false) for Ctrl Deploy Pipeline  (Default value is true)
 - Option (true/false) for Cluster deployment (Default value is true)
 - Ctrl Syntax Type (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
 - Ctrl Source Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported from the syntax parameter you selected above.
