@@ -262,7 +262,7 @@
     }
   },
   "variables": {
-    "refBranch": "dev",
+    "refBranch": "main",
     "ctrlDeployStorageAccount": true,
     "ctrlDeployNotebook": true,
     "blobAccountName": "[format('{0}{1}', parameters('userBlobAccountName'), uniqueString(resourceGroup().id))]",
