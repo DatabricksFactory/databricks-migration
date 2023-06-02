@@ -36,6 +36,8 @@ param(
     [string] $SUBSCRIPTION_ID
 )
 
+[string] $REF_BRANCH = "dev"
+
 # Generating Databricks Workspace URL
 
 Write-Output "Task: Generating Databricks Workspace URL"
@@ -295,7 +297,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Importing example notebooks"
         
         #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=$REF_BRANCH" # change to respective git branch
         
         # Calling GitHub API for getting the filenames under Artifacts/Example folder
         try {
@@ -371,7 +373,7 @@ if ($null -ne $DB_PAT) {
 
         Write-Host "Task: Import Silver and Gold Layer notebooks for a batch source"
         #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/" + $CTRL_SYNTAX + "?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/" + $CTRL_SYNTAX + "?ref=$REF_BRANCH" # change to respective git branch
         
         # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
@@ -446,7 +448,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Task: Import Bronze Layer notebook for raw file source"
         
         #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/FileSource?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/FileSource?ref=$REF_BRANCH" # change to respective git branch
         # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -521,7 +523,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Task: Import Bronze Layer notebook for Azure SQL"
         
         # Get files under directory #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureSQLDb?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureSQLDb?ref=$REF_BRANCH" # change to respective git branch
         # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -595,7 +597,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Task: Import bronze layer notebook for Azure MySQL"
         
         # Get files under directory #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureMySQL?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzureMySQL?ref=$REF_BRANCH" # change to respective git branch
         # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -669,7 +671,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Task: Import Bronze Layer notebooks for Azure PSQL"
         
         # Get files under directory #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzurePostgreSQL?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/AzurePostgreSQL?ref=$REF_BRANCH" # change to respective git branch
         # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -743,7 +745,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Task: Import Bronze Layer notebooks for SQL on-prem"
         
         # Get files under directory #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/SQLDbOnPrem?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/SQLDbOnPrem?ref=$REF_BRANCH" # change to respective git branch
         # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -818,7 +820,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Task: Import Bronze Layer notebooks for PSQL on-prem"
         
         # Get files under directory #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/PostgreSQL?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/PostgreSQL?ref=$REF_BRANCH" # change to respective git branch
         # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -893,7 +895,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Task: Import Bronze Layer notebooks for Oracle"
 
         # Get files under directory #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/Oracle?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Batch/Oracle?ref=$REF_BRANCH" # change to respective git branch
         # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -967,7 +969,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Task: Import bronze, silver and gold layer notebooks for EventHub stream"
         
         # Get files under directory #github api for a folder
-        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Stream/EventHub?ref=dev" # change to respective git branch
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/$CTRL_SYNTAX/Stream/EventHub?ref=$REF_BRANCH" # change to respective git branch
         # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
         try {
             $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -1105,7 +1107,7 @@ if ($SA_EXISTS) {
         Write-Host "Error message: $errorMessage"
     }
     #github api for a folder
-    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/data?ref=dev" # change to respective git branch
+    $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/data?ref=$REF_BRANCH" # change to respective git branch
     # Calling GitHub API for getting the filenames under /data folder
     try {
         $wr = Invoke-WebRequest -Uri $Artifactsuri
@@ -1124,7 +1126,7 @@ if ($SA_EXISTS) {
     if ($getCsvFilenames) {
         Foreach ($filename in $fileNames) {
             try {
-                $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/data/$filename" # change to respective git branch
+                $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/$REF_BRANCH/data/$filename" # change to respective git branch
             
                 $Webresults = Invoke-WebRequest $url -UseBasicParsing
             
