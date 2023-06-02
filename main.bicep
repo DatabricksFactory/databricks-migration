@@ -53,8 +53,9 @@ param utcValue string = utcNow()
 @description('Controls the execution of pipeline deployment script')
 param ctrlDeployPipeline bool = true
 
-@description('Controls the execution of cluster deployment script')
-param ctrlDeployCluster bool = true
+// Pipeline params
+@description('NAme of the pipeline')
+param pipelineName string = 'Sample Pipeline'
 
 @description('Either DeltaLiveTable or DeltaTable Notebooks will be imported')
 @allowed([
@@ -76,10 +77,10 @@ param ctrlSyntaxType string = 'DeltaLiveTable'
 ])
 param ctrlSourceNotebook string = 'RawFileSource'
 
-@description('Time to live of the Databricks token in seconds')
-param lifetimeSeconds int = 1200
-
 // Cluster params
+@description('Controls the execution of cluster deployment script')
+param ctrlDeployCluster bool = true
+
 @description('Name of the Databricks cluster')
 param clusterName string = 'dbcluster'
 
@@ -102,26 +103,6 @@ param nodeTypeId string = 'Standard_DS3_v2'
 
 @description('Type of driver node')
 param driverNodeTypeId string = 'Standard_DS3_v2'
-
-@description('Max number of retries to check if the cluster is running')
-@allowed([
-  10
-  15
-  20
-])
-param retryLimit int = 15
-
-@description('Interval between each retries in seconds')
-@allowed([
-  30
-  45
-  60
-])
-param retryTime int = 60
-
-// Pipeline params
-@description('NAme of the pipeline')
-param pipelineName string = 'Sample Pipeline'
 
 // Network params
 @description('The name of the network security group to create.')
@@ -160,6 +141,9 @@ param PrivateEndpointSubnetName string = 'default'
 
 // Variables 
 
+@description('Reference branch in Git')
+var refBranch = 'dev'
+
 @description('Controls the deployment of SA')
 var ctrlDeployStorageAccount = true
 
@@ -173,10 +157,10 @@ var blobAccountName = '${userBlobAccountName}${uniqueString(resourceGroup().id)}
 var containerName = 'data' 
 
 @description('URI of the automation script')
-var fileuploaduri = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/OneClickDeploy.ps1'
+var fileuploaduri = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/${refBranch}/OneClickDeploy.ps1'
 
 @description('Relative path of the notebooks to be uploaded')
-var notebookPath = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts'
+var notebookPath = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/${refBranch}/Artifacts'
 
 @description('Name of identity')
 var identityName = 'PostDeploymentScriptuserAssignedName' 
@@ -192,6 +176,15 @@ var seconduniquestring = 'secondunique${uniqueSuffix}'
 
 @description('Side note on the token generation')
 var comment = 'ARM deployment' 
+
+@description('Max number of retries to check if the cluster is running')
+var retryLimit = 15
+
+@description('Interval between each retries in seconds')
+var retryTime = 60
+
+@description('Time to live of the Databricks token in seconds')
+var lifetimeSeconds = 1200
 
 @description('Path where DLT will be created')
 var storagePath = 'dbfs:/user/hive/warehouse' 

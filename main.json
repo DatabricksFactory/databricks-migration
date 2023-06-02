@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "15399882969438207558"
+      "templateHash": "5967356909234442493"
     }
   },
   "parameters": {
@@ -97,11 +97,11 @@
         "description": "Controls the execution of pipeline deployment script"
       }
     },
-    "ctrlDeployCluster": {
-      "type": "bool",
-      "defaultValue": true,
+    "pipelineName": {
+      "type": "string",
+      "defaultValue": "Sample Pipeline",
       "metadata": {
-        "description": "Controls the execution of cluster deployment script"
+        "description": "NAme of the pipeline"
       }
     },
     "ctrlSyntaxType": {
@@ -132,11 +132,11 @@
         "description": "Data source"
       }
     },
-    "lifetimeSeconds": {
-      "type": "int",
-      "defaultValue": 1200,
+    "ctrlDeployCluster": {
+      "type": "bool",
+      "defaultValue": true,
       "metadata": {
-        "description": "Time to live of the Databricks token in seconds"
+        "description": "Controls the execution of cluster deployment script"
       }
     },
     "clusterName": {
@@ -184,37 +184,6 @@
       "defaultValue": "Standard_DS3_v2",
       "metadata": {
         "description": "Type of driver node"
-      }
-    },
-    "retryLimit": {
-      "type": "int",
-      "defaultValue": 15,
-      "allowedValues": [
-        10,
-        15,
-        20
-      ],
-      "metadata": {
-        "description": "Max number of retries to check if the cluster is running"
-      }
-    },
-    "retryTime": {
-      "type": "int",
-      "defaultValue": 60,
-      "allowedValues": [
-        30,
-        45,
-        60
-      ],
-      "metadata": {
-        "description": "Interval between each retries in seconds"
-      }
-    },
-    "pipelineName": {
-      "type": "string",
-      "defaultValue": "Sample Pipeline",
-      "metadata": {
-        "description": "NAme of the pipeline"
       }
     },
     "nsgName": {
@@ -293,17 +262,21 @@
     }
   },
   "variables": {
+    "refBranch": "dev",
     "ctrlDeployStorageAccount": true,
     "ctrlDeployNotebook": true,
     "blobAccountName": "[format('{0}{1}', parameters('userBlobAccountName'), uniqueString(resourceGroup().id))]",
     "containerName": "data",
-    "fileuploaduri": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/OneClickDeploy.ps1",
-    "notebookPath": "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts",
+    "fileuploaduri": "[format('https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/{0}/OneClickDeploy.ps1', variables('refBranch'))]",
+    "notebookPath": "[format('https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/{0}/Artifacts', variables('refBranch'))]",
     "identityName": "PostDeploymentScriptuserAssignedName",
     "uniqueSuffix": "[substring(uniqueString(resourceGroup().id), 0, 6)]",
     "firstuniquestring": "[format('firstunique{0}', variables('uniqueSuffix'))]",
     "seconduniquestring": "[format('secondunique{0}', variables('uniqueSuffix'))]",
     "comment": "ARM deployment",
+    "retryLimit": 15,
+    "retryTime": 60,
+    "lifetimeSeconds": 1200,
     "storagePath": "dbfs:/user/hive/warehouse",
     "targetSchemaName": "Sample",
     "minWorkers": 1,
@@ -2183,7 +2156,7 @@
             "value": "[variables('identityName')]"
           },
           "lifetimeSeconds": {
-            "value": "[parameters('lifetimeSeconds')]"
+            "value": "[variables('lifetimeSeconds')]"
           },
           "nodeTypeId": {
             "value": "[parameters('nodeTypeId')]"
@@ -2192,10 +2165,10 @@
             "value": "[parameters('numWorkers')]"
           },
           "retryLimit": {
-            "value": "[parameters('retryLimit')]"
+            "value": "[variables('retryLimit')]"
           },
           "retryTime": {
-            "value": "[parameters('retryTime')]"
+            "value": "[variables('retryTime')]"
           },
           "seconduniquestring": {
             "value": "[variables('seconduniquestring')]"
@@ -2527,7 +2500,7 @@
             "value": "[variables('identityName')]"
           },
           "lifetimeSeconds": {
-            "value": "[parameters('lifetimeSeconds')]"
+            "value": "[variables('lifetimeSeconds')]"
           },
           "nodeTypeId": {
             "value": "[parameters('nodeTypeId')]"
@@ -2536,10 +2509,10 @@
             "value": "[parameters('numWorkers')]"
           },
           "retryLimit": {
-            "value": "[parameters('retryLimit')]"
+            "value": "[variables('retryLimit')]"
           },
           "retryTime": {
-            "value": "[parameters('retryTime')]"
+            "value": "[variables('retryTime')]"
           },
           "seconduniquestring": {
             "value": "[variables('seconduniquestring')]"
