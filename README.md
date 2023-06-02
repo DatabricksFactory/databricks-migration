@@ -25,40 +25,34 @@ Network Access configuration is enabled using below mentioned approach based on 
 
 1. Click **'Deploy To Azure'** button given below to deploy all the resources.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDatabricksFactory%2Fdatabricks-migration%2Fmain%2Fmain.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDatabricksFactory%2Fdatabricks-migration%2Fdev%2Fmain.json)
 
 Provide the values for the following parameters or default values will be considered:
-- Resource group (create new)
-- Region (Default value is 'east us')
-- Option (PublicMode/PrivateMode/HybridMode) for Endpoint Type (Default value is 'HybridMode') - Here ```PublicMode``` is public endpoint deployment, ```PrivateMode``` is private endpoint deployment and ```HybridMode``` is private endpoint hybrid deployment. Please select the endpoint according to your requirements.
-- Event Hub SKU (Default value is 'Standard')
-- Blob storage account name (Default value is random unique string)
-- Container name (Default value is 'data')
-- Event Hub Rule Name (Default value is 'rule')
-- Identity Name for post deployment script (Default value is 'PostDeploymentScriptuserAssignedName')
-- Unique Suffix (Default value is random unique string)
-- Firstuniquestring (Default value is random unique string)
-- Seconduniquestring (Default value is random unique string)
-- Utc Value (utcNow)
-- Option (true/false) for Cluster deployment (Default value is true)
-- Option (true/false) for Key Vault deployment (Default value is true)
+- Resource group (create new) 
+- Region (Default value is 'east us') 
+- Option (PublicMode/PrivateMode/HybridMode) for Endpoint Type (Default value is 'HybridMode') - Here ```PublicMode``` is public endpoint deployment, ```PrivateMode``` is private endpoint deployment and ```HybridMode``` is private endpoint hybrid deployment. Please select the endpoint according to your requirements. 
+- Pricing Tier (Default value is 'Premium')
+- Workspace Name (Default value is 'default')
 - Option (true/false) for Event Hub deployment (Default value is true)
-- Lifetime Seconds(Databricks token) (Default value is 1200)
-- Comment (Default value is 'ARM deployment')
+- Event Hub SKU (Default value is 'Standard')
+- Event Hub Rule Name (Default value is 'rule')
+- Blob storage account name (Default value is 'adls')
+- Option (true/false) for Key Vault deployment (Default value is true)
+- Utc Value (utcNow)
+- Option (true/false) for Ctrl Deploy Pipeline  (Default value is true)
+- Option (true/false) for Cluster deployment (Default value is true)
+- Ctrl Syntax Type (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
+- Ctrl Source Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported from the syntax parameter you selected above.
 - Cluster name (Default value is 'dbcluster')
 - Spark Version (Default value is '11.3.x-scala2.12')
 - Auto Termination Minutes(cluster) (Default value is 30)
 - Num Workers (Default value is 2)
 - Node Type Id (Default value is 'Standard_DS3_v2')
 - Driver Node Type Id (Default value is 'Standard_DS3_v2')
-- Retry Limit (Default value is 15)
-- Retry Time (Default value is 60)
-- Option (true/false) for Disable public IP (Default value is true)
+- Pipeline Name (Default value is 'Sample Pipeline')
 - Nsg Name (Default value is 'databricks-nsg')
-- Price Tier (Default value is 'Premium')
 - Private Subnet Cidr (Default value is '10.179.0.0/18')
 - Private Subnet Name (Default value is 'private-subnet')
-- Option (Enabled/Disabled) for Public Network Acess (Default value is 'Enabled')
 - Public Subnet Cidr (Default value is '10.179.64.0/18')
 - Private Endpoint Subnet Cidr (Default value is '10.179.128.0/24')
 - Public Subnet Name (Default value is 'public-subnet')
@@ -66,17 +60,6 @@ Provide the values for the following parameters or default values will be consid
 - Vnet Cidr (Default value is '10.179.0.0/16')
 - Vnet Name (Default value is 'databricks-vnet')
 - Private Endpoint Subnet Name (Default value is 'default')
-- Workspace Name (Default value is 'default')
-- Fileuploaduri (path for post deployment powershell script for deploying cluster, notebook and pipeline)
-- Option (true/false) for Ctrl Deploy Pipeline 
-- Pipeline Name (Default value is 'Sample Pipeline')
-- Storage Path (Default value is 'dbfs:/user/hive/warehouse')
-- Target Schema Name (Default value is 'Sample')
-- Min Workers (Default value is 1)
-- Max Workers (Default value is 5)
-- Notebook Path (URI path of the notebooks to be uploaded)
-- Ctrl_Syntax_Type (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
-- Ctrl_Import_Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported from the syntax parameter you selected above.
 
 2. Click **'Review + Create'**.
 
