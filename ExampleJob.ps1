@@ -130,17 +130,17 @@ try {
         "libraries": [
             {
                 "notebook": {
-                    "path": "/Users/v-ahoode@microsoft.com/Example/bronze-layer-notebook"
+                    "path": "/Shared/Example/bronze-layer-notebook"
                 }
             },
             {
                 "notebook": {
-                    "path": "/Users/v-ahoode@microsoft.com/Example/silver-layer-notebook"
+                    "path": "/Shared/Example/silver-layer-notebook"
                 }
             },
             {
                 "notebook": {
-                    "path": "/Users/v-ahoode@microsoft.com/Example/gold-layer-notebook"
+                    "path": "/Shared/Example/gold-layer-notebook"
                 }
             }
         ],
@@ -187,7 +187,7 @@ if ($null -ne $pipelineId) {
                         }
                     ],
                     "notebook_task": {
-                        "notebook_path": "/Users/v-ahoode@microsoft.com/Example/publish_events-eventhub",
+                        "notebook_path": "/Shared/Example/publish_events-eventhub",
                         "source": "WORKSPACE"
                     },
                     "job_cluster_key": "Job_cluster_API"
@@ -200,7 +200,7 @@ if ($null -ne $pipelineId) {
                         }
                     ],
                     "notebook_task": {
-                        "notebook_path": "/Users/v-ahoode@microsoft.com/Example/bronze_silver_gold_stream",
+                        "notebook_path": "/Shared/Example/bronze_silver_gold_stream",
                         "source": "WORKSPACE"
                     },
                     "job_cluster_key": "Job_cluster_API",
