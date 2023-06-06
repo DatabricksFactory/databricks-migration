@@ -33,7 +33,8 @@ param(
     [bool] $SRC_ORACLE,
     [bool] $SRC_EVENTHUB ,
     [string] $CTRL_SYNTAX,
-    [string] $SUBSCRIPTION_ID
+    [string] $SUBSCRIPTION_ID,
+    [bool] $CTRL_DEPLOY_SAMPLE
 )
 
 [string] $REF_BRANCH = "dev"
@@ -272,6 +273,7 @@ if ($null -ne $DB_PAT) {
     }    
 
     # Create folder structure for examples
+    if ($CTRL_DEPLOY_SAMPLE) {
     Write-Host "Create folder for examples"
     try {
         $requestBodyFolder = @{
@@ -365,7 +367,8 @@ if ($null -ne $DB_PAT) {
                 }            
             }
         }    
-    }    
+    } 
+}   
 
     # Upload Silver and Gold Layer notebooks for a batch source to its respective syntax folder
    
@@ -1081,13 +1084,24 @@ if ($CTRL_DEPLOY_PIPELINE -and ($null -ne $DB_PAT)) {
 }
 
 # Upload data files to storage account
-if ($SA_EXISTS) {
+if ($CTRL_DEPLOY_SAMPLE) {
 
     Write-Host "Task: Upload data files to storage account"
+    #Get storage account name
+    try {
+        $StorageAccountNames = Get-AzStorageAccount -ResourceGroupName $RG_NAME | Select-Object -ExpandProperty StorageAccountName
+        $StorageAccountName = $StorageAccountNames | Where-Object { $_.StartsWith("samplesblob") }
+        Write-Host "Successful: Storage account name is generated"
+    }
+    catch {
+        Write-Host "Error while getting Storage Account name"
+        $errorMessage = $_.Exception.Message
+        Write-Host "Error message: $errorMessage"
+    }
 
     #Get storage account access key
     try {
-        $storageaccountkey = Get-AzStorageAccountKey -ResourceGroupName $RG_NAME -Name $SA_NAME;
+        $storageaccountkey = Get-AzStorageAccountKey -ResourceGroupName $RG_NAME -Name $StorageAccountName;
         Write-Host "Successful: Storage account access key is generated"
     }
     catch {
@@ -1098,7 +1112,7 @@ if ($SA_EXISTS) {
     
     #Create storage account context
     try {
-        $ctx = New-AzStorageContext -StorageAccountName $SA_NAME -StorageAccountKey $storageaccountkey.Value[0]
+        $ctx = New-AzStorageContext -StorageAccountName $StorageAccountName -StorageAccountKey $storageaccountkey.Value[0]
         Write-Host "Successful: Storage account context is created"
     }
     catch {
