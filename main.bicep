@@ -50,6 +50,10 @@ param ctrlDeployKeyVault bool = true
 param utcValue string = utcNow() 
 
 // Script params
+
+@description('Controls the deployment of Blob Storage and Example Notebooks')
+param ctrlDeploySample bool = true
+
 @description('Controls the execution of pipeline deployment script')
 param ctrlDeployPipeline bool = true
 
@@ -155,6 +159,12 @@ var blobAccountName = '${userBlobAccountName}${uniqueString(resourceGroup().id)}
 
 @description('Container name')
 var containerName = 'data' 
+
+@description('Name for the Blob Storage')
+var blobStorageName = 'samplesblob${uniqueString(resourceGroup().id)}'
+
+@description('Name for the blob container')
+var blobContainerName = 'data'
 
 @description('URI of the automation script')
 var fileuploaduri = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/${refBranch}/OneClickDeploy.ps1'
@@ -299,6 +309,14 @@ module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(end
   dependsOn: [networkModule]
 }
 
+module blobStorage 'modules/storage/blobStorage.bicep' = if(ctrlDeploySample) {
+  name: 'Blob_Storage_Deployment'
+  params: {
+    blobStorageName: blobStorageName
+    blobContainerName: blobContainerName
+  }
+}
+
 module eventhubModule './modules/eventhub/eventhub.bicep' = {
   name: 'EventHub_Deployment'
   params: {
@@ -373,6 +391,7 @@ module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScrip
     sa_name: blobAccountName
     saExists: ctrlDeployStorageAccount
     subscriptionId: subscriptionId
+    ctrlDeploySample: ctrlDeploySample
   }
   dependsOn: [databricksPublicModule]
 }
@@ -410,6 +429,7 @@ module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deployme
     sa_name: blobAccountName
     saExists: ctrlDeployStorageAccount
     subscriptionId: subscriptionId
+    ctrlDeploySample: ctrlDeploySample
   }
   dependsOn: [databricksPrivateHybridModule]
 }
