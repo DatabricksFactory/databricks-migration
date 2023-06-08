@@ -101,7 +101,7 @@ var contributorRoleDefinitionId = 'B24988ac-6180-42a0-ab88-20f7382dd24c'
 //Resources
 
 resource PostDeploymentScriptForFileUpload 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(endpointType == 'PublicMode' || endpointType == 'HybridMode') {
-  name: 'PostDeploymentScriptForFileUpload'
+  name: 'Post-Deployment_Script_OneClickDeploy'
   location: location
   kind: 'AzurePowerShell'
   identity: {
