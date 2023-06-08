@@ -1315,7 +1315,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
                             "enable_elastic_disk": true,
                             "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
                             "runtime_engine": "STANDARD",
-                            "num_workers": 1
+                            "num_workers": 0
                         }
                     }
                 ],
@@ -1333,8 +1333,65 @@ if ($CTRL_DEPLOY_SAMPLE) {
         Write-Host "Error message: $errorMessage" 
     }
 
-    # Create job for copying files from Blob Storage to ADLS Gen2
-    Write-Host "[INFO] Creating job for copying files from Blob Storage to ADLS Gen2"
+    # Create job for copying files to ADLS Gen2
+    Write-Host "[INFO] Creating job for copying files to ADLS Gen2"
 
-
+    $copyJobDefinition = @"
+    {
+        "name": "blob_to_adls_copy",
+        "max_concurrent_runs": 1,
+        "tasks": [
+            {
+                "task_key": "blob_to_adls_copy",
+                "notebook_task": {
+                    "notebook_path": "/Shared/blob_to_adls_copy",
+                    "source": "WORKSPACE"
+                },
+                "job_cluster_key": "Job_cluster",
+            }
+        ],
+        "job_clusters": [
+            {
+                "job_cluster_key": "Job_cluster",
+                "new_cluster": {
+                    "cluster_name": "",
+                    "spark_version": "12.2.x-scala2.12",
+                    "spark_conf": {
+                        "spark.databricks.delta.preview.enabled": "true",
+                        "spark.master": "local[*, 4]",
+                        "spark.databricks.cluster.profile": "singleNode"
+                    },
+                    "azure_attributes": {
+                        "first_on_demand": 1,
+                        "availability": "ON_DEMAND_AZURE",
+                        "spot_bid_max_price": -1
+                    },
+                    "node_type_id": "Standard_DS3_v2",
+                    "custom_tags": {
+                        "ResourceClass": "SingleNode"
+                    },
+                    "spark_env_vars": {
+                        "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+                    },
+                    "enable_elastic_disk": true,
+                    "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
+                    "runtime_engine": "STANDARD",
+                    "num_workers": 0
+                }
+            }
+        ],
+        "format": "MULTI_TASK"
+    }
+"@
+        
+    try {
+        $copyJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $copyJobDefinition).job_id
+        Write-Host "[SUCCESS] Job successfully created for copying files to ADLS Gen2 with Job ID: $copyJobId"
+    }
+    catch {
+        Write-Host "[ERROR] Error while calling the Databricks API for creating job for copying files to ADLS Gen2"
+        $errorMessage = $_.Exception.Message
+        Write-Host "Error message: $errorMessage" 
+    }
+    
 }
