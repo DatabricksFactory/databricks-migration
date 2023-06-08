@@ -300,7 +300,7 @@ if ($null -ne $DB_PAT) {
             Write-Host "Importing example notebooks"
         
             #github api for a folder
-            $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/" + $EXAMPLE_DATASET + "?ref=$REF_BRANCH" # change to respective git branch
+            $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/$EXAMPLE_DATASET?ref=$REF_BRANCH" # change to respective git branch
         
             # Calling GitHub API for getting the filenames under Artifacts/Example/<Dataset> folder
             try {
@@ -324,78 +324,6 @@ if ($null -ne $DB_PAT) {
                     try {
                         # Set the path to the notebook to be imported
                         $url = "$NOTEBOOK_PATH/Example/$EXAMPLE_DATASET/$filename"
-                    
-                        # Get the notebook
-                        $Webresults = Invoke-WebRequest $url -UseBasicParsing
-                    
-                        # Read the notebook file
-                        $notebookContent = $Webresults.Content
-                    
-                        # Base64 encode the notebook content
-                        $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
-                        
-                        # Set the path
-                        $splitfilename = $filename.Split(".")
-                        $filenamewithoutextension = $splitfilename[0]
-                        $path = "/Shared/Example/$EXAMPLE_DATASET/$filenamewithoutextension";
-                    
-                        # Set the request body
-                        $requestBody = @{
-                            "content"  = $notebookBase64
-                            "path"     = $path
-                            "language" = "PYTHON"
-                            "format"   = "JUPYTER"
-                        }
-                    
-                        # Convert the request body to JSON
-                        $jsonBody = ConvertTo-Json -Depth 100 $requestBody
-                    }
-                    catch {
-                        Write-Host "Error while reading the raw example notebook: $filename"
-                        $errorMessage = $_.Exception.Message
-                        Write-Host "Error message: $errorMessage"
-                    }
-                
-                    try {
-                        # Make the HTTP request to import the notebook
-                        $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
-                        Write-Host "Successful: $filename is imported"
-                    }
-                    catch {
-                        Write-Host "Error while calling the Azure Databricks API for importing example notebook: $filename"
-                        $errorMessage = $_.Exception.Message
-                        Write-Host "Error message: $errorMessage"
-                    }            
-                }
-            }    
-        
-            Write-Host "Importing blob to adls copy notebook"
-        
-            #github api for a folder
-            $Artifactsuri1 = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=$REF_BRANCH" # change to respective git branch
-        
-            # Calling GitHub API for getting the filenames under Artifacts/Example/<Dataset> folder
-            try {
-                $wr = Invoke-WebRequest -Uri $Artifactsuri1
-                $objects = $wr.Content | ConvertFrom-Json
-                $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
-                Write-Host "Successful: getting the filenames under Artifacts/Example/ folder is successful"
-                $getExmpFilenames = $true
-            }
-            catch {
-                $getExmpFilenames = $false
-                Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/RetailOrg"
-                $errorMessage = $_.Exception.Message
-                Write-Host "Error message: $errorMessage"
-            }        
-
-            if ($getExmpFilenames) {
-
-                Foreach ($filename in $fileNames) {
-            
-                    try {
-                        # Set the path to the notebook to be imported
-                        $url = "$NOTEBOOK_PATH/Example/$filename"
                     
                         # Get the notebook
                         $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -1387,7 +1315,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
                             "enable_elastic_disk": true,
                             "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
                             "runtime_engine": "STANDARD",
-                            "num_workers": 1
+                            "num_workers": 0
                         }
                     }
                 ],
@@ -1405,8 +1333,65 @@ if ($CTRL_DEPLOY_SAMPLE) {
         Write-Host "Error message: $errorMessage" 
     }
 
-    # Create job for copying files from Blob Storage to ADLS Gen2
-    Write-Host "[INFO] Creating job for copying files from Blob Storage to ADLS Gen2"
+    # Create job for copying files to ADLS Gen2
+    Write-Host "[INFO] Creating job for copying files to ADLS Gen2"
 
-
+    $copyJobDefinition = @"
+    {
+        "name": "blob_to_adls_copy",
+        "max_concurrent_runs": 1,
+        "tasks": [
+            {
+                "task_key": "blob_to_adls_copy",
+                "notebook_task": {
+                    "notebook_path": "/Shared/blob_to_adls_copy",
+                    "source": "WORKSPACE"
+                },
+                "job_cluster_key": "Job_cluster",
+            }
+        ],
+        "job_clusters": [
+            {
+                "job_cluster_key": "Job_cluster",
+                "new_cluster": {
+                    "cluster_name": "",
+                    "spark_version": "12.2.x-scala2.12",
+                    "spark_conf": {
+                        "spark.databricks.delta.preview.enabled": "true",
+                        "spark.master": "local[*, 4]",
+                        "spark.databricks.cluster.profile": "singleNode"
+                    },
+                    "azure_attributes": {
+                        "first_on_demand": 1,
+                        "availability": "ON_DEMAND_AZURE",
+                        "spot_bid_max_price": -1
+                    },
+                    "node_type_id": "Standard_DS3_v2",
+                    "custom_tags": {
+                        "ResourceClass": "SingleNode"
+                    },
+                    "spark_env_vars": {
+                        "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+                    },
+                    "enable_elastic_disk": true,
+                    "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
+                    "runtime_engine": "STANDARD",
+                    "num_workers": 0
+                }
+            }
+        ],
+        "format": "MULTI_TASK"
+    }
+"@
+        
+    try {
+        $copyJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $copyJobDefinition).job_id
+        Write-Host "[SUCCESS] Job successfully created for copying files to ADLS Gen2 with Job ID: $copyJobId"
+    }
+    catch {
+        Write-Host "[ERROR] Error while calling the Databricks API for creating job for copying files to ADLS Gen2"
+        $errorMessage = $_.Exception.Message
+        Write-Host "Error message: $errorMessage" 
+    }
+    
 }
