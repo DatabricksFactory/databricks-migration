@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.17.1.54307",
-      "templateHash": "15093570119600547431"
+      "templateHash": "11092354686536141699"
     }
   },
   "parameters": {
@@ -1646,7 +1646,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "11269901990951975709"
+              "templateHash": "4219411305336697726"
             }
           },
           "parameters": {
@@ -1691,7 +1691,13 @@
                 "[resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageName'))]"
               ]
             }
-          ]
+          ],
+          "outputs": {
+            "blobStorageResourceOp": {
+              "type": "string",
+              "value": "[format('Name: {0} - Type: {1}', parameters('blobStorageName'), 'Microsoft.Storage/storageAccounts')]"
+            }
+          }
         }
       }
     },
@@ -2201,7 +2207,7 @@
       "condition": "[equals(parameters('endpointType'), 'PublicMode')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "Post-Deployment_Scripts_Public",
+      "name": "Post-Deployment_Scripts_Public_OneClickDeploy",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -2309,7 +2315,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "9798271621265588489"
+              "templateHash": "14507488178609446717"
             }
           },
           "parameters": {
@@ -2491,7 +2497,7 @@
               "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
-              "name": "PostDeploymentScriptForFileUpload",
+              "name": "Post-Deployment_Script_OneClickDeploy",
               "location": "[variables('location')]",
               "kind": "AzurePowerShell",
               "identity": {
@@ -2538,7 +2544,7 @@
           "outputs": {
             "postDeploymentsResourceOp": {
               "type": "string",
-              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5}', 'PostDeploymentScriptForFileUpload', 'Microsoft.Resources/deploymentScripts', parameters('identityName'), 'Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapRoleAssignmentId_var'), 'Microsoft.Authorization/roleAssignments')]"
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5}', 'Post-Deployment_Script_OneClickDeploy', 'Microsoft.Resources/deploymentScripts', parameters('identityName'), 'Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapRoleAssignmentId_var'), 'Microsoft.Authorization/roleAssignments')]"
             }
           }
         }
@@ -2551,7 +2557,7 @@
       "condition": "[equals(parameters('endpointType'), 'HybridMode')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "Post-Deployment_Scripts_Hybrid",
+      "name": "Post-Deployment_Scripts_Hybrid_OneClickDeploy",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -2659,7 +2665,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.17.1.54307",
-              "templateHash": "9798271621265588489"
+              "templateHash": "14507488178609446717"
             }
           },
           "parameters": {
@@ -2841,7 +2847,7 @@
               "condition": "[or(equals(parameters('endpointType'), 'PublicMode'), equals(parameters('endpointType'), 'HybridMode'))]",
               "type": "Microsoft.Resources/deploymentScripts",
               "apiVersion": "2020-10-01",
-              "name": "PostDeploymentScriptForFileUpload",
+              "name": "Post-Deployment_Script_OneClickDeploy",
               "location": "[variables('location')]",
               "kind": "AzurePowerShell",
               "identity": {
@@ -2888,7 +2894,7 @@
           "outputs": {
             "postDeploymentsResourceOp": {
               "type": "string",
-              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5}', 'PostDeploymentScriptForFileUpload', 'Microsoft.Resources/deploymentScripts', parameters('identityName'), 'Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapRoleAssignmentId_var'), 'Microsoft.Authorization/roleAssignments')]"
+              "value": "[format('Name: {0} - Type: {1} || Name: {2} - Type: {3} || Name: {4} - Type: {5}', 'Post-Deployment_Script_OneClickDeploy', 'Microsoft.Resources/deploymentScripts', parameters('identityName'), 'Microsoft.ManagedIdentity/userAssignedIdentities', variables('bootstrapRoleAssignmentId_var'), 'Microsoft.Authorization/roleAssignments')]"
             }
           }
         }
@@ -2908,8 +2914,9 @@
         "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'EventHub_Private_Endpoint_Deployment'), '2022-09-01').outputs.eventhubpepResourceOp.value, '')]",
         "[reference(resourceId('Microsoft.Resources/deployments', 'KeyVault_Deployment'), '2022-09-01').outputs.keyvaultResourceOp.value]",
         "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'KeyVault_Private_Endpoint_Deployment'), '2022-09-01').outputs.keyvaultpepResourceOp.value, '')]",
-        "[if(equals(parameters('endpointType'), 'PublicMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Public'), '2022-09-01').outputs.postDeploymentsResourceOp.value, if(equals(parameters('endpointType'), 'HybridMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Hybrid'), '2022-09-01').outputs.postDeploymentsResourceOp.value, ''))]",
-        "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'Network_Deployment'), '2022-09-01').outputs.networkResourceOp.value, '')]"
+        "[if(equals(parameters('endpointType'), 'PublicMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Public_OneClickDeploy'), '2022-09-01').outputs.postDeploymentsResourceOp.value, if(equals(parameters('endpointType'), 'HybridMode'), reference(resourceId('Microsoft.Resources/deployments', 'Post-Deployment_Scripts_Hybrid_OneClickDeploy'), '2022-09-01').outputs.postDeploymentsResourceOp.value, ''))]",
+        "[if(not(equals(parameters('endpointType'), 'PublicMode')), reference(resourceId('Microsoft.Resources/deployments', 'Network_Deployment'), '2022-09-01').outputs.networkResourceOp.value, '')]",
+        "[if(parameters('ctrlDeploySample'), reference(resourceId('Microsoft.Resources/deployments', 'Blob_Storage_Deployment'), '2022-09-01').outputs.blobStorageResourceOp.value, '')]"
       ]
     }
   }
