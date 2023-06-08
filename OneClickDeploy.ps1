@@ -1315,7 +1315,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
                             "enable_elastic_disk": true,
                             "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
                             "runtime_engine": "STANDARD",
-                            "num_workers": 0
+                            "num_workers": 1
                         }
                     }
                 ],
@@ -1332,5 +1332,9 @@ if ($CTRL_DEPLOY_SAMPLE) {
         $errorMessage = $_.Exception.Message
         Write-Host "Error message: $errorMessage" 
     }
-    
+
+    # Create job for copying files from Blob Storage to ADLS Gen2
+    Write-Host "[INFO] Creating job for copying files from Blob Storage to ADLS Gen2"
+
+
 }
