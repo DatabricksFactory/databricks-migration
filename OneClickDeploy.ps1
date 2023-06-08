@@ -1175,7 +1175,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
     {
         "name": "retail_org_batch_dlt",
         "edition": "ADVANCED",
-        "target": "retail_org_batch_api",
+        "target": "retail_org_batch",
         "clusters": [
             {
                 "label": "default",
@@ -1216,15 +1216,13 @@ if ($CTRL_DEPLOY_SAMPLE) {
         Write-Host "Error message: $errorMessage" 
     }
     
-    # Create jobs and run for the retail org dataset
-    Write-Host '[INFO] Create jobs and run them for the retail org dataset'
+    # Create jobs for the retail org dataset
+    Write-Host '[INFO] Create jobs for the retail org dataset'
     
     $jobCreateUrl = "https://$WorkspaceUrl/api/2.1/jobs/create"
-    
-    $jobRunUrl = "https://$WorkspaceUrl/api/2.1/jobs/run-now"
-    
-    # Create and run the batch job
-    Write-Host '[INFO] Create and run the batch job'
+        
+    # Create the batch job
+    Write-Host '[INFO] Creating the batch job'
     
     $batchJobDefinition = @"
             {
@@ -1245,36 +1243,17 @@ if ($CTRL_DEPLOY_SAMPLE) {
     if ($null -ne $batchPipelineId) {
         try {
             $batchJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $batchJobDefinition).job_id
-            $batchJobCreated = $true
             Write-Host "[SUCCESS] Job successfully created for batch processing with Job ID: $batchJobId"
         }
         catch {
-            $batchJobCreated = $false
             Write-Host "[ERROR] Error while calling the Databricks API for creating job for batch processing"
             $errorMessage = $_.Exception.Message
             Write-Host "Error message: $errorMessage" 
         }
     }
-    
-    if ($batchJobCreated) {
-        $batchRunDefinition = @"
-            {
-                "job_id": $batchJobId
-            }
-"@
-        try {
-            $batchRunId = (Invoke-RestMethod -Method POST -Uri $jobRunUrl -Headers $HEADERS -Body $batchRunDefinition).run_id
-            Write-Host "[SUCCESS] Running the job for batch processing with Run ID: $batchRunId"
-        }
-        catch {
-            Write-Host "[ERROR] Error while calling the Databricks API for running the batch processing job"
-            $errorMessage = $_.Exception.Message
-            Write-Host "Error message: $errorMessage" 
-        }
-    }
-    
-    # Create and run the stream job
-    Write-Host '[INFO] Create and run the stream job'
+        
+    # Create the stream job
+    Write-Host '[INFO] Creating the stream job'
 
     $streamJobDefinition = @"
             {
@@ -1346,31 +1325,12 @@ if ($CTRL_DEPLOY_SAMPLE) {
         
     try {
         $streamJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $streamJobDefinition).job_id
-        $streamJobCreated = $true
         Write-Host "[SUCCESS] Job successfully created for stream processing with Job ID: $streamJobId"
     }
     catch {
-        $streamJobCreated = $false
         Write-Host "[ERROR] Error while calling the Databricks API for creating job for stream processing"
         $errorMessage = $_.Exception.Message
         Write-Host "Error message: $errorMessage" 
     }
     
-    
-    if ($streamJobCreated) {
-        $streamRunDefinition = @"
-        {
-            "job_id": $streamJobId
-        }
-"@
-        try {
-            $streamRunId = (Invoke-RestMethod -Method POST -Uri $jobRunUrl -Headers $HEADERS -Body $streamRunDefinition).run_id
-            Write-Host "[SUCCESS] Running the job for stream processing with Run ID: $streamRunId"
-        }
-        catch {
-            Write-Host "[ERROR] Error while calling the Databricks API for running the stream processing job"
-            $errorMessage = $_.Exception.Message
-            Write-Host "Error message: $errorMessage" 
-        }
-    }
 }
