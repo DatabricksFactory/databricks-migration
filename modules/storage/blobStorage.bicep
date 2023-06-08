@@ -37,3 +37,7 @@ resource blobStorageName_default_container 'Microsoft.Storage/storageAccounts/bl
     blobStorageAccount
   ]
 }
+
+// Outputs
+
+output blobStorageResourceOp string = 'Name: ${blobStorageAccount.name} - Type: ${blobStorageAccount.type}'

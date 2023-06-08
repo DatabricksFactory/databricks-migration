@@ -445,4 +445,5 @@ output resourceList array = [
   endpointType != 'PublicMode' ? keyvaultPrivateEndpointModule.outputs.keyvaultpepResourceOp : ''
   endpointType == 'PublicMode' ? deploymentScriptPublicModule.outputs.postDeploymentsResourceOp : (endpointType == 'HybridMode' ? deploymentScriptHybridModule.outputs.postDeploymentsResourceOp : '')
   endpointType != 'PublicMode' ? networkModule.outputs.networkResourceOp : ''
+  ctrlDeploySample ? blobStorageModule.outputs.blobStorageResourceOp : ''
 ]
