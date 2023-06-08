@@ -131,6 +131,7 @@ try {
 catch {
     Write-Host "Attempt 1 : Error while calling the Databricks API for generating Personal Access Token"
     $errorMessage = $_.Exception.Message
+    Write-Host $_
     Write-Host "Error message: $errorMessage" 
     try {
         Write-Host "Attempt 2 : generating Personal Access Token"
@@ -140,6 +141,7 @@ catch {
     catch {
         Write-Host "Attempt 2 : Error while calling the Databricks API for generating Personal Access Token"
         $errorMessage = $_.Exception.Message
+        Write-Host $_
         Write-Host "Error message: $errorMessage" 
     }
 }
