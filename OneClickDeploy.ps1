@@ -300,7 +300,7 @@ if ($null -ne $DB_PAT) {
             Write-Host "Importing example notebooks"
         
             #github api for a folder
-            $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/$EXAMPLE_DATASET?ref=$REF_BRANCH" # change to respective git branch
+            $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/" + $EXAMPLE_DATASET + "?ref=$REF_BRANCH" # change to respective git branch
         
             # Calling GitHub API for getting the filenames under Artifacts/Example/<Dataset> folder
             try {
@@ -312,7 +312,7 @@ if ($null -ne $DB_PAT) {
             }
             catch {
                 $getExmpFilenames = $false
-                Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/RetailOrg"
+                Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/Example/$EXAMPLE_DATASET"
                 $errorMessage = $_.Exception.Message
                 Write-Host "Error message: $errorMessage"
             }        
@@ -1420,7 +1420,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
                     "notebook_path": "/Shared/blob_to_adls_copy",
                     "source": "WORKSPACE"
                 },
-                "job_cluster_key": "Job_cluster",
+                "job_cluster_key": "Job_cluster"
             }
         ],
         "job_clusters": [
