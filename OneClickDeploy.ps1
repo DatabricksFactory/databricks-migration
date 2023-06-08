@@ -38,6 +38,7 @@ param(
 )
 
 [string] $REF_BRANCH = "dev"
+[string] $EXAMPLE_DATASET = "RetailOrg"
 
 # Generating Databricks Workspace URL
 
@@ -277,7 +278,7 @@ if ($null -ne $DB_PAT) {
         Write-Host "Create folder for examples"
         try {
             $requestBodyFolder = @{
-                "path" = "/Shared/Example"
+                "path" = "/Shared/Example/$EXAMPLE_DATASET"
             }
             $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
             #https request for creating folder
@@ -299,19 +300,19 @@ if ($null -ne $DB_PAT) {
             Write-Host "Importing example notebooks"
         
             #github api for a folder
-            $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example?ref=$REF_BRANCH" # change to respective git branch
+            $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/$EXAMPLE_DATASET?ref=$REF_BRANCH" # change to respective git branch
         
-            # Calling GitHub API for getting the filenames under Artifacts/Example folder
+            # Calling GitHub API for getting the filenames under Artifacts/Example/<Dataset> folder
             try {
                 $wr = Invoke-WebRequest -Uri $Artifactsuri
                 $objects = $wr.Content | ConvertFrom-Json
                 $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
-                Write-Host "Successful: getting the filenames under Artifacts/Example folder is successful"
+                Write-Host "Successful: getting the filenames under Artifacts/Example/$EXAMPLE_DATASET folder is successful"
                 $getExmpFilenames = $true
             }
             catch {
                 $getExmpFilenames = $false
-                Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/Example"
+                Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/RetailOrg"
                 $errorMessage = $_.Exception.Message
                 Write-Host "Error message: $errorMessage"
             }        
@@ -322,7 +323,7 @@ if ($null -ne $DB_PAT) {
             
                     try {
                         # Set the path to the notebook to be imported
-                        $url = "$NOTEBOOK_PATH/Example/$filename"
+                        $url = "$NOTEBOOK_PATH/Example/$EXAMPLE_DATASET/$filename"
                     
                         # Get the notebook
                         $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -336,7 +337,7 @@ if ($null -ne $DB_PAT) {
                         # Set the path
                         $splitfilename = $filename.Split(".")
                         $filenamewithoutextension = $splitfilename[0]
-                        $path = "/Shared/Example/$filenamewithoutextension";
+                        $path = "/Shared/Example/$EXAMPLE_DATASET/$filenamewithoutextension";
                     
                         # Set the request body
                         $requestBody = @{
@@ -1188,17 +1189,17 @@ if ($CTRL_DEPLOY_SAMPLE) {
         "libraries": [
             {
                 "notebook": {
-                    "path": "/Shared/Example/bronze-layer-notebook"
+                    "path": "/Shared/Example/$EXAMPLE_DATASET/bronze-layer-notebook"
                 }
             },
             {
                 "notebook": {
-                    "path": "/Shared/Example/silver-layer-notebook"
+                    "path": "/Shared/Example/$EXAMPLE_DATASET/silver-layer-notebook"
                 }
             },
             {
                 "notebook": {
-                    "path": "/Shared/Example/gold-layer-notebook"
+                    "path": "/Shared/Example/$EXAMPLE_DATASET/gold-layer-notebook"
                 }
             }
         ]
@@ -1283,7 +1284,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
                     {
                         "task_key": "publish_events",
                         "notebook_task": {
-                            "notebook_path": "/Shared/Example/publish_events-eventhub",
+                            "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/publish_events-eventhub",
                             "source": "WORKSPACE"
                         },
                         "job_cluster_key": "Job_cluster"
@@ -1296,7 +1297,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
                             }
                         ],
                         "notebook_task": {
-                            "notebook_path": "/Shared/Example/bronze_silver_gold_stream",
+                            "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/bronze_silver_gold_stream",
                             "source": "WORKSPACE"
                         },
                         "job_cluster_key": "Job_cluster",
