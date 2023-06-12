@@ -1191,17 +1191,17 @@ if ($CTRL_DEPLOY_SAMPLE) {
         "libraries": [
             {
                 "notebook": {
-                    "path": "/Shared/Example/$EXAMPLE_DATASET/bronze-layer-notebook"
+                    "path": "/Shared/Example/$EXAMPLE_DATASET/DeltaLiveTable/bronze-layer-notebook"
                 }
             },
             {
                 "notebook": {
-                    "path": "/Shared/Example/$EXAMPLE_DATASET/silver-layer-notebook"
+                    "path": "/Shared/Example/$EXAMPLE_DATASET/DeltaLiveTable/silver-layer-notebook"
                 }
             },
             {
                 "notebook": {
-                    "path": "/Shared/Example/$EXAMPLE_DATASET/gold-layer-notebook"
+                    "path": "/Shared/Example/$EXAMPLE_DATASET/DeltaLiveTable/gold-layer-notebook"
                 }
             }
         ]
@@ -1223,12 +1223,12 @@ if ($CTRL_DEPLOY_SAMPLE) {
     
     $jobCreateUrl = "https://$WorkspaceUrl/api/2.1/jobs/create"
         
-    # Create the batch job
-    Write-Host '[INFO] Creating the batch job'
+    # Create the batch job (DeltaLiveTable)
+    Write-Host '[INFO] Creating the batch job (DeltaLiveTable)'
     
-    $batchJobDefinition = @"
+    $dltBatchJobDefinition = @"
             {
-                "name": "retail_org_batch",
+                "name": "retail_org_batch_dlt",
                 "max_concurrent_runs": 1,
                 "tasks": [
                     {
@@ -1244,28 +1244,117 @@ if ($CTRL_DEPLOY_SAMPLE) {
     
     if ($null -ne $batchPipelineId) {
         try {
-            $batchJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $batchJobDefinition).job_id
-            Write-Host "[SUCCESS] Job successfully created for batch processing with Job ID: $batchJobId"
+            $batchJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $dltBatchJobDefinition).job_id
+            Write-Host "[SUCCESS] Job successfully created for batch processing (DeltaLiveTable) with Job ID: $batchJobId"
         }
         catch {
-            Write-Host "[ERROR] Error while calling the Databricks API for creating job for batch processing"
+            Write-Host "[ERROR] Error while calling the Databricks API for creating job for batch processing (DeltaLiveTable)"
             $errorMessage = $_.Exception.Message
             Write-Host "Error message: $errorMessage" 
         }
     }
-        
-    # Create the stream job
-    Write-Host '[INFO] Creating the stream job'
 
-    $streamJobDefinition = @"
+    # Create the batch job (DeltaTable)
+    Write-Host '[INFO] Creating the batch job (DeltaTable)'
+    
+    $dtBatchJobDefinition = @"
+    {
+        "name": "retail_org_batch_dt",
+        "max_concurrent_runs": 1,
+        "tasks": [
             {
-                "name": "retail_org_stream",
+                "task_key": "bronze_layer",
+                "notebook_task": {
+                    "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaTable/bronze-layer-notebook",
+                    "source": "WORKSPACE"
+                },
+                "job_cluster_key": "Job_cluster"
+            },
+            {
+                "task_key": "silver_layer",
+                "depends_on": [
+                    {
+                        "task_key": "bronze_layer"
+                    }
+                ],
+                "notebook_task": {
+                    "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaTable/silver-layer-notebook",
+                    "source": "WORKSPACE"
+                },
+                "job_cluster_key": "Job_cluster"
+            },
+            {
+                "task_key": "gold_layer",
+                "depends_on": [
+                    {
+                        "task_key": "silver_layer"
+                    }
+                ],
+                "notebook_task": {
+                    "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaTable/gold-layer-notebook",
+                    "source": "WORKSPACE"
+                },
+                "job_cluster_key": "Job_cluster"
+            }
+        ],
+        "job_clusters": [
+            {
+                "job_cluster_key": "Job_cluster",
+                "new_cluster": {
+                    "cluster_name": "",
+                    "spark_version": "12.2.x-scala2.12",
+                    "spark_conf": {
+                        "spark.databricks.delta.preview.enabled": "true",
+                        "spark.master": "local[*, 4]",
+                        "spark.databricks.cluster.profile": "singleNode"
+                    },
+                    "azure_attributes": {
+                        "first_on_demand": 1,
+                        "availability": "ON_DEMAND_AZURE",
+                        "spot_bid_max_price": -1
+                    },
+                    "node_type_id": "Standard_DS3_v2",
+                    "custom_tags": {
+                        "ResourceClass": "SingleNode"
+                    },
+                    "spark_env_vars": {
+                        "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+                    },
+                    "enable_elastic_disk": true,
+                    "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
+                    "runtime_engine": "STANDARD",
+                    "num_workers": 0
+                }
+            }
+        ],
+        "format": "MULTI_TASK"
+    }
+"@
+    
+    try {
+        $batchJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $dtBatchJobDefinition).job_id
+        Write-Host "[SUCCESS] Job successfully created for batch processing (DeltaTable) with Job ID: $batchJobId"
+    }
+    catch {
+        Write-Host "[ERROR] Error while calling the Databricks API for creating job for batch processing (DeltaTable)"
+        $errorMessage = $_.Exception.Message
+        Write-Host "Error message: $errorMessage" 
+    }
+
+
+        
+    # Create the stream job (DeltaTable)
+    Write-Host '[INFO] Creating the stream job (DeltaTable)'
+
+    $dtStreamJobDefinition = @"
+            {
+                "name": "retail_org_stream_dt",
                 "max_concurrent_runs": 1,
                 "tasks": [
                     {
                         "task_key": "publish_events",
                         "notebook_task": {
-                            "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/publish_events-eventhub",
+                            "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaTable/publish_events-eventhub",
                             "source": "WORKSPACE"
                         },
                         "job_cluster_key": "Job_cluster"
@@ -1278,7 +1367,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
                             }
                         ],
                         "notebook_task": {
-                            "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/bronze_silver_gold_stream",
+                            "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaTable/bronze_silver_gold_stream",
                             "source": "WORKSPACE"
                         },
                         "job_cluster_key": "Job_cluster",
@@ -1326,7 +1415,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
 "@
         
     try {
-        $streamJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $streamJobDefinition).job_id
+        $streamJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $dtStreamJobDefinition).job_id
         Write-Host "[SUCCESS] Job successfully created for stream processing with Job ID: $streamJobId"
     }
     catch {
@@ -1340,13 +1429,13 @@ if ($CTRL_DEPLOY_SAMPLE) {
 
     $copyJobDefinition = @"
     {
-        "name": "blob_to_adls_copy",
+        "name": "blob_to_adls_copy($EXAMPLE_DATASET)",
         "max_concurrent_runs": 1,
         "tasks": [
             {
                 "task_key": "blob_to_adls_copy",
                 "notebook_task": {
-                    "notebook_path": "/Shared/blob_to_adls_copy",
+                    "notebook_path": "/Shared/$EXAMPLE_DATASET/blob_to_adls_copy",
                     "source": "WORKSPACE"
                 },
                 "job_cluster_key": "Job_cluster"
@@ -1388,10 +1477,10 @@ if ($CTRL_DEPLOY_SAMPLE) {
         
     try {
         $copyJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $copyJobDefinition).job_id
-        Write-Host "[SUCCESS] Job successfully created for copying files to ADLS Gen2 with Job ID: $copyJobId"
+        Write-Host "[SUCCESS] Job successfully created for copying $EXAMPLE_DATASET files to ADLS Gen2 with Job ID: $copyJobId"
     }
     catch {
-        Write-Host "[ERROR] Error while calling the Databricks API for creating job for copying files to ADLS Gen2"
+        Write-Host "[ERROR] Error while calling the Databricks API for creating job for copying $EXAMPLE_DATASET files to ADLS Gen2"
         $errorMessage = $_.Exception.Message
         Write-Host "Error message: $errorMessage" 
     }
