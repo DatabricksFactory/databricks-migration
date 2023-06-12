@@ -277,10 +277,10 @@ if ($null -ne $DB_PAT) {
 
     # Create folder structure for examples
     if ($CTRL_DEPLOY_SAMPLE) {
-        Write-Host "Create folder for examples"
+        Write-Host "Create folder for Examples/$EXAMPLE_DATASET/DeltaLiveTable"
         try {
             $requestBodyFolder = @{
-                "path" = "/Shared/Example/$EXAMPLE_DATASET"
+                "path" = "/Shared/Example/$EXAMPLE_DATASET/DeltaLiveTable"
             }
             $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
             #https request for creating folder
@@ -293,28 +293,46 @@ if ($null -ne $DB_PAT) {
             Write-Host "Error while calling the Databricks API for creating the Example folder. Folder not created"
             $errorMessage = $_.Exception.Message
             Write-Host "Error message: $errorMessage"
-        }  
+        }
+        
+        Write-Host "Create folder for Examples/$EXAMPLE_DATASET/DeltaTable"
+        try {
+            $requestBodyFolder = @{
+                "path" = "/Shared/Example/$EXAMPLE_DATASET/DeltaTable"
+            }
+            $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
+            #https request for creating folder
+            Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
+            Write-Output "Successful: Created Examples folder" 
+            $mkdirExample = $true
+        }
+        catch {
+            $mkdirExample = $false
+            Write-Host "Error while calling the Databricks API for creating the Example folder. Folder not created"
+            $errorMessage = $_.Exception.Message
+            Write-Host "Error message: $errorMessage"
+        }
     
         # Import example notebooks to Example folder
     
         if ($mkdirExample) {
         
-            Write-Host "Importing example notebooks"
+            Write-Host "Importing DeltaLiveTable example notebooks"
         
             #github api for a folder
-            $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/" + $EXAMPLE_DATASET + "?ref=$REF_BRANCH" # change to respective git branch
+            $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/RetailOrg/DeltaLiveTable?ref=$REF_BRANCH" # change to respective git branch
         
             # Calling GitHub API for getting the filenames under Artifacts/Example/<Dataset> folder
             try {
                 $wr = Invoke-WebRequest -Uri $Artifactsuri
                 $objects = $wr.Content | ConvertFrom-Json
                 $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
-                Write-Host "Successful: getting the filenames under Artifacts/Example/$EXAMPLE_DATASET folder is successful"
+                Write-Host "Successful: getting the filenames under Artifacts/Example/$EXAMPLE_DATASET/DeltaLiveTable folder is successful"
                 $getExmpFilenames = $true
             }
             catch {
                 $getExmpFilenames = $false
-                Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/Example/$EXAMPLE_DATASET"
+                Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/Example/$EXAMPLE_DATASET/DeltaLiveTable"
                 $errorMessage = $_.Exception.Message
                 Write-Host "Error message: $errorMessage"
             }        
@@ -325,7 +343,7 @@ if ($null -ne $DB_PAT) {
             
                     try {
                         # Set the path to the notebook to be imported
-                        $url = "$NOTEBOOK_PATH/Example/$EXAMPLE_DATASET/$filename"
+                        $url = "$NOTEBOOK_PATH/Example/$EXAMPLE_DATASET/DeltaLiveTable/$filename"
                     
                         # Get the notebook
                         $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -339,7 +357,7 @@ if ($null -ne $DB_PAT) {
                         # Set the path
                         $splitfilename = $filename.Split(".")
                         $filenamewithoutextension = $splitfilename[0]
-                        $path = "/Shared/Example/$EXAMPLE_DATASET/$filenamewithoutextension";
+                        $path = "/Shared/Example/$EXAMPLE_DATASET/DeltaLiveTable/$filenamewithoutextension";
                     
                         # Set the request body
                         $requestBody = @{
@@ -369,6 +387,75 @@ if ($null -ne $DB_PAT) {
                         Write-Host "Error message: $errorMessage"
                     }            
                 } 
+            }
+            #github api for a DeltaTable folder
+            $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/RetailOrg/DeltaTable?ref=$REF_BRANCH" # change to respective git branch
+        
+            # Calling GitHub API for getting the filenames under Artifacts/Example/<Dataset> folder
+            try {
+                $wr = Invoke-WebRequest -Uri $Artifactsuri
+                $objects = $wr.Content | ConvertFrom-Json
+                $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+                Write-Host "Successful: getting the filenames under Artifacts/Example/$EXAMPLE_DATASET/DeltaTable folder is successful"
+                $getExmpFilenames = $true
+            }
+            catch {
+                $getExmpFilenames = $false
+                Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/Example/$EXAMPLE_DATASET/DeltaTable"
+                $errorMessage = $_.Exception.Message
+                Write-Host "Error message: $errorMessage"
+            }        
+
+            if ($getExmpFilenames) {
+
+                Foreach ($filename in $fileNames) {
+            
+                    try {
+                        # Set the path to the notebook to be imported
+                        $url = "$NOTEBOOK_PATH/Example/$EXAMPLE_DATASET/DeltaTable/$filename"
+                    
+                        # Get the notebook
+                        $Webresults = Invoke-WebRequest $url -UseBasicParsing
+                    
+                        # Read the notebook file
+                        $notebookContent = $Webresults.Content
+                    
+                        # Base64 encode the notebook content
+                        $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+                        
+                        # Set the path
+                        $splitfilename = $filename.Split(".")
+                        $filenamewithoutextension = $splitfilename[0]
+                        $path = "/Shared/Example/$EXAMPLE_DATASET/DeltaTable/$filenamewithoutextension";
+                    
+                        # Set the request body
+                        $requestBody = @{
+                            "content"  = $notebookBase64
+                            "path"     = $path
+                            "language" = "PYTHON"
+                            "format"   = "JUPYTER"
+                        }
+                    
+                        # Convert the request body to JSON
+                        $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+                    }
+                    catch {
+                        Write-Host "Error while reading the raw example notebook: $filename"
+                        $errorMessage = $_.Exception.Message
+                        Write-Host "Error message: $errorMessage"
+                    }
+                
+                    try {
+                        # Make the HTTP request to import the notebook
+                        $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                        Write-Host "Successful: $filename is imported"
+                    }
+                    catch {
+                        Write-Host "Error while calling the Azure Databricks API for importing example notebook: $filename"
+                        $errorMessage = $_.Exception.Message
+                        Write-Host "Error message: $errorMessage"
+                    }            
+                }
             }     
         } 
     }   
