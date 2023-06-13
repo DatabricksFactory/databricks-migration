@@ -50,7 +50,7 @@ Resource - Key Vault &#8594; Properties &#8594;  Resource ID
 
 ## Power BI Reporting for retail org
 1. Install Power BI Desktop on your machine.
-2. Download the "" file from the below location
+2. Download the "dim_fact_PBI_report_query_final.pbix" file from the below location
 
 3. If Promted Login with you v- credentials
 4. Delete all the tables from the Data section.
