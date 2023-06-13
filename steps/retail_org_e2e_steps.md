@@ -8,7 +8,7 @@
 8.	Change the Firewall rule of Key Vault to ***“Allow public access from all networks”*** in Networking.
 9.	Generate a **Secret** in the Key Vault for the *Client ID value* that you copied earlier.
 10.	Launch the Databricks Workspace and edit the URL as follows https://adb.......azuredatabricks.net/#secrets/createScope
-11.	Fill the details as follows :
+11.	Fill in the details as follows :
 Scope Name – keyvaultdb
 DNS Name – Key Vault  properties  Vault URI 
 Resource - Key Vault  properties   Resource ID
@@ -26,5 +26,5 @@ Resource - Key Vault  properties   Resource ID
 •	Replace the *Client ID* with your client ID in cmd 2.  
 •	Replace the *Directory ID* with your directory ID in cmd 2.  
 •	Replace the *ADLS storage account name* and *container name* in the cmd2 and cmd3 with your ADLS Storage Account name.  
-15.	 Run the Pipeline.
+15.	 Run the Pipeline **retail_org_batch_dlt**.
 
