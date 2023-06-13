@@ -388,6 +388,79 @@ if ($null -ne $DB_PAT) {
                     }            
                 } 
             }
+
+            Write-Host "Importing blob to adls copy notebook"
+        
+            #github api for a folder
+            $Artifactsuri1 = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/" + $EXAMPLE_DATASET + "?ref=$REF_BRANCH" # change to respective git branch
+        
+            # Calling GitHub API for getting the filenames under Artifacts/Example/ folder
+            try {
+                $wr = Invoke-WebRequest -Uri $Artifactsuri1
+                $objects = $wr.Content | ConvertFrom-Json
+                $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+                Write-Host "Successful: getting the filenames under Artifacts/Example/ folder is successful"
+                $getExmpFilenames = $true
+            }
+            catch {
+                $getExmpFilenames = $false
+                Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/Example"
+                $errorMessage = $_.Exception.Message
+                Write-Host "Error message: $errorMessage"
+            }        
+
+            if ($getExmpFilenames) {
+
+                Foreach ($filename in $fileNames) {
+            
+                    try {
+                        # Set the path to the notebook to be imported
+                        $url = "$NOTEBOOK_PATH/Example/$EXAMPLE_DATASET/$filename"
+                    
+                        # Get the notebook
+                        $Webresults = Invoke-WebRequest $url -UseBasicParsing
+                    
+                        # Read the notebook file
+                        $notebookContent = $Webresults.Content
+                    
+                        # Base64 encode the notebook content
+                        $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+                        
+                        # Set the path
+                        $splitfilename = $filename.Split(".")
+                        $filenamewithoutextension = $splitfilename[0]
+                        $path = "/Shared/Example/$EXAMPLE_DATASET/$filenamewithoutextension";
+                    
+                        # Set the request body
+                        $requestBody = @{
+                            "content"  = $notebookBase64
+                            "path"     = $path
+                            "language" = "PYTHON"
+                            "format"   = "JUPYTER"
+                        }
+                    
+                        # Convert the request body to JSON
+                        $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+                    }
+                    catch {
+                        Write-Host "Error while reading the raw copy notebook: $filename"
+                        $errorMessage = $_.Exception.Message
+                        Write-Host "Error message: $errorMessage"
+                    }
+                
+                    try {
+                        # Make the HTTP request to import the notebook
+                        $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                        Write-Host "Successful: $filename is imported"
+                    }
+                    catch {
+                        Write-Host "Error while calling the Azure Databricks API for importing copy notebook: $filename"
+                        $errorMessage = $_.Exception.Message
+                        Write-Host "Error message: $errorMessage"
+                    }            
+                }
+            }
+
             #github api for a DeltaTable folder
             $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/Example/RetailOrg/DeltaTable?ref=$REF_BRANCH" # change to respective git branch
         
