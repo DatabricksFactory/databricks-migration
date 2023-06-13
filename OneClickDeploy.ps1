@@ -1595,7 +1595,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
             {
                 "task_key": "blob_to_adls_copy",
                 "notebook_task": {
-                    "notebook_path": "/Shared/$EXAMPLE_DATASET/blob_to_adls_copy",
+                    "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/blob_to_adls_copy",
                     "source": "WORKSPACE"
                 },
                 "job_cluster_key": "Job_cluster"
