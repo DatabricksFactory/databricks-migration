@@ -8,10 +8,10 @@
 8.	Change the Firewall rule of Key Vault to ***“Allow public access from all networks”*** in Networking.
 9.	Generate a **Secret** in the Key Vault for the *Client ID value* that you copied earlier.
 10.	Launch the Databricks Workspace and edit the URL as follows https://adb.......azuredatabricks.net/#secrets/createScope
-11.	Fill in the details as follows :
-Scope Name – keyvaultdb
-DNS Name – Key Vault  properties  Vault URI 
-Resource - Key Vault  properties   Resource ID
+11.	Fill in the details as follows :  
+Scope Name – `keyvaultdb`  
+DNS Name – Key Vault  properties  Vault URI  
+Resource - Key Vault  properties   Resource ID  
 12.	Start the Cluster.
 13.	Edit the **blob_to_adls_copy** notebook as follows and run it.  
 •	Replace *databricksscopename* in cmd2 with your scope name.  
