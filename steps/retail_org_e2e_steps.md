@@ -13,35 +13,35 @@
 Scope Name – `keyvaultdb`  
 DNS Name – Key Vault &#8594; Properties &#8594; Vault URI  
 Resource - Key Vault &#8594; Properties &#8594;  Resource ID  
-12.	Start the Cluster.
-13.	Edit the **blob_to_adls_copy** notebook as follows.  
+13.	Start the Cluster.
+14.	Edit the **blob_to_adls_copy** notebook as follows.  
 •	Replace *databricksscopename* in cmd2 with your scope name.  
 •	Replace *databricksservicekey* in cmd2 with the name of the secret in the Key Vault.  
 •	Replace the *Client ID* with your client ID in cmd 2 and cmd3.  
 •	Replace the *Directory ID* with your directory ID in cmd 2 and cmd3.  
 •	Replace the *blob storage account name* and *container name* in the cmd2 and cmd4 with your Blob Storage Account name.  
 •	Replace the *ADLS storage account name* and *container name* in the cmd3 and cmd4 with your ADLS Storage Account name.  
-14.	Run the Job **blob_to_adls_copy**.
-15.	Edit the **bronze-layer-notebook** notebook as follows:  
+15.	Run the Job **blob_to_adls_copy**.
+16.	Edit the **bronze-layer-notebook** notebook as follows:  
 •	Replace *databricksscopename* in cmd2 with your scope name.  
 •	Replace *databricksservicekey* in cmd2 with the name of the secret in the Key Vault.  
 •	Replace the *Client ID* with your client ID in cmd 2.  
 •	Replace the *Directory ID* with your directory ID in cmd 2.  
 •	Replace the *ADLS storage account name* and *container name* in the cmd2 and cmd3 with your ADLS Storage Account name.  
-15.	 Run the Job **retail_org_batch_dlt**.
-16.	 Goto Cluster and in the libraries section click on “Install new”. Select Maven and use below coordinates to install.
+17.	 Run the Job **retail_org_batch_dlt**.
+18.	 Goto Cluster and in the libraries section click on “Install new”. Select Maven and use below coordinates to install.
        **com.microsoft.azure:azure-eventhubs-spark_2.12:2.3.22**
-17.	 Edit the **bronze_silver_gold_stream** notebook as follows:
+       
+19.	Edit the **bronze_silver_gold_stream** notebook as follows:
 •	Replace the Event hub connection string.
 •	Replace the database name in all the cells where present.
 
-18.	 Edit the **publish_events-eventhub** notebook as follows:
+20.	Edit the **publish_events-eventhub** notebook as follows:
 •	Change the abfss configuration as done before in the bronze-layer-notebook.
 •	Replace the account name of the json_file_path in the cmd4.
 •	Replace Event hub connection string
 •	Replace event hub name
 
-19.  Run the Job **retail_org_stream**
-20.  Goto Cluster and select JDBC/ODBC under advance setting. Copy Server Hostname and HTTP Path for reference in Power BI. 
-
+21.  Run the Job **retail_org_stream**
+22.  Goto Cluster and select JDBC/ODBC under advance setting. Copy Server Hostname and HTTP Path for reference in Power BI. 
 
