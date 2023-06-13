@@ -1327,13 +1327,16 @@ if ($CTRL_DEPLOY_SAMPLE) {
         "Authorization" = "Bearer $DB_PAT"
         "Content-Type"  = "application/json"
     }
-    
+
+    # Create pipelines for the retail org dataset
+    Write-Host '[INFO] Create pipelines for the retail org dataset'
+
+    $pipelineCreateUrl = "https://$WorkspaceUrl/api/2.0/pipelines"
+
     # Create the pipeline for the batch processing of the retail org dataset
     Write-Host "[INFO] Create the pipeline for the batch processing of the retail org dataset"
-    
-    $pipelineCreateUrl = "https://$WorkspaceUrl/api/2.0/pipelines"
-    
-    $pipelineDefinitionJSON = @"
+        
+    $batchPipelineDefinitionJSON = @"
     {
         "name": "retail_org_batch_dlt",
         "edition": "ADVANCED",
@@ -1369,7 +1372,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
 "@
     
     try {
-        $batchPipelineId = (Invoke-RestMethod -Method POST -Uri $pipelineCreateUrl -Headers $HEADERS -Body $pipelineDefinitionJSON).pipeline_id
+        $batchPipelineId = (Invoke-RestMethod -Method POST -Uri $pipelineCreateUrl -Headers $HEADERS -Body $batchPipelineDefinitionJSON).pipeline_id
         Write-Host "[SUCCESS] Batch pipeline created successfully with Pipeline ID: $batchPipelineId"
     }
     catch {
@@ -1377,7 +1380,46 @@ if ($CTRL_DEPLOY_SAMPLE) {
         $errorMessage = $_.Exception.Message
         Write-Host "Error message: $errorMessage" 
     }
+
+    # Create the pipeline for the stream processing of the retail org dataset
+    Write-Host "[INFO] Create the pipeline for the stream processing of the retail org dataset"
     
+    $streamPipelineDefinitionJSON = @"
+    {
+        "name": "retail_org_stream_dlt",
+        "edition": "ADVANCED",
+        "target": "example",
+        "clusters": [
+            {
+                "label": "default",
+                "num_workers": 1
+            }
+        ],
+        "development": true,
+        "continuous": false,
+        "channel": "CURRENT",
+        "photon": false,
+        "libraries": [
+            {
+                "notebook": {
+                    "path": "/Shared/Example/$EXAMPLE_DATASET/DeltaLiveTable/bronze_silver_gold_stream"
+                }
+            }
+        ]
+    }
+"@
+    
+    try {
+        $streamPipelineId = (Invoke-RestMethod -Method POST -Uri $pipelineCreateUrl -Headers $HEADERS -Body $streamPipelineDefinitionJSON).pipeline_id
+        Write-Host "[SUCCESS] Stream pipeline created successfully with Pipeline ID: $streamPipelineId"
+    }
+    catch {
+        Write-Host "[ERROR] Error while calling the Databricks API for creating the stream pipeline"
+        $errorMessage = $_.Exception.Message
+        Write-Host "Error message: $errorMessage" 
+    }
+
+
     # Create jobs for the retail org dataset
     Write-Host '[INFO] Create jobs for the retail org dataset'
     
@@ -1413,6 +1455,94 @@ if ($CTRL_DEPLOY_SAMPLE) {
             Write-Host "Error message: $errorMessage" 
         }
     }
+
+    # Create the stream job (DeltaLiveTable)
+    Write-Host '[INFO] Creating the stream job (DeltaLiveTable)'
+
+    $dltStreamJobDefinition = @"
+    {
+        "name": "retail_org_stream_dlt",
+        "schedule": {
+            "quartz_cron_expression": "0 0/10 * 1/1 * ? *",
+            "timezone_id": "Asia/Kolkata",
+            "pause_status": "PAUSED"
+        },
+        "max_concurrent_runs": 1,
+        "tasks": [
+            {
+                "task_key": "publish_events",
+                "notebook_task": {
+                    "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaLiveTable/publish_events-eventhub",
+                    "source": "WORKSPACE"
+                },
+                "job_cluster_key": "Job_cluster",
+                "timeout_seconds": 0,
+                "email_notifications": {},
+                "notification_settings": {
+                    "no_alert_for_skipped_runs": false,
+                    "no_alert_for_canceled_runs": false,
+                    "alert_on_last_attempt": false
+                }
+            },
+            {
+                "task_key": "stream_processing",
+                "depends_on": [
+                    {
+                        "task_key": "publish_events"
+                    }
+                ],
+                "pipeline_task": {
+                    "pipeline_id": "$streamPipelineId",
+                    "full_refresh": false
+                }
+            }
+        ],
+        "job_clusters": [
+            {
+                "job_cluster_key": "Job_cluster",
+                "new_cluster": {
+                    "cluster_name": "",
+                    "spark_version": "12.2.x-scala2.12",
+                    "spark_conf": {
+                        "spark.databricks.delta.preview.enabled": "true",
+                        "spark.master": "local[*, 4]",
+                        "spark.databricks.cluster.profile": "singleNode"
+                    },
+                    "azure_attributes": {
+                        "first_on_demand": 1,
+                        "availability": "ON_DEMAND_AZURE",
+                        "spot_bid_max_price": -1
+                    },
+                    "node_type_id": "Standard_DS3_v2",
+                    "custom_tags": {
+                        "ResourceClass": "SingleNode"
+                    },
+                    "spark_env_vars": {
+                        "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+                    },
+                    "enable_elastic_disk": true,
+                    "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
+                    "runtime_engine": "STANDARD",
+                    "num_workers": 0
+                }
+            }
+        ],
+        "format": "MULTI_TASK"
+    }
+"@
+        
+   if ($null -ne $streamPipelineId) {
+     try {
+         $streamJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $dltStreamJobDefinition).job_id
+         Write-Host "[SUCCESS] Job successfully created for stream processing (DeltaLiveTable) with Job ID: $streamJobId"
+     }
+     catch {
+         Write-Host "[ERROR] Error while calling the Databricks API for creating job for stream processing (DeltaLiveTable)"
+         $errorMessage = $_.Exception.Message
+         Write-Host "Error message: $errorMessage" 
+     }
+   }
+    
 
     # Create the batch job (DeltaTable)
     Write-Host '[INFO] Creating the batch job (DeltaTable)'
@@ -1576,10 +1706,10 @@ if ($CTRL_DEPLOY_SAMPLE) {
         
     try {
         $streamJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $dtStreamJobDefinition).job_id
-        Write-Host "[SUCCESS] Job successfully created for stream processing with Job ID: $streamJobId"
+        Write-Host "[SUCCESS] Job successfully created for stream processing (DeltaTable) with Job ID: $streamJobId"
     }
     catch {
-        Write-Host "[ERROR] Error while calling the Databricks API for creating job for stream processing"
+        Write-Host "[ERROR] Error while calling the Databricks API for creating job for stream processing (DeltaTable)"
         $errorMessage = $_.Exception.Message
         Write-Host "Error message: $errorMessage" 
     }
