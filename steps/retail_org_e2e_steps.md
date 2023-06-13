@@ -48,7 +48,7 @@ Resource - Key Vault &#8594; Properties &#8594;  Resource ID
 22.  Goto Cluster and select JDBC/ODBC under advance setting. Copy Server Hostname and HTTP Path for reference in Power BI. 
 
 
-## Power BI Reporting
+## Power BI Reporting for retail org
 1. Install Power BI Desktop on your machine.
 2. Download the "" file from the below location
 
@@ -61,7 +61,7 @@ Resource - Key Vault &#8594; Properties &#8594;  Resource ID
 9. Now select 4 tables (dim_customers, dim_products, fac_sales_order, fact_customer_sales) from hive_metastore > retail_org_batch
 10. Click on Load
 11. Goto Model and create relationships between tables as below : 
-![e2e](./assets/e2e.jpg "app reg")
+![e2e](./assets/tablerelationship.jpg "table relationship")
 12. Go Back to Report View and check the reports.
 
 
