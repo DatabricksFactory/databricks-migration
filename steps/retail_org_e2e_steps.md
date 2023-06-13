@@ -1,3 +1,5 @@
+## End to End process for retail org
+
 1.	In steps 2-12, we connect our storage accounts to our Databricks workspace. Refer [this document](https://github.com/DatabricksFactory/databricks-migration/blob/dev/steps/access_storage_with_AAD.md) for detailed instructions.
 2.	Create a new **App Registration**.
 3.	Make a note of *Client ID* and *Directory ID* for future reference.
@@ -44,4 +46,22 @@ Resource - Key Vault &#8594; Properties &#8594;  Resource ID
 
 21.  Run the Job **retail_org_stream**
 22.  Goto Cluster and select JDBC/ODBC under advance setting. Copy Server Hostname and HTTP Path for reference in Power BI. 
+
+
+## Power BI Reporting
+1. Install Power BI Desktop on your machine.
+2. Download the "" file from the below location
+
+3. If Promted Login with you v- credentials
+4. Delete all the tables from the Data section.
+5. Click on Get data and select Azure Databricks
+6. Enter Server Hostname and HTTP Path as copied before
+7. Select DirectQuery as Data Connectivity Mode and then click ok
+8. Select Azure Active directory and sign in with your v- ID and connect.
+9. Now select 4 tables (dim_customers, dim_products, fac_sales_order, fact_customer_sales) from hive_metastore > retail_org_batch
+10. Click on Load
+11. Goto Model and create relationships between tables as below : 
+![e2e](./assets/e2e.jpg "app reg")
+12. Go Back to Report View and check the reports.
+
 
