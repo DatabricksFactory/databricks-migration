@@ -32,7 +32,7 @@ Resource - Key Vault &#8594; Properties &#8594;  Resource ID
 •	Replace the *ADLS storage account name* and *container name* in the cmd2 and cmd3 with your ADLS Storage Account name.  
 17.	 Run the Job **retail_org_batch_dlt**.
 18.	 Goto Cluster and in the libraries section click on “Install new”. Select Maven and use below coordinates to install.
-       **com.microsoft.azure:azure-eventhubs-spark_2.12:2.3.22**
+       ``com.microsoft.azure:azure-eventhubs-spark_2.12:2.3.22``
        
 19.	Edit the **bronze_silver_gold_stream** notebook as follows:
 •	Replace the Event hub connection string.
