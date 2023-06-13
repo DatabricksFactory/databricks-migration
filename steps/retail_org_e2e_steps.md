@@ -38,7 +38,7 @@ Resource - Key Vault &#8594; Properties &#8594;  Resource ID
 •	Replace the Event hub connection string.  
 •	Replace the database name in all the cells where present.  
 
-20.	Edit the **publish_events-eventhub** notebook as follows:
+20.	Edit the **publish_events-eventhub** notebook as follows:  
 •	Change the abfss configuration as done before in the bronze-layer-notebook.  
 •	Replace the account name of the json_file_path in the cmd4.  
 •	Replace Event hub connection string  
