@@ -1340,7 +1340,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
     {
         "name": "retail_org_batch_dlt",
         "edition": "ADVANCED",
-        "target": "retail_org_batch",
+        "target": "retail_org_dlt",
         "clusters": [
             {
                 "label": "default",
@@ -1388,7 +1388,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
     {
         "name": "retail_org_stream_dlt",
         "edition": "ADVANCED",
-        "target": "example",
+        "target": "retail_org_dlt",
         "clusters": [
             {
                 "label": "default",
@@ -1434,9 +1434,10 @@ if ($CTRL_DEPLOY_SAMPLE) {
                 "max_concurrent_runs": 1,
                 "tasks": [
                     {
-                        "task_key": "batch_processing_dlt",
+                        "task_key": "batch_processing",
                         "pipeline_task": {
-                            "pipeline_id": "$batchPipelineId"
+                            "pipeline_id": "$batchPipelineId",
+                            "full_refresh": false
                         }
                     }
                 ],
@@ -1462,68 +1463,16 @@ if ($CTRL_DEPLOY_SAMPLE) {
     $dltStreamJobDefinition = @"
     {
         "name": "retail_org_stream_dlt",
-        "schedule": {
-            "quartz_cron_expression": "0 0/10 * 1/1 * ? *",
-            "timezone_id": "Asia/Kolkata",
+        "continuous": {
             "pause_status": "PAUSED"
         },
         "max_concurrent_runs": 1,
         "tasks": [
             {
-                "task_key": "publish_events",
-                "notebook_task": {
-                    "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaLiveTable/publish_events-eventhub",
-                    "source": "WORKSPACE"
-                },
-                "job_cluster_key": "Job_cluster",
-                "timeout_seconds": 0,
-                "email_notifications": {},
-                "notification_settings": {
-                    "no_alert_for_skipped_runs": false,
-                    "no_alert_for_canceled_runs": false,
-                    "alert_on_last_attempt": false
-                }
-            },
-            {
                 "task_key": "stream_processing",
-                "depends_on": [
-                    {
-                        "task_key": "publish_events"
-                    }
-                ],
                 "pipeline_task": {
                     "pipeline_id": "$streamPipelineId",
                     "full_refresh": false
-                }
-            }
-        ],
-        "job_clusters": [
-            {
-                "job_cluster_key": "Job_cluster",
-                "new_cluster": {
-                    "cluster_name": "",
-                    "spark_version": "12.2.x-scala2.12",
-                    "spark_conf": {
-                        "spark.databricks.delta.preview.enabled": "true",
-                        "spark.master": "local[*, 4]",
-                        "spark.databricks.cluster.profile": "singleNode"
-                    },
-                    "azure_attributes": {
-                        "first_on_demand": 1,
-                        "availability": "ON_DEMAND_AZURE",
-                        "spot_bid_max_price": -1
-                    },
-                    "node_type_id": "Standard_DS3_v2",
-                    "custom_tags": {
-                        "ResourceClass": "SingleNode"
-                    },
-                    "spark_env_vars": {
-                        "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
-                    },
-                    "enable_elastic_disk": true,
-                    "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
-                    "runtime_engine": "STANDARD",
-                    "num_workers": 0
                 }
             }
         ],
@@ -1637,71 +1586,61 @@ if ($CTRL_DEPLOY_SAMPLE) {
     Write-Host '[INFO] Creating the stream job (DeltaTable)'
 
     $dtStreamJobDefinition = @"
+    {
+        "name": "retail_org_stream_dt",
+        "continuous": {
+            "pause_status": "PAUSED"
+        },
+        "max_concurrent_runs": 1,
+        "tasks": [
             {
-                "name": "retail_org_stream_dt",
-                "max_concurrent_runs": 1,
-                "tasks": [
+                "task_key": "stream_processing",
+                "notebook_task": {
+                    "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaTable/bronze_silver_gold_stream",
+                    "source": "WORKSPACE"
+                },
+                "job_cluster_key": "Job_cluster",
+                "libraries": [
                     {
-                        "task_key": "publish_events",
-                        "notebook_task": {
-                            "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaTable/publish_events-eventhub",
-                            "source": "WORKSPACE"
-                        },
-                        "job_cluster_key": "Job_cluster"
-                    },
-                    {
-                        "task_key": "stream_processing",
-                        "depends_on": [
-                            {
-                                "task_key": "publish_events"
-                            }
-                        ],
-                        "notebook_task": {
-                            "notebook_path": "/Shared/Example/$EXAMPLE_DATASET/DeltaTable/bronze_silver_gold_stream",
-                            "source": "WORKSPACE"
-                        },
-                        "job_cluster_key": "Job_cluster",
-                        "libraries": [
-                            {
-                                "maven": {
-                                    "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.12:2.3.22"
-                                }
-                            }
-                        ]
-                    }
-                ],
-                "job_clusters": [
-                    {
-                        "job_cluster_key": "Job_cluster",
-                        "new_cluster": {
-                            "cluster_name": "",
-                            "spark_version": "12.2.x-scala2.12",
-                            "spark_conf": {
-                                "spark.databricks.delta.preview.enabled": "true",
-                                "spark.master": "local[*, 4]",
-                                "spark.databricks.cluster.profile": "singleNode"
-                            },
-                            "azure_attributes": {
-                                "first_on_demand": 1,
-                                "availability": "ON_DEMAND_AZURE",
-                                "spot_bid_max_price": -1
-                            },
-                            "node_type_id": "Standard_DS3_v2",
-                            "custom_tags": {
-                                "ResourceClass": "SingleNode"
-                            },
-                            "spark_env_vars": {
-                                "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
-                            },
-                            "enable_elastic_disk": true,
-                            "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
-                            "runtime_engine": "STANDARD",
-                            "num_workers": 0
+                        "maven": {
+                            "coordinates": "com.microsoft.azure:azure-eventhubs-spark_2.12:2.3.22"
                         }
                     }
-                ],
-                "format": "MULTI_TASK"
+                ]
             }
+        ],
+        "job_clusters": [
+            {
+                "job_cluster_key": "Job_cluster",
+                "new_cluster": {
+                    "cluster_name": "",
+                    "spark_version": "12.2.x-scala2.12",
+                    "spark_conf": {
+                        "spark.databricks.delta.preview.enabled": "true",
+                        "spark.master": "local[*, 4]",
+                        "spark.databricks.cluster.profile": "singleNode"
+                    },
+                    "azure_attributes": {
+                        "first_on_demand": 1,
+                        "availability": "ON_DEMAND_AZURE",
+                        "spot_bid_max_price": -1
+                    },
+                    "node_type_id": "Standard_DS3_v2",
+                    "custom_tags": {
+                        "ResourceClass": "SingleNode"
+                    },
+                    "spark_env_vars": {
+                        "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
+                    },
+                    "enable_elastic_disk": true,
+                    "data_security_mode": "LEGACY_SINGLE_USER_STANDARD",
+                    "runtime_engine": "STANDARD",
+                    "num_workers": 0
+                }
+            }
+        ],
+        "format": "MULTI_TASK"
+    }
 "@
         
     try {
