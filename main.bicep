@@ -146,7 +146,7 @@ param PrivateEndpointSubnetName string = 'default'
 // Variables 
 
 @description('Reference branch in Git')
-var refBranch = 'dev'
+var refBranch = 'main'
 
 @description('Controls the deployment of SA')
 var ctrlDeployStorageAccount = true

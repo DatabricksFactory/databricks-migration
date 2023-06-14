@@ -37,7 +37,7 @@ param(
     [bool] $CTRL_DEPLOY_SAMPLE
 )
 
-[string] $REF_BRANCH = "dev"
+[string] $REF_BRANCH = "main"
 [string] $EXAMPLE_DATASET = "RetailOrg"
 
 # Generating Databricks Workspace URL
