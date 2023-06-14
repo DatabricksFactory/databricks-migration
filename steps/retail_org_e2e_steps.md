@@ -1,6 +1,6 @@
 ## End to End process for retail org
 
-1.	In steps 2-12, we connect our storage accounts to our Databricks workspace. Refer [this document](https://github.com/DatabricksFactory/databricks-migration/blob/dev/steps/access_storage_with_AAD.md) for detailed instructions.
+1.	In steps 2-12, we connect our storage accounts to our Databricks workspace. Refer [this document](https://github.com/DatabricksFactory/databricks-migration/blob/main/steps/access_storage_with_AAD.md) for detailed instructions.
 2.	Create a new **App Registration**.
 3.	Make a note of *Client ID* and *Directory ID* for future reference.
 4.	Create a new **Client Secret**.
