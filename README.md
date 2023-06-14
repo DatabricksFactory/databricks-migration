@@ -39,10 +39,11 @@ Provide the values for the following parameters or default values will be consid
 - Blob storage account name (Default value is 'adls')
 - Option (true/false) for Key Vault deployment (Default value is true)
 - Utc Value (utcNow)
+- Ctrl Deploy Sample (Default value is true) - Give true value if you want sample notebook examples to be imported
 - Option (true/false) for Ctrl Deploy Pipeline  (Default value is true)
 - Option (true/false) for Cluster deployment (Default value is true)
 - Ctrl Syntax Type (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
-- Ctrl Source Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported from the syntax parameter you selected above.
+- Ctrl Source Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported from the syntax parameter you selected above
 - Cluster name (Default value is 'dbcluster')
 - Spark Version (Default value is '11.3.x-scala2.12')
 - Auto Termination Minutes(cluster) (Default value is 30)

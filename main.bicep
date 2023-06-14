@@ -50,6 +50,10 @@ param ctrlDeployKeyVault bool = true
 param utcValue string = utcNow() 
 
 // Script params
+
+@description('Controls the deployment of Blob Storage and Example Notebooks')
+param ctrlDeploySample bool = true
+
 @description('Controls the execution of pipeline deployment script')
 param ctrlDeployPipeline bool = true
 
@@ -156,6 +160,12 @@ var blobAccountName = '${userBlobAccountName}${uniqueString(resourceGroup().id)}
 @description('Container name')
 var containerName = 'data' 
 
+@description('Name for the Blob Storage')
+var blobStorageName = 'samplesblob${uniqueString(resourceGroup().id)}'
+
+@description('Name for the blob container')
+var blobContainerName = 'data'
+
 @description('URI of the automation script')
 var fileuploaduri = 'https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/${refBranch}/OneClickDeploy.ps1'
 
@@ -246,7 +256,7 @@ module databricksPrivateModule 'modules/databricks/databricksPvt.bicep' = if(end
   }
 }
 
-module databricksPrivateHybridModule 'modules/databricks/databricksPvtHyb.bicep' = if(endpointType == 'HybridMode') {
+module databricksHybridModule 'modules/databricks/databricksPvtHyb.bicep' = if(endpointType == 'HybridMode') {
   name: 'Databricks_Hybrid_Deployment'
   params: {
     customVirtualNetworkResourceId: networkModule.outputs.vnetResourceId
@@ -285,7 +295,7 @@ module storagePrivateModule 'modules/storage/storagePvt.bicep' = if(endpointType
   dependsOn: [networkModule]
 }
 
-module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(endpointType == 'HybridMode') {
+module storageHybridModule 'modules/storage/storagePvtHyb.bicep' = if(endpointType == 'HybridMode') {
   name: 'Storage_Account_Hybrid_Deployment'
   params: {
     blobAccountName: blobAccountName
@@ -297,6 +307,14 @@ module storagePrivateHybridModule 'modules/storage/storagePvtHyb.bicep' = if(end
     ctrlDeployStorageAccount: ctrlDeployStorageAccount
   }
   dependsOn: [networkModule]
+}
+
+module blobStorageModule 'modules/storage/blobStorage.bicep' = if(ctrlDeploySample) {
+  name: 'Blob_Storage_Deployment'
+  params: {
+    blobStorageName: blobStorageName
+    blobContainerName: blobContainerName
+  }
 }
 
 module eventhubModule './modules/eventhub/eventhub.bicep' = {
@@ -341,7 +359,7 @@ module keyvaultPrivateEndpointModule './modules/resourcepep/keyvaultpep.bicep' =
 }
 
 module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScripts.bicep' = if(endpointType == 'PublicMode') { 
-  name: 'Post-Deployment_Scripts_Public'
+  name: 'Post-Deployment_Scripts_Public_OneClickDeploy'
   params: {
     autoTerminationMinutes: autoTerminationMinutes
     clusterName: clusterName
@@ -373,12 +391,13 @@ module deploymentScriptPublicModule './modules/deploymentScripts/deploymentScrip
     sa_name: blobAccountName
     saExists: ctrlDeployStorageAccount
     subscriptionId: subscriptionId
+    ctrlDeploySample: ctrlDeploySample
   }
   dependsOn: [databricksPublicModule]
 }
 
-module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deploymentScripts.bicep' = if(endpointType == 'HybridMode') { 
-  name: 'Post-Deployment_Scripts_Hybrid'
+module deploymentScriptHybridModule './modules/deploymentScripts/deploymentScripts.bicep' = if(endpointType == 'HybridMode') { 
+  name: 'Post-Deployment_Scripts_Hybrid_OneClickDeploy'
   params: {
     autoTerminationMinutes: autoTerminationMinutes
     clusterName: clusterName
@@ -410,19 +429,21 @@ module deploymentScriptPrivateHybridModule './modules/deploymentScripts/deployme
     sa_name: blobAccountName
     saExists: ctrlDeployStorageAccount
     subscriptionId: subscriptionId
+    ctrlDeploySample: ctrlDeploySample
   }
-  dependsOn: [databricksPrivateHybridModule]
+  dependsOn: [databricksHybridModule]
 }
 
 //Outputs
 
 output resourceList array = [
-  endpointType == 'PublicMode' ? databricksPublicModule.outputs.databricksPublicResourceOp : (endpointType == 'PrivateMode' ? databricksPrivateModule.outputs.databricksPvtResourceOp : databricksPrivateHybridModule.outputs.databricksPvtHybResourceOp)
-  endpointType == 'PublicMode' ? storagePublicModule.outputs.blobAccountResourceOp : (endpointType == 'PrivateMode' ? storagePrivateModule.outputs.blobAccountResourceOp : storagePrivateHybridModule.outputs.blobAccountResourceOp)
+  endpointType == 'PublicMode' ? databricksPublicModule.outputs.databricksPublicResourceOp : (endpointType == 'PrivateMode' ? databricksPrivateModule.outputs.databricksPvtResourceOp : databricksHybridModule.outputs.databricksPvtHybResourceOp)
+  endpointType == 'PublicMode' ? storagePublicModule.outputs.blobAccountResourceOp : (endpointType == 'PrivateMode' ? storagePrivateModule.outputs.blobAccountResourceOp : storageHybridModule.outputs.blobAccountResourceOp)
   eventhubModule.outputs.eventHubResourceOp
   endpointType != 'PublicMode' ? eventhubPrivateEndpointModule.outputs.eventhubpepResourceOp : ''
   keyvaultModule.outputs.keyvaultResourceOp
   endpointType != 'PublicMode' ? keyvaultPrivateEndpointModule.outputs.keyvaultpepResourceOp : ''
-  endpointType == 'PublicMode' ? deploymentScriptPublicModule.outputs.postDeploymentsResourceOp : (endpointType == 'HybridMode' ? deploymentScriptPrivateHybridModule.outputs.postDeploymentsResourceOp : '')
+  endpointType == 'PublicMode' ? deploymentScriptPublicModule.outputs.postDeploymentsResourceOp : (endpointType == 'HybridMode' ? deploymentScriptHybridModule.outputs.postDeploymentsResourceOp : '')
   endpointType != 'PublicMode' ? networkModule.outputs.networkResourceOp : ''
+  ctrlDeploySample ? blobStorageModule.outputs.blobStorageResourceOp : ''
 ]
