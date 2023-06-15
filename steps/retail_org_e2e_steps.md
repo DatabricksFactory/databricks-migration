@@ -7,7 +7,7 @@
 5.	Copy the *Client Secret* Value for future reference.
 6.	Add a **role assignment** to your ADLS storage account and Blob Data storage account. Give **Storage Blob Data Contributor** access to your app registration.
 7.	Create a new **Access Policy** in the Key Vault to give *Get* and *List* permissions to your app registration.
-8.	Run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/azure-key-vaults-assign-access-policies.ps1) script in Azure CLI by updating with key vault name and user email id.
+8.	Run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/azure-key-vaults-assign-access-policies.ps1) script in Azure CLI by updating with key vault name and user email id.
 9.	Change the Firewall rule of Key Vault to ***“Allow public access from all networks”*** in Networking.
 10.	Generate a **Secret** in the Key Vault for the *Client ID value* that you copied earlier.
 11.	Launch the Databricks Workspace and edit the URL as follows https://adb.......azuredatabricks.net/#secrets/createScope
