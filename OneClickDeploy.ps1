@@ -1396,7 +1396,7 @@ if ($CTRL_DEPLOY_SAMPLE) {
             }
         ],
         "development": true,
-        "continuous": false,
+        "continuous": true,
         "channel": "CURRENT",
         "photon": false,
         "libraries": [
