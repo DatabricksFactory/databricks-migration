@@ -1428,10 +1428,16 @@ if ($CTRL_DEPLOY_SAMPLE) {
     # Create the batch job (DeltaLiveTable)
     Write-Host '[INFO] Creating the batch job (DeltaLiveTable)'
     
+    # Runs daily at 08:00 AM (UTC+05:30)
     $dltBatchJobDefinition = @"
             {
                 "name": "retail_org_batch_dlt",
                 "max_concurrent_runs": 1,
+                "schedule": {
+                    "quartz_cron_expression": "0 0 8 * * ?",
+                    "timezone_id": "Asia/Kolkata",
+                    "pause_status": "PAUSED"
+                },
                 "tasks": [
                     {
                         "task_key": "batch_processing",
@@ -1458,48 +1464,54 @@ if ($CTRL_DEPLOY_SAMPLE) {
     }
 
     # Create the stream job (DeltaLiveTable)
-    Write-Host '[INFO] Creating the stream job (DeltaLiveTable)'
+#     Write-Host '[INFO] Creating the stream job (DeltaLiveTable)'
 
-    $dltStreamJobDefinition = @"
-    {
-        "name": "retail_org_stream_dlt",
-        "continuous": {
-            "pause_status": "PAUSED"
-        },
-        "max_concurrent_runs": 1,
-        "tasks": [
-            {
-                "task_key": "stream_processing",
-                "pipeline_task": {
-                    "pipeline_id": "$streamPipelineId",
-                    "full_refresh": false
-                }
-            }
-        ],
-        "format": "MULTI_TASK"
-    }
-"@
+#     $dltStreamJobDefinition = @"
+#     {
+#         "name": "retail_org_stream_dlt",
+#         "continuous": {
+#             "pause_status": "PAUSED"
+#         },
+#         "max_concurrent_runs": 1,
+#         "tasks": [
+#             {
+#                 "task_key": "stream_processing",
+#                 "pipeline_task": {
+#                     "pipeline_id": "$streamPipelineId",
+#                     "full_refresh": false
+#                 }
+#             }
+#         ],
+#         "format": "MULTI_TASK"
+#     }
+# "@
         
-   if ($null -ne $streamPipelineId) {
-     try {
-         $streamJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $dltStreamJobDefinition).job_id
-         Write-Host "[SUCCESS] Job successfully created for stream processing (DeltaLiveTable) with Job ID: $streamJobId"
-     }
-     catch {
-         Write-Host "[ERROR] Error while calling the Databricks API for creating job for stream processing (DeltaLiveTable)"
-         $errorMessage = $_.Exception.Message
-         Write-Host "Error message: $errorMessage" 
-     }
-   }
+#    if ($null -ne $streamPipelineId) {
+#      try {
+#          $streamJobId = (Invoke-RestMethod -Method POST -Uri $jobCreateUrl -Headers $HEADERS -Body $dltStreamJobDefinition).job_id
+#          Write-Host "[SUCCESS] Job successfully created for stream processing (DeltaLiveTable) with Job ID: $streamJobId"
+#      }
+#      catch {
+#          Write-Host "[ERROR] Error while calling the Databricks API for creating job for stream processing (DeltaLiveTable)"
+#          $errorMessage = $_.Exception.Message
+#          Write-Host "Error message: $errorMessage" 
+#      }
+#    }
     
 
     # Create the batch job (DeltaTable)
     Write-Host '[INFO] Creating the batch job (DeltaTable)'
-    
+
+    # Runs daily at 08:00 AM (UTC+05:30)
     $dtBatchJobDefinition = @"
     {
         "name": "retail_org_batch_dt",
         "max_concurrent_runs": 1,
+        "schedule": {
+            "quartz_cron_expression": "0 0 8 * * ?",
+            "timezone_id": "Asia/Kolkata",
+            "pause_status": "PAUSED"
+        },
         "tasks": [
             {
                 "task_key": "bronze_layer",
