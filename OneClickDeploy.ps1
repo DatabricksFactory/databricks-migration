@@ -46,15 +46,19 @@ Write-Output "Task: Generating Databricks Workspace URL"
 
 try {
     $token = (Get-AzAccessToken).Token
-    
+    Write-Host "first"
+    $token
     # https url for getting workspace details
     $url = "https://management.azure.com/subscriptions/" + $SUBSCRIPTION_ID + "/resourceGroups/" + $RG_NAME + "/providers/Microsoft.Databricks/workspaces/" + $WORKSPACE_NAME + "?api-version=2023-02-01"
-    
+    Write-Host "second"
+    $url
     # Set the headers
     $headerstkn = @{ Authorization = "Bearer $token"; 'ContentType' = "application/json" }
-    
+    Write-Host "third"
+    $headerstkn
     #call http method to get workspace url
     $resurl = Invoke-RestMethod -Method Get -ContentType "application/json" -Uri $url  -Headers $headerstkn
+    Write-Host "fourth"
     $WorkspaceUrl = $resurl.properties.workspaceUrl
     Write-Host "Successful: Databricks workspace url is generated"
 }
