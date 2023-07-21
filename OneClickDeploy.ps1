@@ -49,6 +49,7 @@ $token
 $tenant = $Aztoken.TenantId
 $tenant
 Set-AzContext -Tenant $tenant
+Set-AzContext -SubscriptionId $SUBSCRIPTION_ID
 try {
     # $token = (Get-AzAccessToken).Token
     # https url for getting workspace details
