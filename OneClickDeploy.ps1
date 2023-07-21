@@ -43,12 +43,12 @@ param(
 # Generating Databricks Workspace URL
 
 Write-Output "Task: Generating Databricks Workspace URL"
-
+Set-AzContext -SubscriptionId $SUBSCRIPTION_ID
 try {
     # $token = (Get-AzAccessToken).Token
     # https url for getting workspace details
     $url = "/subscriptions/" + $SUBSCRIPTION_ID + "/resourceGroups/" + $RG_NAME + "/providers/Microsoft.Databricks/workspaces/" + $WORKSPACE_NAME
-    $WorkspaceUrl = "https://"+ (Get-AzResource -ResourceId $url -ExpandProperties).Properties.workspaceUrl
+    $WorkspaceUrl = (Get-AzResource -ResourceId $url -ExpandProperties).Properties.workspaceUrl
     $WorkspaceUrl
     # Set the headers
     # $headerstkn = @{ Authorization = "Bearer $token"; 'ContentType' = "application/json" }
