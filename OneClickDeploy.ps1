@@ -40,30 +40,6 @@ param(
 [string] $REF_BRANCH = "dev"
 [string] $EXAMPLE_DATASET = "RetailOrg"
 
-# Generating Databricks Workspace URL
-
-Write-Output "Task: Generating Databricks Workspace URL"
-Connect-AzAccount -Identity
-Set-AzContext -SubscriptionId $SUBSCRIPTION_ID
-try {
-    # $token = (Get-AzAccessToken).Token
-    # https url for getting workspace details
-    $url = "/subscriptions/" + $SUBSCRIPTION_ID + "/resourceGroups/" + $RG_NAME + "/providers/Microsoft.Databricks/workspaces/" + $WORKSPACE_NAME
-    $WorkspaceUrl = (Get-AzResource -ResourceId $url -ExpandProperties).Properties.workspaceUrl
-    $WorkspaceUrl
-    # Set the headers
-    # $headerstkn = @{ Authorization = "Bearer $token"; 'ContentType' = "application/json" }
-    #call http method to get workspace url
-    # $resurl = Invoke-RestMethod -Method Get -ContentType "application/json" -Uri $url  -Headers $headerstkn
-    # $WorkspaceUrl = $resurl.properties.workspaceUrl
-    Write-Host "Successful: Databricks workspace url is generated"
-}
-catch {
-    Write-Host "Error while getting the Workspace URL"
-    $errorMessage = $_.Exception.Message
-    Write-Host "Error message: $errorMessage"
-}
-
 # Generating Databricks Workspace resource ID
 
 Write-Output "Task: Generating Databricks Workspace resource ID"
