@@ -279,7 +279,7 @@
     "fileuploaduri": "[format('https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/{0}/OneClickDeploy.ps1', variables('refBranch'))]",
     "notebookPath": "[format('https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/{0}/Artifacts', variables('refBranch'))]",
     "identityName": "PostDeploymentScriptuserAssignedName",
-    "uniqueSuffix": "[substring(uniqueString(resourceGroup().id), 0, 6)]",
+    "uniqueSuffix": "[substring(uniqueString(resourceGroup().id), 0, 5)]",
     "firstuniquestring": "[format('firstunique{0}', variables('uniqueSuffix'))]",
     "seconduniquestring": "[format('secondunique{0}', variables('uniqueSuffix'))]",
     "comment": "ARM deployment",
