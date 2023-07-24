@@ -79,13 +79,16 @@
                             "name": "userBlobAccountName",
                             "type": "Microsoft.Common.TextBox",
                             "label": "User Blob Account Name",
+                            "subLabel": "",
                             "defaultValue": "adls",
-                            "toolTip": "Please enter User Blob Account Name",
+                            "toolTip": "Storage Account name. (Note: Valid characters are lowercase letters and numbers and length between 3 and 11)",
                             "constraints": {
-                                "required": true,
-                                "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
-                                "validationMessage": "Email is not valid. Please re-enter."
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
                             },
+                            "infoMessages": [],
                             "visible": true
                         },
                         {
@@ -99,16 +102,7 @@
                                 "required": false,
                                 "regex": "",
                                 "validationMessage": "",
-                                "validations": [
-                                    {
-                                        "isValid": "[or(                                or(    empty(basics('workspaceName')),     and(        not(startsWith(basics('workspaceName'), '[[')),         startsWith(basics('workspaceName'), '['), endsWith(basics('workspaceName'), ']'),         greater(indexOf(basics('workspaceName'), '('), -1), greater(indexOf(basics('workspaceName'), ')'), -1)        )    ),                                greaterOrEquals(length(basics('workspaceName')), 3)                                )]",
-                                        "message": "The value must have a length of at least 3."
-                                    },
-                                    {
-                                        "isValid": "[or(                                or(    empty(basics('workspaceName')),     and(        not(startsWith(basics('workspaceName'), '[[')),         startsWith(basics('workspaceName'), '['), endsWith(basics('workspaceName'), ']'),         greater(indexOf(basics('workspaceName'), '('), -1), greater(indexOf(basics('workspaceName'), ')'), -1)        )    ),                                lessOrEquals(length(basics('workspaceName')), 51)                                )]",
-                                        "message": "The value must have a length of at most 51."
-                                    }
-                                ]
+                                "validations": []
                             },
                             "infoMessages": [],
                             "visible": true
