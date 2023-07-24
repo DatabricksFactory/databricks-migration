@@ -153,31 +153,6 @@
                 "visible": true
             },
             {
-                "name": "userBlobAccountName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "User Blob Account Name",
-                "subLabel": "",
-                "defaultValue": "adls",
-                "toolTip": "Storage Account name. (Note: Valid characters are lowercase letters and numbers and length between 3 and 11)",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": [
-                        {
-                            "isValid": "[or(                                or(    empty(basics('userBlobAccountName')),     and(        not(startsWith(basics('userBlobAccountName'), '[[')),         startsWith(basics('userBlobAccountName'), '['), endsWith(basics('userBlobAccountName'), ']'),         greater(indexOf(basics('userBlobAccountName'), '('), -1), greater(indexOf(basics('userBlobAccountName'), ')'), -1)        )    ),                                greaterOrEquals(length(basics('userBlobAccountName')), 3)                                )]",
-                            "message": "The value must have a length of at least 3."
-                        },
-                        {
-                            "isValid": "[or(                                or(    empty(basics('userBlobAccountName')),     and(        not(startsWith(basics('userBlobAccountName'), '[[')),         startsWith(basics('userBlobAccountName'), '['), endsWith(basics('userBlobAccountName'), ']'),         greater(indexOf(basics('userBlobAccountName'), '('), -1), greater(indexOf(basics('userBlobAccountName'), ')'), -1)        )    ),                                lessOrEquals(length(basics('userBlobAccountName')), 11)                                )]",
-                            "message": "The value must have a length of at most 11."
-                        }
-                    ]
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
                 "name": "ctrlDeployKeyVault",
                 "type": "Microsoft.Common.DropDown",
                 "label": "Ctrl Deploy Key Vault",
@@ -654,7 +629,39 @@
                 "visible": true
             }
         ],
-        "steps": [],
+        "steps": [
+
+            {
+                "name": "simpleControls",
+                "label": "Simple Controls",
+                "elements": [
+                    {
+                        "name": "newsletter",
+                        "type": "Microsoft.Common.Section",
+                        "label": "Monthly Newsletter",
+                        "elements": [
+                            
+                            {
+                                "name": "userBlobAccountName",
+                                "type": "Microsoft.Common.TextBox",
+                                "label": "User Blob Account Name",
+                                "defaultValue": "adls",
+                                "toolTip": "Please enter User Blob Account Name",
+                                "constraints": {
+                                    "required": true,
+                                    "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+                                    "validationMessage": "Email is not valid. Please re-enter."
+                                },
+                                "visible": true
+                            }
+                            
+                        ],
+                        "visible": true
+                    }
+                ]
+
+            }
+        ],
         "outputs": {
             "endpointType": "[basics('endpointType')]",
             "pricingTier": "[basics('pricingTier')]",
