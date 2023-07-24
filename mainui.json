@@ -76,6 +76,19 @@
                             "visible": true
                         },
                         {
+                            "name": "userBlobAccountName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "User Blob Account Name",
+                            "defaultValue": "adls",
+                            "toolTip": "Please enter User Blob Account Name",
+                            "constraints": {
+                                "required": true,
+                                "regex": "^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+$",
+                                "validationMessage": "Email is not valid. Please re-enter."
+                            },
+                            "visible": true
+                        },
+                        {
                             "name": "workspaceName",
                             "type": "Microsoft.Common.TextBox",
                             "label": "Workspace Name",
