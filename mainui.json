@@ -1,662 +1,654 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/0.1.2-preview/CreateUIDefinition.MultiVm.json#",
-    "handler": "Microsoft.Compute.MultiVm",
-    "version": "0.1.2-preview",
-    "parameters": {
-        "resourceTypes": [
-            "microsoft.resources/resourcegroups"
-        ],
-        "basics": [
-            {
-                "name": "endpointType",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Endpoint Type",
-                "subLabel": "",
-                "defaultValue": "HybridMode",
-                "toolTip": "Mode of deployment",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
+	"$schema": "https://schema.management.azure.com/schemas/2021-09-09/uiFormDefinition.schema.json",
+	"view": {
+		"kind": "Form",
+		"properties": {
+			"title": "Web App deployment wizard",
+			"steps": [
+				{
+					"name" : "basics",
+                    "label": "Deployment location",
+                    "elements": [
                         {
-                            "label": "PublicMode",
-                            "value": "PublicMode"
-                        },
-                        {
-                            "label": "PrivateMode",
-                            "value": "PrivateMode"
-                        },
-                        {
-                            "label": "HybridMode",
-                            "value": "HybridMode"
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "pricingTier",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Pricing Tier",
-                "subLabel": "",
-                "defaultValue": "premium",
-                "toolTip": "The pricing tier of the Azure Databricks workspace.",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "trial",
-                            "value": "trial"
-                        },
-                        {
-                            "label": "standard",
-                            "value": "standard"
-                        },
-                        {
-                            "label": "premium",
-                            "value": "premium"
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "workspaceName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Workspace Name",
-                "subLabel": "",
-                "defaultValue": "default",
-                "toolTip": "The name of the Azure Databricks workspace to create (Note: Valid characters are alphanumerics, underscores, and hyphens and length between 3 and 51)",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": [
-                        {
-                            "isValid": "[or(                                or(    empty(basics('workspaceName')),     and(        not(startsWith(basics('workspaceName'), '[[')),         startsWith(basics('workspaceName'), '['), endsWith(basics('workspaceName'), ']'),         greater(indexOf(basics('workspaceName'), '('), -1), greater(indexOf(basics('workspaceName'), ')'), -1)        )    ),                                greaterOrEquals(length(basics('workspaceName')), 3)                                )]",
-                            "message": "The value must have a length of at least 3."
-                        },
-                        {
-                            "isValid": "[or(                                or(    empty(basics('workspaceName')),     and(        not(startsWith(basics('workspaceName'), '[[')),         startsWith(basics('workspaceName'), '['), endsWith(basics('workspaceName'), ']'),         greater(indexOf(basics('workspaceName'), '('), -1), greater(indexOf(basics('workspaceName'), ')'), -1)        )    ),                                lessOrEquals(length(basics('workspaceName')), 51)                                )]",
-                            "message": "The value must have a length of at most 51."
+                            "name": "resourceScope",
+                            "type": "Microsoft.Common.ResourceScope"
                         }
                     ]
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "ctrlDeployEventHub",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Ctrl Deploy Event Hub",
-                "subLabel": "",
-                "defaultValue": "true",
-                "toolTip": "Controls the deployment of EventHub",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "true",
-                            "value": true
+				},
+				{
+					"name": "webApp",
+					"label": "WebApp properties",
+					"elements": [
+						{
+                            "name": "endpointType",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Endpoint Type",
+                            "subLabel": "",
+                            "defaultValue": "HybridMode",
+                            "toolTip": "Mode of deployment",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "PublicMode",
+                                        "value": "PublicMode"
+                                    },
+                                    {
+                                        "label": "PrivateMode",
+                                        "value": "PrivateMode"
+                                    },
+                                    {
+                                        "label": "HybridMode",
+                                        "value": "HybridMode"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+						{
+                            "name": "pricingTier",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Pricing Tier",
+                            "subLabel": "",
+                            "defaultValue": "premium",
+                            "toolTip": "The pricing tier of the Azure Databricks workspace.",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "trial",
+                                        "value": "trial"
+                                    },
+                                    {
+                                        "label": "standard",
+                                        "value": "standard"
+                                    },
+                                    {
+                                        "label": "premium",
+                                        "value": "premium"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
                         },
                         {
-                            "label": "false",
-                            "value": false
+                            "name": "workspaceName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Workspace Name",
+                            "subLabel": "",
+                            "defaultValue": "default",
+                            "toolTip": "The name of the Azure Databricks workspace to create (Note: Valid characters are alphanumerics, underscores, and hyphens and length between 3 and 51)",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": [
+                                    {
+                                        "isValid": "[or(                                or(    empty(basics('workspaceName')),     and(        not(startsWith(basics('workspaceName'), '[[')),         startsWith(basics('workspaceName'), '['), endsWith(basics('workspaceName'), ']'),         greater(indexOf(basics('workspaceName'), '('), -1), greater(indexOf(basics('workspaceName'), ')'), -1)        )    ),                                greaterOrEquals(length(basics('workspaceName')), 3)                                )]",
+                                        "message": "The value must have a length of at least 3."
+                                    },
+                                    {
+                                        "isValid": "[or(                                or(    empty(basics('workspaceName')),     and(        not(startsWith(basics('workspaceName'), '[[')),         startsWith(basics('workspaceName'), '['), endsWith(basics('workspaceName'), ']'),         greater(indexOf(basics('workspaceName'), '('), -1), greater(indexOf(basics('workspaceName'), ')'), -1)        )    ),                                lessOrEquals(length(basics('workspaceName')), 51)                                )]",
+                                        "message": "The value must have a length of at most 51."
+                                    }
+                                ]
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "ctrlDeployEventHub",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Ctrl Deploy Event Hub",
+                            "subLabel": "",
+                            "defaultValue": "true",
+                            "toolTip": "Controls the deployment of EventHub",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "true",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "false",
+                                        "value": false
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "eventHubSku",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Event Hub Sku",
+                            "subLabel": "",
+                            "defaultValue": "Standard",
+                            "toolTip": "EventHub SKU",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "Basic",
+                                        "value": "Basic"
+                                    },
+                                    {
+                                        "label": "Standard",
+                                        "value": "Standard"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "eHRuleName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "E H Rule Name",
+                            "subLabel": "",
+                            "defaultValue": "rule",
+                            "toolTip": "EventHub Rule name",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "ctrlDeployKeyVault",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Ctrl Deploy Key Vault",
+                            "subLabel": "",
+                            "defaultValue": "true",
+                            "toolTip": "Controls the deployment of KeyVault",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "true",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "false",
+                                        "value": false
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "utcValue",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Utc Value",
+                            "subLabel": "",
+                            "defaultValue": "[[utcNow()]",
+                            "toolTip": "UTC datetime (Note: Default value should not be altered)",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "ctrlDeploySample",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Ctrl Deploy Sample",
+                            "subLabel": "",
+                            "defaultValue": "true",
+                            "toolTip": "Controls the deployment of Blob Storage and Example Notebooks",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "true",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "false",
+                                        "value": false
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "ctrlDeployPipeline",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Ctrl Deploy Pipeline",
+                            "subLabel": "",
+                            "defaultValue": "true",
+                            "toolTip": "Controls the execution of pipeline deployment script",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "true",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "false",
+                                        "value": false
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "pipelineName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Pipeline Name",
+                            "subLabel": "",
+                            "defaultValue": "Sample Pipeline",
+                            "toolTip": "NAme of the pipeline",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "ctrlSyntaxType",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Ctrl Syntax Type",
+                            "subLabel": "",
+                            "defaultValue": "DeltaLiveTable",
+                            "toolTip": "Either DeltaLiveTable or DeltaTable Notebooks will be imported",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "DeltaLiveTable",
+                                        "value": "DeltaLiveTable"
+                                    },
+                                    {
+                                        "label": "DeltaTable",
+                                        "value": "DeltaTable"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "ctrlSourceNotebook",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Ctrl Source Notebook",
+                            "subLabel": "",
+                            "defaultValue": "RawFileSource",
+                            "toolTip": "Data source",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "RawFileSource",
+                                        "value": "RawFileSource"
+                                    },
+                                    {
+                                        "label": "AzureSQL",
+                                        "value": "AzureSQL"
+                                    },
+                                    {
+                                        "label": "AzureMySQL",
+                                        "value": "AzureMySQL"
+                                    },
+                                    {
+                                        "label": "AzurePostgreSQL",
+                                        "value": "AzurePostgreSQL"
+                                    },
+                                    {
+                                        "label": "SQL_On_Prem",
+                                        "value": "SQL_On_Prem"
+                                    },
+                                    {
+                                        "label": "PostgreSQL_On_Prem",
+                                        "value": "PostgreSQL_On_Prem"
+                                    },
+                                    {
+                                        "label": "Oracle",
+                                        "value": "Oracle"
+                                    },
+                                    {
+                                        "label": "Eventhub",
+                                        "value": "Eventhub"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "ctrlDeployCluster",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Ctrl Deploy Cluster",
+                            "subLabel": "",
+                            "defaultValue": "true",
+                            "toolTip": "Controls the execution of cluster deployment script",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "true",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "false",
+                                        "value": false
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "clusterName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Cluster Name",
+                            "subLabel": "",
+                            "defaultValue": "dbcluster",
+                            "toolTip": "Name of the Databricks cluster",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "sparkVersion",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Spark Version",
+                            "subLabel": "",
+                            "defaultValue": "11.3.x-scala2.12",
+                            "toolTip": "LTS version of Spark in the cluster",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "12.2.x-scala2.12",
+                                        "value": "12.2.x-scala2.12"
+                                    },
+                                    {
+                                        "label": "11.3.x-scala2.12",
+                                        "value": "11.3.x-scala2.12"
+                                    },
+                                    {
+                                        "label": "10.4.x-scala2.12",
+                                        "value": "10.4.x-scala2.12"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "autoTerminationMinutes",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Auto Termination Minutes",
+                            "subLabel": "",
+                            "defaultValue": "30",
+                            "toolTip": "Cluster terminates after specified minutes of inactivity. Threshold must be between 10 and 10000 minutes. Users can also set this value to 0 to explicitly disable automatic termination.",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "numWorkers",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Num Workers",
+                            "subLabel": "",
+                            "defaultValue": "2",
+                            "toolTip": "Number of worker nodes",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "nodeTypeId",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Node Type Id",
+                            "subLabel": "",
+                            "defaultValue": "Standard_DS3_v2",
+                            "toolTip": "Type of worker node",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "driverNodeTypeId",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Driver Node Type Id",
+                            "subLabel": "",
+                            "defaultValue": "Standard_DS3_v2",
+                            "toolTip": "Type of driver node",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "nsgName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Nsg Name",
+                            "subLabel": "",
+                            "defaultValue": "databricks-nsg",
+                            "toolTip": "The name of the network security group to create.",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "privateSubnetCidr",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Private Subnet Cidr",
+                            "subLabel": "",
+                            "defaultValue": "10.179.0.0/18",
+                            "toolTip": "CIDR range for the private subnet.",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "privateSubnetName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Private Subnet Name",
+                            "subLabel": "",
+                            "defaultValue": "private-subnet",
+                            "toolTip": "The name of the private subnet to create.",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "publicSubnetCidr",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Public Subnet Cidr",
+                            "subLabel": "",
+                            "defaultValue": "10.179.64.0/18",
+                            "toolTip": "CIDR range for the public subnet.",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "privateEndpointSubnetCidr",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Private Endpoint Subnet Cidr",
+                            "subLabel": "",
+                            "defaultValue": "10.179.128.0/24",
+                            "toolTip": "CIDR range for the private endpoint subnet..",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "publicSubnetName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Public Subnet Name",
+                            "subLabel": "",
+                            "defaultValue": "public-subnet",
+                            "toolTip": "The name of the public subnet to create.",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "requiredNsgRules",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Required Nsg Rules",
+                            "subLabel": "",
+                            "defaultValue": "NoAzureDatabricksRules",
+                            "toolTip": "Indicates whether to retain or remove the AzureDatabricks outbound NSG rule - possible values are AllRules or NoAzureDatabricksRules.",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "AllRules",
+                                        "value": "AllRules"
+                                    },
+                                    {
+                                        "label": "NoAzureDatabricksRules",
+                                        "value": "NoAzureDatabricksRules"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "vnetCidr",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Vnet Cidr",
+                            "subLabel": "",
+                            "defaultValue": "10.179.0.0/16",
+                            "toolTip": "CIDR range for the vnet.",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "vnetName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Vnet Name",
+                            "subLabel": "",
+                            "defaultValue": "databricks-vnet",
+                            "toolTip": "The name of the virtual network to create.",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "PrivateEndpointSubnetName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Private Endpoint Subnet Name",
+                            "subLabel": "",
+                            "defaultValue": "default",
+                            "toolTip": "The name of the subnet to create the private endpoint in.",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
                         }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "eventHubSku",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Event Hub Sku",
-                "subLabel": "",
-                "defaultValue": "Standard",
-                "toolTip": "EventHub SKU",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "Basic",
-                            "value": "Basic"
-                        },
-                        {
-                            "label": "Standard",
-                            "value": "Standard"
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "eHRuleName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "E H Rule Name",
-                "subLabel": "",
-                "defaultValue": "rule",
-                "toolTip": "EventHub Rule name",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "userBlobAccountName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "User Blob Account Name",
-                "subLabel": "",
-                "defaultValue": "adls",
-                "toolTip": "Storage Account name. (Note: Valid characters are lowercase letters and numbers and length between 3 and 11)",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": [
-                        {
-                            "isValid": "[or(                                or(    empty(basics('userBlobAccountName')),     and(        not(startsWith(basics('userBlobAccountName'), '[[')),         startsWith(basics('userBlobAccountName'), '['), endsWith(basics('userBlobAccountName'), ']'),         greater(indexOf(basics('userBlobAccountName'), '('), -1), greater(indexOf(basics('userBlobAccountName'), ')'), -1)        )    ),                                greaterOrEquals(length(basics('userBlobAccountName')), 3)                                )]",
-                            "message": "The value must have a length of at least 3."
-                        },
-                        {
-                            "isValid": "[or(                                or(    empty(basics('userBlobAccountName')),     and(        not(startsWith(basics('userBlobAccountName'), '[[')),         startsWith(basics('userBlobAccountName'), '['), endsWith(basics('userBlobAccountName'), ']'),         greater(indexOf(basics('userBlobAccountName'), '('), -1), greater(indexOf(basics('userBlobAccountName'), ')'), -1)        )    ),                                lessOrEquals(length(basics('userBlobAccountName')), 11)                                )]",
-                            "message": "The value must have a length of at most 11."
-                        }
-                    ]
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "ctrlDeployKeyVault",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Ctrl Deploy Key Vault",
-                "subLabel": "",
-                "defaultValue": "true",
-                "toolTip": "Controls the deployment of KeyVault",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "true",
-                            "value": true
-                        },
-                        {
-                            "label": "false",
-                            "value": false
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "utcValue",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Utc Value",
-                "subLabel": "",
-                "defaultValue": "[[utcNow()]",
-                "toolTip": "UTC datetime (Note: Default value should not be altered)",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "ctrlDeploySample",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Ctrl Deploy Sample",
-                "subLabel": "",
-                "defaultValue": "true",
-                "toolTip": "Controls the deployment of Blob Storage and Example Notebooks",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "true",
-                            "value": true
-                        },
-                        {
-                            "label": "false",
-                            "value": false
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "ctrlDeployPipeline",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Ctrl Deploy Pipeline",
-                "subLabel": "",
-                "defaultValue": "true",
-                "toolTip": "Controls the execution of pipeline deployment script",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "true",
-                            "value": true
-                        },
-                        {
-                            "label": "false",
-                            "value": false
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "pipelineName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Pipeline Name",
-                "subLabel": "",
-                "defaultValue": "Sample Pipeline",
-                "toolTip": "NAme of the pipeline",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "ctrlSyntaxType",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Ctrl Syntax Type",
-                "subLabel": "",
-                "defaultValue": "DeltaLiveTable",
-                "toolTip": "Either DeltaLiveTable or DeltaTable Notebooks will be imported",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "DeltaLiveTable",
-                            "value": "DeltaLiveTable"
-                        },
-                        {
-                            "label": "DeltaTable",
-                            "value": "DeltaTable"
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "ctrlSourceNotebook",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Ctrl Source Notebook",
-                "subLabel": "",
-                "defaultValue": "RawFileSource",
-                "toolTip": "Data source",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "RawFileSource",
-                            "value": "RawFileSource"
-                        },
-                        {
-                            "label": "AzureSQL",
-                            "value": "AzureSQL"
-                        },
-                        {
-                            "label": "AzureMySQL",
-                            "value": "AzureMySQL"
-                        },
-                        {
-                            "label": "AzurePostgreSQL",
-                            "value": "AzurePostgreSQL"
-                        },
-                        {
-                            "label": "SQL_On_Prem",
-                            "value": "SQL_On_Prem"
-                        },
-                        {
-                            "label": "PostgreSQL_On_Prem",
-                            "value": "PostgreSQL_On_Prem"
-                        },
-                        {
-                            "label": "Oracle",
-                            "value": "Oracle"
-                        },
-                        {
-                            "label": "Eventhub",
-                            "value": "Eventhub"
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "ctrlDeployCluster",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Ctrl Deploy Cluster",
-                "subLabel": "",
-                "defaultValue": "true",
-                "toolTip": "Controls the execution of cluster deployment script",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "true",
-                            "value": true
-                        },
-                        {
-                            "label": "false",
-                            "value": false
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "clusterName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Cluster Name",
-                "subLabel": "",
-                "defaultValue": "dbcluster",
-                "toolTip": "Name of the Databricks cluster",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "sparkVersion",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Spark Version",
-                "subLabel": "",
-                "defaultValue": "11.3.x-scala2.12",
-                "toolTip": "LTS version of Spark in the cluster",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "12.2.x-scala2.12",
-                            "value": "12.2.x-scala2.12"
-                        },
-                        {
-                            "label": "11.3.x-scala2.12",
-                            "value": "11.3.x-scala2.12"
-                        },
-                        {
-                            "label": "10.4.x-scala2.12",
-                            "value": "10.4.x-scala2.12"
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "autoTerminationMinutes",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Auto Termination Minutes",
-                "subLabel": "",
-                "defaultValue": "30",
-                "toolTip": "Cluster terminates after specified minutes of inactivity. Threshold must be between 10 and 10000 minutes. Users can also set this value to 0 to explicitly disable automatic termination.",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "numWorkers",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Num Workers",
-                "subLabel": "",
-                "defaultValue": "2",
-                "toolTip": "Number of worker nodes",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "nodeTypeId",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Node Type Id",
-                "subLabel": "",
-                "defaultValue": "Standard_DS3_v2",
-                "toolTip": "Type of worker node",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "driverNodeTypeId",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Driver Node Type Id",
-                "subLabel": "",
-                "defaultValue": "Standard_DS3_v2",
-                "toolTip": "Type of driver node",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "nsgName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Nsg Name",
-                "subLabel": "",
-                "defaultValue": "databricks-nsg",
-                "toolTip": "The name of the network security group to create.",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "privateSubnetCidr",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Private Subnet Cidr",
-                "subLabel": "",
-                "defaultValue": "10.179.0.0/18",
-                "toolTip": "CIDR range for the private subnet.",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "privateSubnetName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Private Subnet Name",
-                "subLabel": "",
-                "defaultValue": "private-subnet",
-                "toolTip": "The name of the private subnet to create.",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "publicSubnetCidr",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Public Subnet Cidr",
-                "subLabel": "",
-                "defaultValue": "10.179.64.0/18",
-                "toolTip": "CIDR range for the public subnet.",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "privateEndpointSubnetCidr",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Private Endpoint Subnet Cidr",
-                "subLabel": "",
-                "defaultValue": "10.179.128.0/24",
-                "toolTip": "CIDR range for the private endpoint subnet..",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "publicSubnetName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Public Subnet Name",
-                "subLabel": "",
-                "defaultValue": "public-subnet",
-                "toolTip": "The name of the public subnet to create.",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "requiredNsgRules",
-                "type": "Microsoft.Common.DropDown",
-                "label": "Required Nsg Rules",
-                "subLabel": "",
-                "defaultValue": "NoAzureDatabricksRules",
-                "toolTip": "Indicates whether to retain or remove the AzureDatabricks outbound NSG rule - possible values are AllRules or NoAzureDatabricksRules.",
-                "constraints": {
-                    "required": false,
-                    "allowedValues": [
-                        {
-                            "label": "AllRules",
-                            "value": "AllRules"
-                        },
-                        {
-                            "label": "NoAzureDatabricksRules",
-                            "value": "NoAzureDatabricksRules"
-                        }
-                    ],
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "vnetCidr",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Vnet Cidr",
-                "subLabel": "",
-                "defaultValue": "10.179.0.0/16",
-                "toolTip": "CIDR range for the vnet.",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "vnetName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Vnet Name",
-                "subLabel": "",
-                "defaultValue": "databricks-vnet",
-                "toolTip": "The name of the virtual network to create.",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            },
-            {
-                "name": "PrivateEndpointSubnetName",
-                "type": "Microsoft.Common.TextBox",
-                "label": "Private Endpoint Subnet Name",
-                "subLabel": "",
-                "defaultValue": "default",
-                "toolTip": "The name of the subnet to create the private endpoint in.",
-                "constraints": {
-                    "required": false,
-                    "regex": "",
-                    "validationMessage": "",
-                    "validations": []
-                },
-                "infoMessages": [],
-                "visible": true
-            }
-        ],
-        "steps": [],
-        "outputs": {
-            "endpointType": "[basics('endpointType')]",
+					]
+				}
+				
+				
+			]
+		},
+"outputs": {
+	"parameters": {
+		"endpointType": "[basics('endpointType')]",
             "pricingTier": "[basics('pricingTier')]",
             "workspaceName": "[basics('workspaceName')]",
             "ctrlDeployEventHub": "[basics('ctrlDeployEventHub')]",
@@ -687,6 +679,10 @@
             "vnetCidr": "[basics('vnetCidr')]",
             "vnetName": "[basics('vnetName')]",
             "PrivateEndpointSubnetName": "[basics('PrivateEndpointSubnetName')]"
-        }
+	},
+	"kind": "ResourceGroup",
+	"location": "[steps('basics').resourceScope.location.name]",
+	"resourceGroupId": "[steps('basics').resourceScope.resourceGroup.id]"
+}
     }
 }
