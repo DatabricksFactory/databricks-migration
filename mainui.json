@@ -3,7 +3,7 @@
 	"view": {
 		"kind": "Form",
 		"properties": {
-			"title": "Web App deployment wizard",
+			"title": "Databricks Infrastructure Plane deployment wizard",
 			"steps": [
 				{
 					"name" : "basics",
@@ -17,7 +17,7 @@
 				},
 				{
 					"name": "webApp",
-					"label": "WebApp properties",
+					"label": "Databricks Details",
 					"elements": [
 						{
                             "name": "endpointType",
