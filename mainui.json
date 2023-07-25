@@ -188,7 +188,7 @@
                             "type": "Microsoft.Common.DropDown",
                             "label": "Deploy databricks cluster",
                             "subLabel": "",
-                            "defaultValue": "true",
+                            "defaultValue": "false",
                             "toolTip": "Controls the execution of cluster deployment script",
                             "constraints": {
                                 "required": false,
@@ -210,7 +210,7 @@
                         {
                             "name": "clusterName",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Cluster Name",
+                            "label": "Cluster name",
                             "subLabel": "",
                             "defaultValue": "dbcluster",
                             "toolTip": "Name of the Databricks cluster",
@@ -221,12 +221,12 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": true
+                            "visible": "[equals(steps('advance').ctrlDeployCluster,true)]"
                         },
                         {
                             "name": "sparkVersion",
                             "type": "Microsoft.Common.DropDown",
-                            "label": "Spark Version",
+                            "label": "Spark version",
                             "subLabel": "",
                             "defaultValue": "11.3.x-scala2.12",
                             "toolTip": "LTS version of Spark in the cluster",
@@ -249,12 +249,12 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": true
+                            "visible": "[equals(steps('advance').ctrlDeployCluster,true)]"
                         },
                         {
                             "name": "autoTerminationMinutes",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Auto Termination Minutes",
+                            "label": "Auto termination minutes",
                             "subLabel": "",
                             "defaultValue": "30",
                             "toolTip": "Cluster terminates after specified minutes of inactivity. Threshold must be between 10 and 10000 minutes. Users can also set this value to 0 to explicitly disable automatic termination.",
@@ -265,12 +265,12 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": true
+                            "visible": "[equals(steps('advance').ctrlDeployCluster,true)]"
                         },
                         {
                             "name": "numWorkers",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Num Workers",
+                            "label": "Num workers",
                             "subLabel": "",
                             "defaultValue": "2",
                             "toolTip": "Number of worker nodes",
@@ -281,12 +281,12 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": true
+                            "visible": "[equals(steps('advance').ctrlDeployCluster,true)]"
                         },
                         {
                             "name": "nodeTypeId",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Node Type Id",
+                            "label": "Node type Id",
                             "subLabel": "",
                             "defaultValue": "Standard_DS3_v2",
                             "toolTip": "Type of worker node",
@@ -297,12 +297,12 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": true
+                            "visible": "[equals(steps('advance').ctrlDeployCluster,true)]"
                         },
                         {
                             "name": "driverNodeTypeId",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Driver Node Type Id",
+                            "label": "Driver node type Id",
                             "subLabel": "",
                             "defaultValue": "Standard_DS3_v2",
                             "toolTip": "Type of driver node",
@@ -313,13 +313,13 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": true
+                            "visible": "[equals(steps('advance').ctrlDeployCluster,true)]"
                         },
 						
                         {
                             "name": "ctrlDeployPipeline",
                             "type": "Microsoft.Common.DropDown",
-                            "label": "Ctrl Deploy Pipeline",
+                            "label": "Deploy databricks pipeline",
                             "subLabel": "",
                             "defaultValue": "true",
                             "toolTip": "Controls the execution of pipeline deployment script",
@@ -343,7 +343,7 @@
                         {
                             "name": "pipelineName",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Pipeline Name",
+                            "label": "Pipeline name",
                             "subLabel": "",
                             "defaultValue": "Sample Pipeline",
                             "toolTip": "NAme of the pipeline",
@@ -354,7 +354,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": true
+                            "visible": "[equals(steps('advance').ctrlDeployPipeline,true)]"
                         },
                        
                        
@@ -362,7 +362,7 @@
                         {
                             "name": "ctrlSourceNotebook",
                             "type": "Microsoft.Common.DropDown",
-                            "label": "Ctrl Source Notebook",
+                            "label": "Quickstart source template option",
                             "subLabel": "",
                             "defaultValue": "RawFileSource",
                             "toolTip": "Data source",
@@ -410,7 +410,7 @@
                         {
                             "name": "ctrlSyntaxType",
                             "type": "Microsoft.Common.DropDown",
-                            "label": "Ctrl Syntax Type",
+                            "label": "Quickstart source template syntax",
                             "subLabel": "",
                             "defaultValue": "DeltaLiveTable",
                             "toolTip": "Either DeltaLiveTable or DeltaTable Notebooks will be imported",
@@ -434,7 +434,7 @@
                         {
                             "name": "ctrlDeploySample",
                             "type": "Microsoft.Common.DropDown",
-                            "label": "Ctrl Deploy Sample",
+                            "label": "Deploy sample prototype",
                             "subLabel": "",
                             "defaultValue": "true",
                             "toolTip": "Controls the deployment of Blob Storage and Example Notebooks",
@@ -469,7 +469,7 @@
                             "type": "Microsoft.Common.DropDown",
                             "label": "Endpoint Type",
                             "subLabel": "",
-                            "defaultValue": "HybridMode",
+                            "defaultValue": "PublicMode",
                             "toolTip": "Mode of deployment",
                             "constraints": {
                                 "required": false,
