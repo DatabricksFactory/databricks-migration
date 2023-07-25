@@ -196,6 +196,22 @@
                             "visible": true
                         },
                         {
+                            "name": "utcValue",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "Utc Value",
+                            "subLabel": "",
+                            "defaultValue": "[[utcNow()]",
+                            "toolTip": "UTC datetime (Note: Default value should not be altered)",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": false
+                        },
+                        {
                             "name": "ctrlDeploySample",
                             "type": "Microsoft.Common.DropDown",
                             "label": "Ctrl Deploy Sample",
@@ -639,7 +655,7 @@
 		},
 "outputs": {
 	"parameters": {
-		"endpointType": "[steps('webApp').endpointType]",
+		    "endpointType": "[steps('webApp').endpointType]",
             "pricingTier": "[steps('webApp').pricingTier]",
             "workspaceName": "[steps('webApp').workspaceName]",
             "ctrlDeployEventHub": "[steps('webApp').ctrlDeployEventHub]",
@@ -647,6 +663,7 @@
             "eHRuleName": "[steps('webApp').eHRuleName]",
             "userBlobAccountName": "[steps('webApp').userBlobAccountName]",
             "ctrlDeployKeyVault": "[steps('webApp').ctrlDeployKeyVault]",
+            "utcValue": "[steps('webApp').utcValue]",
             "ctrlDeploySample": "[steps('webApp').ctrlDeploySample]",
             "ctrlDeployPipeline": "[steps('webApp').ctrlDeployPipeline]",
             "pipelineName": "[steps('webApp').pipelineName]",
