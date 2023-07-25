@@ -278,7 +278,7 @@
     "blobContainerName": "data",
     "fileuploaduri": "[format('https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/{0}/OneClickDeploy.ps1', variables('refBranch'))]",
     "notebookPath": "[format('https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/{0}/Artifacts', variables('refBranch'))]",
-    "identityName": "PostDeploymentScriptuserAssignedName",
+    "identityName": "[format('PostDeploymentScriptuserAssignedName{0}', parameters('utcValue'))]",
     "uniqueSuffix": "[substring(uniqueString(resourceGroup().id), 0, 6)]",
     "firstuniquestring": "[format('firstunique{0}', variables('uniqueSuffix'))]",
     "seconduniquestring": "[format('secondunique{0}', variables('uniqueSuffix'))]",
