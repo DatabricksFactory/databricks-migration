@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.17.1.54307",
-      "templateHash": "11092354686536141699"
+      "version": "0.19.5.34762",
+      "templateHash": "1096235753634806047"
     }
   },
   "parameters": {
@@ -269,17 +269,17 @@
     }
   },
   "variables": {
-    "refBranch": "dev",
+    "refBranch": "main",
     "ctrlDeployStorageAccount": true,
     "ctrlDeployNotebook": true,
     "blobAccountName": "[format('{0}{1}', parameters('userBlobAccountName'), uniqueString(resourceGroup().id))]",
     "containerName": "data",
     "blobStorageName": "[format('samplesblob{0}', uniqueString(resourceGroup().id))]",
     "blobContainerName": "data",
-    "fileuploaduri": "[format('https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/{0}/OneClickDeploy.ps1', variables('refBranch'))]",
+    "fileuploaduri": "https://raw.githubusercontent.com/ksameer18/test/main/OneClickDeploy.ps1",
     "notebookPath": "[format('https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/{0}/Artifacts', variables('refBranch'))]",
     "identityName": "PostDeploymentScriptuserAssignedName",
-    "uniqueSuffix": "[substring(uniqueString(resourceGroup().id), 0, 5)]",
+    "uniqueSuffix": "[substring(uniqueString(resourceGroup().id), 0, 6)]",
     "firstuniquestring": "[format('firstunique{0}', variables('uniqueSuffix'))]",
     "seconduniquestring": "[format('secondunique{0}', variables('uniqueSuffix'))]",
     "comment": "ARM deployment",
@@ -291,9 +291,43 @@
     "minWorkers": 1,
     "maxWorkers": 5,
     "disablePublicIp": true,
-    "subscriptionId": "[subscription().subscriptionId]"
+    "subscriptionId": "[subscription().subscriptionId]",
+    "location": "[resourceGroup().location]",
+    "storageaccountformetastore": "[format('sametastore{0}', uniqueString(resourceGroup().id))]",
+    "containerformetastore": "containerformetastore"
   },
   "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-04-01",
+      "name": "[variables('storageaccountformetastore')]",
+      "location": "[variables('location')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "properties": {
+        "isHnsEnabled": true,
+        "networkAcls": {
+          "bypass": "AzureServices",
+          "virtualNetworkRules": [],
+          "ipRules": [],
+          "defaultAction": "Allow"
+        },
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": false,
+        "supportsHttpsTrafficOnly": true,
+        "accessTier": "Hot"
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/default/{1}', variables('storageaccountformetastore'), variables('containerformetastore'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageaccountformetastore'))]"
+      ]
+    },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
@@ -341,8 +375,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "1271751600368636793"
+              "version": "0.19.5.34762",
+              "templateHash": "7966581285633736309"
             }
           },
           "parameters": {
@@ -612,8 +646,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "578294327525913913"
+              "version": "0.19.5.34762",
+              "templateHash": "13752683982280118402"
             }
           },
           "parameters": {
@@ -704,8 +738,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "9765227634235757502"
+              "version": "0.19.5.34762",
+              "templateHash": "10016539344178784597"
             }
           },
           "parameters": {
@@ -932,8 +966,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "7574234842102055127"
+              "version": "0.19.5.34762",
+              "templateHash": "12146518771681767727"
             }
           },
           "parameters": {
@@ -1139,8 +1173,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "15834935044642394918"
+              "version": "0.19.5.34762",
+              "templateHash": "16034395938929565167"
             }
           },
           "parameters": {
@@ -1240,8 +1274,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "15088129261096514980"
+              "version": "0.19.5.34762",
+              "templateHash": "2521968901110711112"
             }
           },
           "parameters": {
@@ -1450,8 +1484,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "15088129261096514980"
+              "version": "0.19.5.34762",
+              "templateHash": "2521968901110711112"
             }
           },
           "parameters": {
@@ -1645,8 +1679,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "4219411305336697726"
+              "version": "0.19.5.34762",
+              "templateHash": "11067858547592259859"
             }
           },
           "parameters": {
@@ -1727,8 +1761,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "2639177231625639423"
+              "version": "0.19.5.34762",
+              "templateHash": "18253948042064288873"
             }
           },
           "parameters": {
@@ -1837,8 +1871,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "17659536667487303660"
+              "version": "0.19.5.34762",
+              "templateHash": "3839437431627281300"
             }
           },
           "parameters": {
@@ -1922,8 +1956,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "2045004787152577779"
+              "version": "0.19.5.34762",
+              "templateHash": "13784225372416930823"
             }
           },
           "parameters": {
@@ -2079,8 +2113,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "18433039671770481014"
+              "version": "0.19.5.34762",
+              "templateHash": "7111690314012125772"
             }
           },
           "parameters": {
@@ -2306,6 +2340,12 @@
           },
           "ctrlDeploySample": {
             "value": "[parameters('ctrlDeploySample')]"
+          },
+          "storageaccountformetastore": {
+            "value": "[variables('storageaccountformetastore')]"
+          },
+          "containerformetastore": {
+            "value": "[variables('containerformetastore')]"
           }
         },
         "template": {
@@ -2314,8 +2354,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "14507488178609446717"
+              "version": "0.19.5.34762",
+              "templateHash": "18353317154018516211"
             }
           },
           "parameters": {
@@ -2483,13 +2523,19 @@
             },
             "ctrlDeploySample": {
               "type": "bool"
+            },
+            "storageaccountformetastore": {
+              "type": "string"
+            },
+            "containerformetastore": {
+              "type": "string"
             }
           },
           "variables": {
             "location": "[resourceGroup().location]",
             "fileuploadurivariable": "[parameters('fileuploaduri')]",
             "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29} -CTRL_SYNTAX {30} -SA_NAME {31} -SA_EXISTS {32} -SUBSCRIPTION_ID {33} -CTRL_DEPLOY_SAMPLE {34}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(equals(parameters('ctrlSourceNotebook'), 'RawFileSource'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'AzureSQL'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'AzureMySQL'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'AzurePostgreSQL'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'SQL_On_Prem'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'PostgreSQL_On_Prem'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'Oracle'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'Eventhub'), '$true', '$false'), parameters('ctrlSyntaxType'), parameters('sa_name'), if(parameters('saExists'), '$true', '$false'), parameters('subscriptionId'), if(parameters('ctrlDeploySample'), '$true', '$false'))]",
-            "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'), parameters('utcValue'))]",
+            "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
             "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c"
           },
           "resources": [
@@ -2656,6 +2702,12 @@
           },
           "ctrlDeploySample": {
             "value": "[parameters('ctrlDeploySample')]"
+          },
+          "storageaccountformetastore": {
+            "value": "[variables('storageaccountformetastore')]"
+          },
+          "containerformetastore": {
+            "value": "[variables('containerformetastore')]"
           }
         },
         "template": {
@@ -2664,8 +2716,8 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.17.1.54307",
-              "templateHash": "14507488178609446717"
+              "version": "0.19.5.34762",
+              "templateHash": "18353317154018516211"
             }
           },
           "parameters": {
@@ -2833,13 +2885,19 @@
             },
             "ctrlDeploySample": {
               "type": "bool"
+            },
+            "storageaccountformetastore": {
+              "type": "string"
+            },
+            "containerformetastore": {
+              "type": "string"
             }
           },
           "variables": {
             "location": "[resourceGroup().location]",
             "fileuploadurivariable": "[parameters('fileuploaduri')]",
             "scriptParametersToUploadFile": "[format('-RG_NAME {0} -REGION {1} -WORKSPACE_NAME {2} -LIFETIME_SECONDS {3} -COMMENT {4} -CLUSTER_NAME {5} -SPARK_VERSION {6} -AUTOTERMINATION_MINUTES {7} -NUM_WORKERS {8} -NODE_TYPE_ID {9} -DRIVER_NODE_TYPE_ID {10} -RETRY_LIMIT {11} -RETRY_TIME {12} -CTRL_DEPLOY_CLUSTER {13} -MINWORKERS {14} -MAXWORKERS {15} -PIPELINENAME {16} -STORAGE {17} -TARGETSCHEMA {18} -CTRL_DEPLOY_NOTEBOOK {19} -CTRL_DEPLOY_PIPELINE {20} -NOTEBOOK_PATH {21} -SRC_FILESOURCE {22} -SRC_AZSQL {23} -SRC_AZMYSQL {24} -SRC_AZPSQL {25} -SRC_SQL_ONPREM {26} -SRC_PSQL_ONPREM {27} -SRC_ORACLE {28} -SRC_EVENTHUB {29} -CTRL_SYNTAX {30} -SA_NAME {31} -SA_EXISTS {32} -SUBSCRIPTION_ID {33} -CTRL_DEPLOY_SAMPLE {34}', resourceGroup().name, variables('location'), parameters('workspaceName'), parameters('lifetimeSeconds'), parameters('comment'), parameters('clusterName'), parameters('sparkVersion'), parameters('autoTerminationMinutes'), parameters('numWorkers'), parameters('nodeTypeId'), parameters('driverNodeTypeId'), parameters('retryLimit'), parameters('retryTime'), if(parameters('ctrlDeployCluster'), '$true', '$false'), parameters('minWorkers'), parameters('maxWorkers'), parameters('pipelineName'), parameters('storagePath'), parameters('targetSchemaName'), if(parameters('ctrlDeployNotebook'), '$true', '$false'), if(parameters('ctrlDeployPipeline'), '$true', '$false'), parameters('notebookPath'), if(equals(parameters('ctrlSourceNotebook'), 'RawFileSource'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'AzureSQL'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'AzureMySQL'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'AzurePostgreSQL'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'SQL_On_Prem'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'PostgreSQL_On_Prem'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'Oracle'), '$true', '$false'), if(equals(parameters('ctrlSourceNotebook'), 'Eventhub'), '$true', '$false'), parameters('ctrlSyntaxType'), parameters('sa_name'), if(parameters('saExists'), '$true', '$false'), parameters('subscriptionId'), if(parameters('ctrlDeploySample'), '$true', '$false'))]",
-            "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'), parameters('utcValue'))]",
+            "bootstrapRoleAssignmentId_var": "[guid(parameters('firstuniquestring'), parameters('seconduniquestring'))]",
             "contributorRoleDefinitionId": "B24988ac-6180-42a0-ab88-20f7382dd24c"
           },
           "resources": [
