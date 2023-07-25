@@ -1209,11 +1209,14 @@ if ($null -ne $DB_PAT) {
     
     Write-Host "Task: Import Unity Catalog notebook"
     # Set the headers
-    $headers = @{Authorization = "Bearer $DB_PAT" }
+    $headers = @{
+        "Authorization" = "Bearer $DB_PAT"
+        "Content-Type"  = "application/json"
+ }
     
     
     # Set the path to the notebook to be imported
-    $url = "$NOTEBOOK_PATH/Unity-Catalog.ipynb"
+    $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts/Unity-Catalog.ipynb"
 
     # Get the notebook
     $Webresults = Invoke-WebRequest $url -UseBasicParsing
@@ -1236,11 +1239,11 @@ if ($null -ne $DB_PAT) {
     }
 
     # Convert the request body to JSON
-    $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+    $jsonBody = ConvertTo-Json -Depth 100 $unitycatalogbody
 
     try {
 
-        Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $unitycatalogbody
+        Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody
         Write-Host "Successful: Unity catalog notebook is imported"
     }
     catch {
