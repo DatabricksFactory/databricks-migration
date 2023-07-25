@@ -14,6 +14,8 @@ This 1-click deployment allows the user to deploy environment of Azure Databrick
 
 To deploy, you need **owner role** as we are assigning RBAC roles and write access on the resources you're deploying and access to all operations on the Microsoft.Resources/deployments resource type.
 
+You also must be an **Azure Databricks account admin** to enable workspace for **unity catalog**.
+
 ## Network Access
  
 Network Access configuration is enabled using below mentioned approach based on the Azure Resource Manager parameter value **Endpoint Type**.
@@ -80,6 +82,20 @@ The **OneClickDeploy.ps1** is the post deployment script used to deploy a **Clus
 
 If you choose **false** for the above parameters or if you choose for Private mode deployment, you have to run the script manually in Azure CLI/Powershell by passing the required parameters explicitly or create them using Databricks workspace Interface. 
 
+## Unity Catalog
+
+Unity Catalog provides centralized access control, auditing, lineage, and data discovery capabilities across Azure Databricks workspaces.
+
+In Unity Catalog, the hierarchy of primary data objects flows from metastore to table or volume:
+
+* Metastore: The top-level container for metadata. Each metastore exposes a three-level namespace (catalog.schema.table) that organizes your data.
+* Catalog: The first layer of the object hierarchy, used to organize your data assets.
+* Schema: Also known as databases, schemas are the second layer of the object hierarchy and contain tables and views.
+* Volume: Volumes sit alongside tables and views at the lowest level of the object hierarchy and provide governance for non-tabular data.
+* Table: At the lowest level in the object hierarchy are tables and views.
+
+Please run the [metastoredeploy.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/metastoredeploy.ps1) script in Azure CLI/Powershell by passing two parameters: Resource group name and metastore name. The script will create metastore and assign the databricks workspace to it.
+
 ## Azure Key Vaults: Assign Access Policies to Owner using PowerShell
 
 Please run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/azure-key-vaults-assign-access-policies.ps1) script in Azure CLI by updating with key vault name and user email id. The script will assign all the **Key permissions** and ```Set```, ```Get```, ```List```, ```Delete``` **Secret permissions** to the user.
@@ -99,4 +115,5 @@ Please run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubu
 7. Private DNS zone
 8. Private endpoint
 9. Virtual network
-10. Databricks workspace will have a Cluster, Notebooks and a Pipeline.
+10. Databricks workspace will have a Cluster, Notebooks and Pipelines.
+11. Metastore with unity catalog enabled on workspace.
