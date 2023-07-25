@@ -196,22 +196,6 @@
                             "visible": true
                         },
                         {
-                            "name": "utcValue",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "Utc Value",
-                            "subLabel": "",
-                            "defaultValue": "[[utcNow()]",
-                            "toolTip": "UTC datetime (Note: Default value should not be altered)",
-                            "constraints": {
-                                "required": false,
-                                "regex": "",
-                                "validationMessage": "",
-                                "validations": []
-                            },
-                            "infoMessages": [],
-                            "visible": true
-                        },
-                        {
                             "name": "ctrlDeploySample",
                             "type": "Microsoft.Common.DropDown",
                             "label": "Ctrl Deploy Sample",
@@ -663,7 +647,6 @@
             "eHRuleName": "[steps('webApp').eHRuleName]",
             "userBlobAccountName": "[steps('webApp').userBlobAccountName]",
             "ctrlDeployKeyVault": "[steps('webApp').ctrlDeployKeyVault]",
-            "utcValue": "[steps('webApp').utcValue]",
             "ctrlDeploySample": "[steps('webApp').ctrlDeploySample]",
             "ctrlDeployPipeline": "[steps('webApp').ctrlDeployPipeline]",
             "pipelineName": "[steps('webApp').pipelineName]",
