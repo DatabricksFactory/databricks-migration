@@ -62,7 +62,7 @@
                             "type": "Microsoft.Common.DropDown",
                             "label": "Eventhub deployment",
                             "subLabel": "",
-                            "defaultValue": true,
+                            "defaultValue": "true",
                             "toolTip": "Controls the deployment of EventHub",
                             "constraints": {
                                 "required": false,
