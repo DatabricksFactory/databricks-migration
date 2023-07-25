@@ -140,7 +140,7 @@
                         {
                             "name": "ctrlDeployKeyVault",
                             "type": "Microsoft.Common.DropDown",
-                            "label": "KeyVault Deployment",
+                            "label": "KeyVault deployment",
                             "subLabel": "",
                             "defaultValue": "true",
                             "toolTip": "Controls the deployment of KeyVault",
@@ -321,7 +321,7 @@
                             "type": "Microsoft.Common.DropDown",
                             "label": "Deploy databricks pipeline",
                             "subLabel": "",
-                            "defaultValue": "true",
+                            "defaultValue": "false",
                             "toolTip": "Controls the execution of pipeline deployment script",
                             "constraints": {
                                 "required": false,
@@ -436,7 +436,7 @@
                             "type": "Microsoft.Common.DropDown",
                             "label": "Deploy sample prototype",
                             "subLabel": "",
-                            "defaultValue": "true",
+                            "defaultValue": "false",
                             "toolTip": "Controls the deployment of Blob Storage and Example Notebooks",
                             "constraints": {
                                 "required": false,
