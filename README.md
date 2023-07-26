@@ -94,9 +94,9 @@ In Unity Catalog, the hierarchy of primary data objects flows from metastore to 
 
 ### Unity Catalog Metastore Creation
 
-You must be an **Azure Databricks account admin** to run the ```metastoredeploy.ps1``` script to enable workspace for **unity catalog**.
+User must be an **Azure Databricks account admin** to run the ```metastoredeploy.ps1``` script which creates metastore and assigns workspace.
 
-Please run the [metastoredeploy.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/metastoredeploy.ps1) script in Azure CLI/Powershell by passing two parameters: Resource group name and metastore name. The script will create metastore and assign the databricks workspace to it.
+Please run the [metastoredeploy.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/metastoredeploy.ps1) script in Azure CLI/Powershell by passing two parameters: Resource group name and metastore name.
 
 For Creating **Catalog**, **Schema**, **Table** and **Granting permissions**, Please refer to ```Unity-Catalog.ipynb``` notebook which is being imported to Databricks worskpace inside ```Shared``` folder.
 
