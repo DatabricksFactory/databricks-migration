@@ -30,28 +30,25 @@ Network Access configuration is enabled using below mentioned approach based on 
 
 Provide the values for the following parameters or default values will be considered:
 - Resource group (create new) 
-- Region (Default value is 'east us') 
-- Option (PublicMode/PrivateMode/HybridMode) for Endpoint Type (Default value is 'HybridMode') - Here ```PublicMode``` is public endpoint deployment, ```PrivateMode``` is private endpoint deployment and ```HybridMode``` is private endpoint hybrid deployment. Please select the endpoint according to your requirements. 
-- Pricing Tier (Default value is 'Premium')
-- Workspace Name (Default value is 'default')
-- Option (true/false) for Event Hub deployment (Default value is true)
-- Event Hub SKU (Default value is 'Standard')
-- Event Hub Rule Name (Default value is 'rule')
-- Blob storage account name (Default value is 'adls')
+- Region (Default value is 'east us')
+- Databricks Workspace Name (Default value is 'default')
+- Databricks Pricing Tier (Default value is 'Premium')
+- ADLS storage account name (Default value is 'adls')
 - Option (true/false) for Key Vault deployment (Default value is true)
-- Utc Value (utcNow)
-- Ctrl Deploy Sample (Default value is true) - Give true value if you want sample notebook examples to be imported
-- Option (true/false) for Ctrl Deploy Pipeline  (Default value is true)
-- Option (true/false) for Cluster deployment (Default value is true)
-- Ctrl Syntax Type (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
-- Ctrl Source Notebook (Default value is 'RawFileSource') - Select which source notebook to be imported from the syntax parameter you selected above
+- Option (true/false) for Event Hub deployment (Default value is false)
+- Eventhub Pricing Tier (Default value is 'Standard')
+- Option (true/false) for Cluster deployment (Default value is false)
 - Cluster name (Default value is 'dbcluster')
 - Spark Version (Default value is '11.3.x-scala2.12')
 - Auto Termination Minutes(cluster) (Default value is 30)
 - Num Workers (Default value is 2)
 - Node Type Id (Default value is 'Standard_DS3_v2')
 - Driver Node Type Id (Default value is 'Standard_DS3_v2')
-- Pipeline Name (Default value is 'Sample Pipeline')
+- Quickstart source template option (Default value is 'RawFileSource') - Select which source notebook to be imported from the syntax parameter you selected above
+- Quickstart source template syntax (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
+- Deploy lakehouse samples (Default value is false) - Give true value if you want sample notebook examples to be imported
+- Sample (Default value is RetailOrg) - Select type of samples
+- Option (PublicMode/PrivateMode/HybridMode) for Endpoint Type (Default value is 'PublicMode') - Here ```PublicMode``` is public endpoint deployment, ```PrivateMode``` is private endpoint deployment and ```HybridMode``` is private endpoint hybrid deployment. Please select the endpoint according to your requirements.
 - Nsg Name (Default value is 'databricks-nsg')
 - Private Subnet Cidr (Default value is '10.179.0.0/18')
 - Private Subnet Name (Default value is 'private-subnet')
