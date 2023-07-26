@@ -498,6 +498,18 @@
 					"name": "networking",
 					"label": "Networking",
 					"elements": [
+                        {
+                            "name": "advanceInfo",
+                            "type": "Microsoft.Common.TextBlock",
+                            "visible": true,
+                            "options": {
+                                "text": "Set below parameters for network configuration",
+                                "link": {
+                                    "label": "",
+                                    "uri": ""
+                                }
+                            }
+                        },
 						{
                             "name": "endpointType",
                             "type": "Microsoft.Common.DropDown",
