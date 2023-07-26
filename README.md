@@ -44,7 +44,7 @@ Provide the values for the following parameters or default values will be consid
 - Num Workers (Default value is 2)
 - Node Type Id (Default value is 'Standard_DS3_v2')
 - Driver Node Type Id (Default value is 'Standard_DS3_v2')
-- Quickstart source template option (Default value is 'RawFileSource') - Select which source notebook to be imported from the syntax parameter you selected above
+- Quickstart source template option (Default value is 'RawFileSource') - Select which source notebook to be imported
 - Quickstart source template syntax (Default value is 'DeltaLiveTable') - Select either DeltaLiveTable or DeltaTable syntax notebooks to be imported
 - Deploy lakehouse samples (Default value is false) - Give true value if you want sample notebook examples to be imported
 - Sample (Default value is RetailOrg) - Select type of samples
