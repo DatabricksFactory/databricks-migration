@@ -1216,7 +1216,7 @@ if ($null -ne $DB_PAT) {
     
     
     # Set the path to the notebook to be imported
-    $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts/Unity-Catalog.ipynb"
+    $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/Artifacts/Unity-Catalog.ipynb"
 
     # Get the notebook
     $Webresults = Invoke-WebRequest $url -UseBasicParsing
