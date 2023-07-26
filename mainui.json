@@ -518,7 +518,7 @@
                         {
                             "name": "nsgName",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Nsg Name1",
+                            "label": "Nsg Name",
                             "subLabel": "",
                             "defaultValue": "databricks-nsg",
                             "toolTip": "The name of the network security group to create.",
@@ -545,7 +545,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         },
                         {
                             "name": "privateSubnetName",
@@ -561,7 +561,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         },
                         {
                             "name": "publicSubnetCidr",
@@ -577,7 +577,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         },
                         {
                             "name": "privateEndpointSubnetCidr",
@@ -593,7 +593,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         },
                         {
                             "name": "publicSubnetName",
@@ -609,7 +609,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         },
                         {
                             "name": "requiredNsgRules",
@@ -633,7 +633,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         },
                         {
                             "name": "vnetCidr",
@@ -649,7 +649,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         },
                         {
                             "name": "vnetName",
@@ -665,7 +665,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         },
                         {
                             "name": "PrivateEndpointSubnetName",
@@ -681,7 +681,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         }
 					]
 				}
