@@ -14,8 +14,6 @@ This 1-click deployment allows the user to deploy environment of Azure Databrick
 
 To deploy, you need **owner role** as we are assigning RBAC roles and write access on the resources you're deploying and access to all operations on the Microsoft.Resources/deployments resource type.
 
-You also must be an **Azure Databricks account admin** to enable workspace for **unity catalog**.
-
 ## Network Access
  
 Network Access configuration is enabled using below mentioned approach based on the Azure Resource Manager parameter value **Endpoint Type**.
@@ -94,7 +92,13 @@ In Unity Catalog, the hierarchy of primary data objects flows from metastore to 
 * Volume: Volumes sit alongside tables and views at the lowest level of the object hierarchy and provide governance for non-tabular data.
 * Table: At the lowest level in the object hierarchy are tables and views.
 
+### Unity Catalog Metastore Creation
+
+You must be an **Azure Databricks account admin** to run the ```metastoredeploy.ps1``` script to enable workspace for **unity catalog**.
+
 Please run the [metastoredeploy.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/metastoredeploy.ps1) script in Azure CLI/Powershell by passing two parameters: Resource group name and metastore name. The script will create metastore and assign the databricks workspace to it.
+
+For Creating **Catalog**, **Schema**, **Table** and **Granting permissions**, Please refer to ```Unity-Catalog.ipynb``` notebook which is being imported to Databricks worskpace inside ```Shared``` folder.
 
 ## Azure Key Vaults: Assign Access Policies to Owner using PowerShell
 
@@ -108,7 +112,7 @@ Please run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubu
 
 1. Databricks Workspace
 2. Eventhub
-3. ADLS Gen 2 Storage account with a Container **data** and csv files uploaded in it.
+3. ADLS Gen 2 Storage account with a Container data and csv files uploaded in it.
 4. Key Vault
 5. Network Interface
 6. Network security group
@@ -116,4 +120,3 @@ Please run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubu
 8. Private endpoint
 9. Virtual network
 10. Databricks workspace will have a Cluster, Notebooks and Pipelines.
-11. Metastore with unity catalog enabled on workspace.
