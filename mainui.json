@@ -387,11 +387,11 @@
                                         "value": "AzurePostgreSQL"
                                     },
                                     {
-                                        "label": "SQL_On_Prem",
+                                        "label": "SQLOnPrem",
                                         "value": "SQL_On_Prem"
                                     },
                                     {
-                                        "label": "PostgreSQL_On_Prem",
+                                        "label": "PostgreSQLOnPrem",
                                         "value": "PostgreSQL_On_Prem"
                                     },
                                     {
