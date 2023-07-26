@@ -26,7 +26,7 @@ Network Access configuration is enabled using below mentioned approach based on 
 1. Click **'Deploy To Azure'** button given below to deploy all the resources.
 
 
-[![Deploy To Azure](https://docs.microsoft.com/en-us/azure/templates/media/deploy-to-azure.svg)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDatabricksFactory%2Fdatabricks-migration%2Fdev%2Fmain.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FDatabricksFactory%2Fdatabricks-migration%2Fdev%2Fmainui.json)
+[![Deploy To Azure](https://docs.microsoft.com/en-us/azure/templates/media/deploy-to-azure.svg)](https://portal.azure.com/#blade/Microsoft_Azure_CreateUIDef/CustomDeploymentBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FDatabricksFactory%2Fdatabricks-migration%2Fmain%2Fmain.json/uiFormDefinitionUri/https%3A%2F%2Fraw.githubusercontent.com%2FDatabricksFactory%2Fdatabricks-migration%2Fmain%2Fmainui.json)
 
 
 Provide the values for the following parameters or default values will be considered:
@@ -92,7 +92,7 @@ In Unity Catalog, the hierarchy of primary data objects flows from metastore to 
 
 User must be an **Azure Databricks account admin** to run the ```metastoredeploy.ps1``` script which creates metastore and assigns workspace.
 
-Please run the [metastoredeploy.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/metastoredeploy.ps1) script in Azure CLI/Powershell by passing two parameters: Resource group name and metastore name.
+Please run the [metastoredeploy.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/metastoredeploy.ps1) script in Azure CLI/Powershell by passing two parameters: Resource group name and metastore name.
 
 For Creating **Catalog**, **Schema**, **Table** and **Granting permissions**, Please refer to ```Unity-Catalog.ipynb``` notebook which is being imported to Databricks worskpace inside ```Shared``` folder.
 
