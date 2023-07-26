@@ -1204,43 +1204,50 @@ if ($null -ne $DB_PAT) {
     }
 }
 
-# Deploy a DLT pipeline
-if ($CTRL_DEPLOY_PIPELINE -and ($null -ne $DB_PAT)) {
+# Import Unity Catalog notebook
+if ($null -ne $DB_PAT) {
     
-    Write-Host "Task: Deploy pipeline"
+    Write-Host "Task: Import Unity Catalog notebook"
     # Set the headers
-    $headers = @{Authorization = "Bearer $DB_PAT" }
+    $headers = @{
+        "Authorization" = "Bearer $DB_PAT"
+        "Content-Type"  = "application/json"
+ }
+    
+    
+    # Set the path to the notebook to be imported
+    $url = "https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/Artifacts/Unity-Catalog.ipynb"
 
-    $pipeline_notebook_path = "/Shared/$CTRL_SYNTAX/azure_sql_db"
+    # Get the notebook
+    $Webresults = Invoke-WebRequest $url -UseBasicParsing
 
-    # Create a pipeline configurations
-    $pipelineConfig = @{
-        name                  = $PIPELINENAME
-        storage               = $STORAGE
-        target                = $TARGETSCHEMA
-        clusters              = @{
-            label     = 'default'
-            autoscale = @{
-                min_workers = $MINWORKERS
-                max_workers = $MAXWORKERS
-                mode        = 'ENHANCED'
-            }
-        }
-        libraries             = @{
-            notebook = @{
-                path = $pipeline_notebook_path
-            }
-        }
-        continuous            = 'false'
-        allow_duplicate_names = 'true' 
+    # Read the notebook file
+    $notebookContent = $Webresults.Content
+
+    # Base64 encode the notebook content
+    $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+        
+    # Set the path
+    $path = "/Shared/Unity-Catalog";
+        
+    # Set the request body
+    $unitycatalogbody = @{
+        "content"  = $notebookBase64
+        "path"     = $path
+        "language" = "PYTHON"
+        "format"   = "JUPYTER"
     }
+
+    # Convert the request body to JSON
+    $jsonBody = ConvertTo-Json -Depth 100 $unitycatalogbody
 
     try {
-        Invoke-RestMethod -Uri "https://$WorkspaceUrl/api/2.0/pipelines" -Method POST -Headers $headers -Body ($pipelineConfig | ConvertTo-Json -Depth 10)
-        Write-Host "Successful: Pipeline is created"
+
+        Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody
+        Write-Host "Successful: Unity catalog notebook is imported"
     }
     catch {
-        Write-Host "Error while calling the Azure Databricks API for creating the pipeline"
+        Write-Host "Error while calling the Azure Databricks API for importing the notebook"
         $errorMessage = $_.Exception.Message
         Write-Host "Error message: $errorMessage"
     }
