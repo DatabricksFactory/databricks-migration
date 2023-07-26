@@ -106,6 +106,11 @@ Please run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubu
 
 **OAuth 2.0 with an Azure service principal**: Databricks recommends using Azure service principals to connect to Azure storage. To create an Azure service principal and provide it access to Azure storage accounts please refer **Steps** folder document.
 
+## Adding a user interface to ARM templates
+
+Azure allows you to create a “UI definition” json file to define how you would like your ARM template to look like, you can define textboxes, dropdown lists , sections,….etc to gather user input and parameters to feed into your ARM template. We have included "mainui.json" file as UI defination for our ARM template.
+If there is any change in the parameter in ARM template then we need to modify the UI defination accordingly.
+
 ## Azure Services being deployed
 
 1. Databricks Workspace
