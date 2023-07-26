@@ -60,7 +60,7 @@
                         {
                             "name": "userBlobAccountName",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "ADLS storage account name",
+                            "label": "ADLS Gen2 storage account name",
                             "subLabel": "",
                             "defaultValue": "adls",
                             "toolTip": "Storage Account name. (Note: Valid characters are lowercase letters and numbers and length between 3 and 11)",
