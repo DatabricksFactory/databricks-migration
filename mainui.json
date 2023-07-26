@@ -58,73 +58,9 @@
                             "visible": true
                         },
                         {
-                            "name": "ctrlDeployEventHub",
-                            "type": "Microsoft.Common.DropDown",
-                            "label": "Eventhub deployment",
-                            "subLabel": "",
-                            "defaultValue": "true",
-                            "toolTip": "Controls the deployment of EventHub",
-                            "constraints": {
-                                "required": false,
-                                "allowedValues": [
-                                    {
-                                        "label": "true",
-                                        "value": true
-                                    },
-                                    {
-                                        "label": "false",
-                                        "value": false
-                                    }
-                                ],
-                                "validations": []
-                            },
-                            "infoMessages": [],
-                            "visible": true
-                        },
-                        {
-                            "name": "eventHubSku",
-                            "type": "Microsoft.Common.DropDown",
-                            "label": "Eventhub pricing tier",
-                            "subLabel": "",
-                            "defaultValue": "Standard",
-                            "toolTip": "EventHub SKU",
-                            "constraints": {
-                                "required": false,
-                                "allowedValues": [
-                                    {
-                                        "label": "Basic",
-                                        "value": "Basic"
-                                    },
-                                    {
-                                        "label": "Standard",
-                                        "value": "Standard"
-                                    }
-                                ],
-                                "validations": []
-                            },
-                            "infoMessages": [],
-                            "visible": "[equals(steps('basics').ctrlDeployEventHub,true)]"
-                        },
-                        {
-                            "name": "eHRuleName",
-                            "type": "Microsoft.Common.TextBox",
-                            "label": "E H Rule Name",
-                            "subLabel": "",
-                            "defaultValue": "rule",
-                            "toolTip": "EventHub Rule name",
-                            "constraints": {
-                                "required": false,
-                                "regex": "",
-                                "validationMessage": "",
-                                "validations": []
-                            },
-                            "infoMessages": [],
-                            "visible": false
-                        },
-                        {
                             "name": "userBlobAccountName",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Storage account name",
+                            "label": "ADLS storage account name",
                             "subLabel": "",
                             "defaultValue": "adls",
                             "toolTip": "Storage Account name. (Note: Valid characters are lowercase letters and numbers and length between 3 and 11)",
@@ -161,6 +97,71 @@
                             "infoMessages": [],
                             "visible": true
                         },
+                        {
+                            "name": "ctrlDeployEventHub",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "EventHub deployment",
+                            "subLabel": "",
+                            "defaultValue": "true",
+                            "toolTip": "Controls the deployment of EventHub",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "true",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "false",
+                                        "value": false
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
+                            "name": "eventHubSku",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "EventHub pricing tier",
+                            "subLabel": "",
+                            "defaultValue": "Standard",
+                            "toolTip": "EventHub SKU",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "Basic",
+                                        "value": "Basic"
+                                    },
+                                    {
+                                        "label": "Standard",
+                                        "value": "Standard"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": "[equals(steps('basics').ctrlDeployEventHub,true)]"
+                        },
+                        {
+                            "name": "eHRuleName",
+                            "type": "Microsoft.Common.TextBox",
+                            "label": "E H Rule Name",
+                            "subLabel": "",
+                            "defaultValue": "rule",
+                            "toolTip": "EventHub Rule name",
+                            "constraints": {
+                                "required": false,
+                                "regex": "",
+                                "validationMessage": "",
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": false
+                        },
+                        
                         {
                             "name": "utcValue",
                             "type": "Microsoft.Common.TextBox",
@@ -338,7 +339,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": true
+                            "visible": false
                         },
                         {
                             "name": "pipelineName",
@@ -354,7 +355,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('advance').ctrlDeployPipeline,true)]"
+                            "visible": false
                         },
                        
                        
@@ -434,7 +435,7 @@
                         {
                             "name": "ctrlDeploySample",
                             "type": "Microsoft.Common.DropDown",
-                            "label": "Deploy sample prototype",
+                            "label": "Deploy lakehouse samples",
                             "subLabel": "",
                             "defaultValue": "false",
                             "toolTip": "Controls the deployment of Blob Storage and Example Notebooks",
@@ -454,6 +455,30 @@
                             },
                             "infoMessages": [],
                             "visible": true
+                        },
+                        {
+                            "name": "sampleName",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "Sample",
+                            "subLabel": "",
+                            "defaultValue": "Example1",
+                            "toolTip": "select the name of sample",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "Example1",
+                                        "value": "Example1"
+                                    },
+                                    {
+                                        "label": "Example2",
+                                        "value": "Example2"
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": "[equals(steps('advance').ctrlDeploySample,true)]"
                         }
 
                         
@@ -507,7 +532,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": false
+                            "visible": "[equals(steps('networking').endpointType,PrivateMode)]"
                         },
                         {
                             "name": "privateSubnetCidr",
