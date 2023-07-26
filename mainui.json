@@ -518,7 +518,7 @@
                         {
                             "name": "nsgName",
                             "type": "Microsoft.Common.TextBox",
-                            "label": "Nsg Name",
+                            "label": "Nsg Name1",
                             "subLabel": "",
                             "defaultValue": "databricks-nsg",
                             "toolTip": "The name of the network security group to create.",
@@ -529,7 +529,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[!equals(steps('networking').endpointType,'PublicMode')]"
+                            "visible": "[not(equals(steps('networking').endpointType,'PublicMode'))]"
                         },
                         {
                             "name": "privateSubnetCidr",
