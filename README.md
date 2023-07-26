@@ -37,7 +37,7 @@ Provide the values for the following parameters or default values will be consid
 - Option (true/false) for Key Vault deployment (Default value is true)
 - Option (true/false) for Event Hub deployment (Default value is false)
 - Eventhub Pricing Tier (Default value is 'Standard')
-- Option (true/false) for Cluster deployment (Default value is false)
+- Option (true/false) for Deploy Databricks Cluster (Default value is false)
 - Cluster name (Default value is 'dbcluster')
 - Spark Version (Default value is '11.3.x-scala2.12')
 - Auto Termination Minutes(cluster) (Default value is 30)
