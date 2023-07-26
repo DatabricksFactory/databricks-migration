@@ -529,7 +529,7 @@
                                 "validations": []
                             },
                             "infoMessages": [],
-                            "visible": "[equals(steps('networking').endpointType,'PrivateMode') || equals(steps('networking').endpointType,'HybridMode')]"
+                            "visible": "[!equals(steps('networking').endpointType,'PublicMode')]"
                         },
                         {
                             "name": "privateSubnetCidr",
