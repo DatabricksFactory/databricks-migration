@@ -185,6 +185,18 @@
 					"label": "Advanced",
 					"elements": [
                         {
+                            "name": "advanceInfo",
+                            "type": "Microsoft.Common.TextBlock",
+                            "visible": true,
+                            "options": {
+                                "text": "Set below parameters for advance settings",
+                                "link": {
+                                    "label": "",
+                                    "uri": ""
+                                }
+                            }
+                        },
+                        {
                             "name": "ctrlDeployCluster",
                             "type": "Microsoft.Common.DropDown",
                             "label": "Deploy Databricks cluster",
