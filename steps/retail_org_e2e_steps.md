@@ -1,13 +1,13 @@
 ## End to End process for retail org
 
-1.	In steps 2-12, we connect our storage accounts to our Databricks workspace. Refer [this document](https://github.com/DatabricksFactory/databricks-migration/blob/dev/steps/access_storage_with_AAD.md) for detailed instructions.
+1.	In steps 2-12, we connect our storage accounts to our Databricks workspace. Refer [this document](https://github.com/DatabricksFactory/databricks-migration/blob/main/steps/access_storage_with_AAD.md) for detailed instructions.
 2.	Create a new **App Registration**.
 3.	Make a note of *Client ID* and *Directory ID* for future reference.
 4.	Create a new **Client Secret**.
 5.	Copy the *Client Secret* Value for future reference.
 6.	Add a **role assignment** to your ADLS storage account and Blob Data storage account. Give **Storage Blob Data Contributor** access to your app registration.
 7.	Create a new **Access Policy** in the Key Vault to give *Get* and *List* permissions to your app registration.
-8.	Run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/dev/azure-key-vaults-assign-access-policies.ps1) script in Azure CLI by updating with key vault name and user email id.
+8.	Run the [azure-key-vaults-assign-access-policies.ps1](https://raw.githubusercontent.com/DatabricksFactory/databricks-migration/main/azure-key-vaults-assign-access-policies.ps1) script in Azure CLI by updating with key vault name and user email id.
 9.	Change the Firewall rule of Key Vault to ***“Allow public access from all networks”*** in Networking.
 10.	Generate a **Secret** in the Key Vault for the *Client ID value* that you copied earlier.
 11.	Launch the Databricks Workspace and edit the URL as follows https://adb.......azuredatabricks.net/#secrets/createScope
@@ -50,7 +50,7 @@ Resource - Key Vault &#8594; Properties &#8594;  Resource ID
 
 ## Power BI Reporting for retail org
 1. Install Power BI Desktop on your machine.
-2. Download the "dim_fact_PBI_report_query.pbix" file from [this location](https://github.com/DatabricksFactory/databricks-migration/blob/dev/docs/dim_fact_PBI_report_query.pbix)
+2. Download the "dim_fact_PBI_report_query.pbix" file from [this location](https://github.com/DatabricksFactory/databricks-migration/blob/main/docs/dim_fact_PBI_report_query.pbix)
 
 3. If Promted Login with you v- credentials
 4. Delete all the tables from the Data section.
