@@ -34,7 +34,8 @@ param(
     [bool] $SRC_EVENTHUB ,
     [string] $CTRL_SYNTAX,
     [string] $SUBSCRIPTION_ID,
-    [bool] $CTRL_DEPLOY_SAMPLE
+    [bool] $CTRL_DEPLOY_SAMPLE,
+    [bool] $METADRIVENARCHITECTURE
 )
 
 [string] $REF_BRANCH = "dev"
@@ -246,6 +247,27 @@ if ($null -ne $DB_PAT) {
     $headers = @{
         "Authorization" = "Bearer $DB_PAT"
         "Content-Type"  = "application/json"
+    }
+
+    # Create folder structure for metadriven architecture
+    if ($METADRIVENARCHITECTURE) {
+        Write-Host "Create folder for Shared/MetaDrivenArchitecture"
+        try {
+            $requestBodyFolder = @{
+                "path" = "/Shared/MetaDrivenArchitecture"
+            }
+            $jsonBodyFolder = ConvertTo-Json -Depth 100 $requestBodyFolder
+            #https request for creating folder
+            Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/mkdirs" -Headers $headers -Body $jsonBodyFolder
+            Write-Output "Successful: Created metadriven folder" 
+            $mkdirMetadriven = $true
+        }
+        catch {
+            $mkdirMetadriven = $false
+            Write-Host "Error while calling the Databricks API for creating the metadriven folder. Folder not created"
+            $errorMessage = $_.Exception.Message
+            Write-Host "Error message: $errorMessage"
+        }
     }
     
     # Create folder strucrure based on the syntax
@@ -1171,6 +1193,79 @@ if ($null -ne $DB_PAT) {
                     $splitfilename = $filename.Split(".")
                     $filenamewithoutextension = $splitfilename[0]
                     $path = "/Shared/$CTRL_SYNTAX/$filenamewithoutextension";
+                    
+                    # Set the request body
+                    $requestBody = @{
+                        "content"  = $notebookBase64
+                        "path"     = $path
+                        "language" = "PYTHON"
+                        "format"   = "JUPYTER"
+                    }
+            
+                    # Convert the request body to JSON
+                    $jsonBody = ConvertTo-Json -Depth 100 $requestBody
+                }
+                catch {
+                    Write-Host "Error while reading the notebook: $filename"
+                    $errorMessage = $_.Exception.Message
+                    Write-Host "Error message: $errorMessage"
+                }
+        
+                try {
+                    # Make the HTTP request to import the notebook
+                    $response = Invoke-RestMethod -Method POST -Uri "https://$WorkspaceUrl/api/2.0/workspace/import" -Headers $headers -Body $jsonBody  
+                    Write-Host "Successful: $filename is imported"
+                }
+                catch {
+                    Write-Host "Error while calling the Azure Databricks API for importing notebook: $filename"
+                    $errorMessage = $_.Exception.Message
+                    Write-Host "Error message: $errorMessage"
+                }
+            } 
+        }
+    }
+    # Import meta driven architecture notebooks
+    if ($METADRIVENARCHITECTURE -and $mkdirMetadriven) {
+
+        Write-Host "Task: Import meta driven architecture notebooks"
+        
+        # Get files under directory #github api for a folder
+        $Artifactsuri = "https://api.github.com/repos/DatabricksFactory/databricks-migration/contents/Artifacts/MetaDrivenArchitecture?ref=$REF_BRANCH" # change to respective git branch
+        # Calling GitHub API for getting the filenames under Artifacts/$CTRL_SYNTAX folder
+        try {
+            $wr = Invoke-WebRequest -Uri $Artifactsuri
+            $objects = $wr.Content | ConvertFrom-Json
+            $fileNames = $objects | Where-Object { $_.type -eq "file" } | Select-Object -exp name
+            Write-Host "Successful: getting the filenames under Artifacts/MetaDrivenArchitecture folder is successful"
+            $getEHFilenames = $true
+        }
+        catch {
+            $getEHFilenames = $false
+            Write-Host "Error while calling the GitHub API for getting the filenames under Artifacts/MetaDrivenArchitecture"
+            $errorMessage = $_.Exception.Message
+            Write-Host "Error message: $errorMessage"
+        }
+    
+        if ($getEHFilenames) {
+            Foreach ($filename in $fileNames) { 
+        
+                try {
+                    # Set the path to the notebook to be imported
+                    $url = "$NOTEBOOK_PATH/MetaDrivenArchitecture/$filename"
+            
+                    # Get the notebook
+                    $Webresults = Invoke-WebRequest $url -UseBasicParsing
+            
+                    # Read the notebook file
+                    $notebookContent = $Webresults.Content
+            
+                    # Base64 encode the notebook content
+                    $notebookBase64 = [System.Convert]::ToBase64String([System.Text.Encoding]::UTF8.GetBytes($notebookContent))
+                    
+                    # Set the path
+                    $splitfilename = $filename.Split(".")
+                    $filenamewithoutextension = $splitfilename[0]
+                    $path = "/Shared/MetaDrivenArchitecture/$filenamewithoutextension";
                     
                     # Set the request body
                     $requestBody = @{
