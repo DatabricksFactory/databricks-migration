@@ -98,6 +98,30 @@
                             "visible": true
                         },
                         {
+                            "name": "ctrlDeployADF",
+                            "type": "Microsoft.Common.DropDown",
+                            "label": "KeyVault deployment",
+                            "subLabel": "",
+                            "defaultValue": "true",
+                            "toolTip": "Controls the deployment of Azure Data Factory",
+                            "constraints": {
+                                "required": false,
+                                "allowedValues": [
+                                    {
+                                        "label": "true",
+                                        "value": true
+                                    },
+                                    {
+                                        "label": "false",
+                                        "value": false
+                                    }
+                                ],
+                                "validations": []
+                            },
+                            "infoMessages": [],
+                            "visible": true
+                        },
+                        {
                             "name": "ctrlDeployEventHub",
                             "type": "Microsoft.Common.DropDown",
                             "label": "EventHub deployment",
