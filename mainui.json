@@ -723,6 +723,7 @@
             "eHRuleName": "[steps('basics').eHRuleName]",
             "userBlobAccountName": "[steps('basics').userBlobAccountName]",
             "ctrlDeployKeyVault": "[steps('basics').ctrlDeployKeyVault]",
+            "ctrlDeployADF": "[steps('basics').ctrlDeployADF]",
             "utcValue": "[steps('basics').utcValue]",
             "ctrlDeploySample": "[steps('advance').ctrlDeploySample]",
             "ctrlDeployPipeline": "[steps('advance').ctrlDeployPipeline]",
