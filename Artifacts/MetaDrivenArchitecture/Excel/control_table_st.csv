@@ -1,0 +1,2 @@
+SourceDatabaseName,SourceSchemaName,SourceTableName,DestinationCatalogName,DestinationSchemaName,DestinationTableName,IncrementalLoadFlag,ReRunFlag,RunDays,WatermarkColumn,PrimaryKeys
+zMillenProd,zMillenProd,EPISODE,cerner,prod,episode,FALSE,FALSE,0,None,
